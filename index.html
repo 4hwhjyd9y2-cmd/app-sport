@@ -171,12 +171,16 @@
   .num{ display:flex; align-items:stretch; gap:10px; }
   .num button{ width:56px; flex:none; border-radius:13px; background:var(--surface2); border:1px solid var(--line2); font-size:26px; font-weight:600; color:var(--ink); }
   .num button:active{ background:var(--accent-soft); color:var(--accent); }
-  .num-mid{ flex:1; display:flex; align-items:center; justify-content:center; gap:6px; background:var(--bg2); border:1px solid var(--line); border-radius:13px; padding:8px; }
-  .num-mid input{ width:100%; max-width:88px; background:none; border:none; color:var(--ink); font-size:30px; font-weight:700; text-align:center; outline:none; }
+  .num-mid{ flex:1; min-width:0; display:flex; align-items:center; justify-content:center; gap:6px; background:var(--bg2); border:1px solid var(--line); border-radius:13px; padding:8px; }
+  .num-mid input{ width:100%; max-width:88px; min-width:0; background:none; border:none; color:var(--ink); font-size:30px; font-weight:700; text-align:center; outline:none; }
   .num-mid input:focus{ }
   .num-suf{ font-size:14px; color:var(--faint); font-weight:600; }
-  .two-fields{ display:flex; gap:12px; }
-  .two-fields .field{ flex:1; margin-bottom:0; }
+  .two-fields{ display:flex; gap:10px; }
+  .two-fields .field{ flex:1; min-width:0; margin-bottom:0; }
+  .two-fields .num{ gap:6px; }
+  .two-fields .num button{ width:38px; font-size:20px; }
+  .two-fields .num-mid{ padding:4px; }
+  .two-fields .num-mid input{ font-size:23px; max-width:50px; }
 
   .hold-done{ text-align:center; padding:8px 0; }
   .hold-done .hd-num{ font-size:44px; font-weight:700; }
@@ -551,6 +555,7 @@ function commitInput(){
   let r;
   if(ex.type==="hold"){ r={ sec: (state.holdResult!=null? state.holdResult : ex.hold) }; }
   else r=readResult(ex);
+  if(ex.levels) r.lvl = levelOf(ex);
   state.session.entries[ex.id].sets[state.setIndex]=r;
   saveActive();
 }
@@ -580,7 +585,9 @@ function stopHold(){
 }
 function afterHold(){
   const ex=EX[state.exIndex]; ensureEntry();
-  state.session.entries[ex.id].sets[state.setIndex] = { sec: state.holdResult };
+  const r = { sec: state.holdResult };
+  if(ex.levels) r.lvl = levelOf(ex);
+  state.session.entries[ex.id].sets[state.setIndex] = r;
   saveActive();
   goRecovery();
 }
@@ -903,11 +910,36 @@ function sessionText(s){
   const lines=["Séance du "+frDate(s.date)];
   EX.forEach(ex=>{
     const e=s.entries[ex.id]; if(!e) return;
-    const parts=e.sets.map(r=> (r&&!r.skipped)? fmtResult(ex,r) : null).filter(Boolean);
-    if(!parts.length) return;
+    const items=[];
+    e.sets.forEach(r=>{
+      if(!r || r.skipped) return;
+      items.push({ text: fmtResult(ex,r), lvl: ex.levels ? r.lvl : null });
+    });
+    if(!items.length) return;
     let label=ex.id+". "+ex.short;
-    if(ex.levels){ const ln=(ex.levels[e.levelIndex]||"").toLowerCase(); label+=" (niveau : "+ln+")"; }
-    let line=label+" — "+parts.join(", ");
+    let resultStr;
+    if(ex.levels){
+      // regroupe les séries consécutives faites au même niveau
+      const groups=[];
+      items.forEach(it=>{
+        const last=groups[groups.length-1];
+        if(last && last.lvl===it.lvl) last.texts.push(it.text);
+        else groups.push({ lvl: it.lvl, texts:[it.text] });
+      });
+      if(groups.length===1){
+        const ln=(ex.levels[groups[0].lvl]||"").toLowerCase();
+        label+=" (niveau : "+ln+")";
+        resultStr=groups[0].texts.join(", ");
+      } else {
+        resultStr=groups.map(g=>{
+          const ln=(ex.levels[g.lvl]||"").toLowerCase();
+          return g.texts.join(", ")+" ("+ln+")";
+        }).join(", ");
+      }
+    } else {
+      resultStr=items.map(it=>it.text).join(", ");
+    }
+    let line=label+" — "+resultStr;
     if(ex.perSide) line+=" (par "+ex.sideWord+")";
     lines.push(line);
   });
@@ -1025,7 +1057,8 @@ function step(tgt,stepVal,dir){
   let v=cur + dir*stepVal;
   if(v<0) v=0;
   v=Math.round(v*100)/100;
-  el.value = (stepVal<1) ? frNum(v) : String(Math.round(v));
+  const isDecimal = (stepVal % 1 !== 0);
+  el.value = isDecimal ? frNum(v) : String(Math.round(v));
   updateNudge();
 }
 
