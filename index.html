@@ -283,12 +283,28 @@ const EX = [
       feel:"Avant de la cuisse et fessier de la jambe avant.",
       avoid:"Genou avant qui rentre vers l'intérieur; buste trop penché en avant; prendre appui surtout sur le pied arrière." } },
 
-  { id:2, name:"Tirage à la poulie haute", short:"Tirage poulie haute", muscle:"Dos · Bras",
-    type:"machine", sets:4, target:"8–12 réps", lo:10, hi:12, rest:90, startKg:25,
-    tech:{ place:"Assis face à la machine, cuisses calées sous les coussins. Barre large, mains plus larges que les épaules, paumes vers l'avant, bras tendus en haut, buste légèrement penché en arrière.",
-      move:"Commence par baisser les épaules (descends les omoplates), puis tire la barre vers le haut de la poitrine, devant toi — jamais derrière la nuque. Remonte lentement jusqu'aux bras tendus.",
-      feel:"Côtés du dos (sous les aisselles) et avant des bras. « Ramène tes coudes vers tes poches arrière », ne tire pas qu'avec les mains.",
-      avoid:"Barre derrière la nuque; se balancer avec tout le corps; tout faire avec les bras; lâcher la barre d'un coup." } },
+  { id:4, name:"Extension des jambes", short:"Extension des jambes", muscle:"Quadriceps",
+    type:"machine", sets:3, target:"12–15 réps", lo:13, hi:15, rest:60, startKg:20,
+    tech:{ place:"Assis, dos calé, le dessus des chevilles derrière le boudin, mains sur les poignées.",
+      move:"Tends complètement les jambes, marque 1 seconde en haut en serrant l'avant des cuisses, puis descente lente.",
+      feel:"Avant des cuisses, surtout sur le temps d'arrêt en haut.",
+      avoid:"Balancer le buste pour s'aider; lâcher d'un coup à la descente; ne pas tendre complètement." } },
+
+  { id:13, name:"Dead bug", short:"Dead bug", muscle:"Gainage profond",
+    type:"reps", sets:3, target:"8–10 réps", lo:8, hi:10, perSide:true, sideWord:"côté", rest:45,
+    levels:["Un membre à la fois (jambe OU bras)","Bras + jambe opposés, genou plié à 90°","Bras + jambe opposés, jambe qui descend plus bas","Jambe tendue qui descend presque au sol","Avec un poids léger tenu dans les mains"], lvl0:1,
+    tech:{ place:"Allongé sur le dos, bas du dos collé au sol activement (comme écrasé contre le sol), bras tendus vers le plafond, genoux pliés à 90° au-dessus des hanches.",
+      move:"Descends lentement un bras derrière la tête et la jambe opposée vers le sol, en t'arrêtant DÈS que le bas du dos commence à décoller. Reviens, change de côté.",
+      feel:"Le ventre qui reste plaqué et stable pendant que le bras et la jambe bougent.",
+      avoid:"Laisser le bas du dos se creuser (c'est le signal d'arrêt, pas une limite à dépasser); bouger vite; bloquer la respiration." } },
+
+  { id:11, name:"Relevés de jambes", short:"Relevés de jambes", muscle:"Bas-abdos",
+    type:"reps", sets:3, target:"12–15 réps", lo:13, hi:15, rest:45,
+    levels:["Genoux pliés","Une jambe à la fois","Jambes tendues","Plus bas et plus lent","Tenue « creux » entre les répétitions"], lvl0:2,
+    tech:{ place:"Allongé sur le dos, bas du dos collé au sol (mains sous les fesses au début si besoin).",
+      move:"Monte les jambes tendues jusqu'à la verticale, puis redescends lentement sans toucher le sol et sans décoller le bas du dos. Enroule légèrement le bassin vers toi en fin de montée.",
+      feel:"Bas du ventre.",
+      avoid:"Décoller le bas du dos (creux); lâcher les jambes d'un coup; toucher le sol entre les répétitions." } },
 
   { id:3, name:"Poussée de poitrine", short:"Poussée de poitrine", muscle:"Poitrine",
     type:"machine", sets:4, target:"8–12 réps", lo:10, hi:12, rest:90, startKg:20,
@@ -297,20 +313,6 @@ const EX = [
       feel:"Toute la poitrine, un peu l'arrière des bras. Pousse « avec la poitrine », pas seulement les bras.",
       avoid:"Décoller le dos du dossier; claquer les coudes; revenir trop vite; monter les épaules vers les oreilles." } },
 
-  { id:4, name:"Extension des jambes", short:"Extension des jambes", muscle:"Quadriceps",
-    type:"machine", sets:3, target:"12–15 réps", lo:13, hi:15, rest:60, startKg:20,
-    tech:{ place:"Assis, dos calé, le dessus des chevilles derrière le boudin, mains sur les poignées.",
-      move:"Tends complètement les jambes, marque 1 seconde en haut en serrant l'avant des cuisses, puis descente lente.",
-      feel:"Avant des cuisses, surtout sur le temps d'arrêt en haut.",
-      avoid:"Balancer le buste pour s'aider; lâcher d'un coup à la descente; ne pas tendre complètement." } },
-
-  { id:5, name:"Tirage à la poulie basse (rame)", short:"Tirage poulie basse", muscle:"Milieu du dos",
-    type:"machine", sets:3, target:"10–12 réps", lo:11, hi:12, rest:90, startKg:25,
-    tech:{ place:"Assis, pieds calés, dos droit (pas arrondi). Barre large, mains largeur des épaules, paumes vers le bas, bras tendus devant.",
-      move:"Tire la barre vers le bas du ventre (le nombril) en serrant les omoplates l'une vers l'autre, coudes près du corps. Reviens lentement sans arrondir le dos.",
-      feel:"Milieu du dos, entre les omoplates, et côtés du dos.",
-      avoid:"Arrondir le dos / tirer avec le bas du dos; coudes qui s'écartent loin du corps; tirer avec les bras sans serrer les omoplates; viser la poitrine au lieu du ventre." } },
-
   { id:6, name:"Pompes", short:"Pompes", muscle:"Poitrine · Triceps",
     type:"pushup", sets:3, target:"max propre", rest:90,
     levels:["Contre un mur","Mains surélevées","Au sol, complètes","Pieds surélevés","Mains en losange"], lvl0:2,
@@ -318,6 +320,20 @@ const EX = [
       move:"Descends lentement, coudes légèrement vers l'arrière (pas écartés sur les côtés), jusqu'à frôler le sol, puis pousse pour remonter. Quand tu ne remontes plus proprement, finis la série en descendant juste lentement.",
       feel:"Poitrine et arrière des bras. Si tu sens surtout les épaules ou le cou, rapproche les coudes et serre plus le ventre.",
       avoid:"Bassin qui tombe (creux dans le dos) ou qui pointe en l'air; coudes grands ouverts; demi-amplitude; la tête qui plonge avant la poitrine." } },
+
+  { id:2, name:"Tirage à la poulie haute", short:"Tirage poulie haute", muscle:"Dos · Bras",
+    type:"machine", sets:4, target:"8–12 réps", lo:10, hi:12, rest:90, startKg:25,
+    tech:{ place:"Assis face à la machine, cuisses calées sous les coussins. Barre large, mains plus larges que les épaules, paumes vers l'avant, bras tendus en haut, buste légèrement penché en arrière.",
+      move:"Commence par baisser les épaules (descends les omoplates), puis tire la barre vers le haut de la poitrine, devant toi — jamais derrière la nuque. Remonte lentement jusqu'aux bras tendus.",
+      feel:"Côtés du dos (sous les aisselles) et avant des bras. « Ramène tes coudes vers tes poches arrière », ne tire pas qu'avec les mains.",
+      avoid:"Barre derrière la nuque; se balancer avec tout le corps; tout faire avec les bras; lâcher la barre d'un coup." } },
+
+  { id:5, name:"Tirage à la poulie basse (rame)", short:"Tirage poulie basse", muscle:"Milieu du dos",
+    type:"machine", sets:3, target:"10–12 réps", lo:11, hi:12, rest:90, startKg:25,
+    tech:{ place:"Assis, pieds calés, dos droit (pas arrondi). Barre large, mains largeur des épaules, paumes vers le bas, bras tendus devant.",
+      move:"Tire la barre vers le bas du ventre (le nombril) en serrant les omoplates l'une vers l'autre, coudes près du corps. Reviens lentement sans arrondir le dos.",
+      feel:"Milieu du dos, entre les omoplates, et côtés du dos.",
+      avoid:"Arrondir le dos / tirer avec le bas du dos; coudes qui s'écartent loin du corps; tirer avec les bras sans serrer les omoplates; viser la poitrine au lieu du ventre." } },
 
   { id:7, name:"Pont sur une jambe", short:"Pont sur une jambe", muscle:"Ischios · Fessiers",
     type:"reps", sets:3, target:"10–12 réps", lo:11, hi:12, perSide:true, sideWord:"jambe", rest:60,
@@ -353,14 +369,6 @@ const EX = [
       avoid:"Fesses trop hautes (triche) ou trop basses (dos creux); tête qui pend; bloquer la respiration.",
       note:"Tu tiens 40 s facilement ? Monte d'un niveau plutôt que d'allonger le temps." } },
 
-  { id:11, name:"Relevés de jambes", short:"Relevés de jambes", muscle:"Bas-abdos",
-    type:"reps", sets:3, target:"12–15 réps", lo:13, hi:15, rest:45,
-    levels:["Genoux pliés","Une jambe à la fois","Jambes tendues","Plus bas et plus lent","Tenue « creux » entre les répétitions"], lvl0:2,
-    tech:{ place:"Allongé sur le dos, bas du dos collé au sol (mains sous les fesses au début si besoin).",
-      move:"Monte les jambes tendues jusqu'à la verticale, puis redescends lentement sans toucher le sol et sans décoller le bas du dos. Enroule légèrement le bassin vers toi en fin de montée.",
-      feel:"Bas du ventre.",
-      avoid:"Décoller le bas du dos (creux); lâcher les jambes d'un coup; toucher le sol entre les répétitions." } },
-
   { id:12, name:"Toucher de talon (obliques)", short:"Toucher de talon", muscle:"Obliques",
     type:"reps", sets:3, target:"12–15 réps", lo:13, hi:15, perSide:true, sideWord:"côté", rest:45,
     levels:["Genoux pliés, pieds au sol","Plus lent et marqué","Jambes décollées, genoux pliés à 90°","Jambes tendues levées"], lvl0:2,
@@ -370,6 +378,7 @@ const EX = [
       avoid:"Tirer avec les bras au lieu de plier le buste; reposer les épaules entre les touches; balancer les jambes." } },
 ];
 
+EX.forEach((e,i)=>{ e.pos=i+1; });
 const TOTAL_SETS = EX.reduce((s,e)=>s+e.sets,0);
 const RING_C = 2 * Math.PI * 54;
 
@@ -623,7 +632,7 @@ function renderHome(){
   let rows="";
   EX.forEach(e=>{
     rows += '<div class="ex-row">'+
-      '<div class="ex-num">'+String(e.id).padStart(2,"0")+'</div>'+
+      '<div class="ex-num">'+String(e.pos).padStart(2,"0")+'</div>'+
       '<div class="ex-info"><div class="ex-name">'+e.short+'</div><div class="ex-muscle">'+e.muscle+'</div></div>'+
       '<div class="ex-vol">'+e.sets+' × '+volShort(e)+'</div>'+
     '</div>';
@@ -634,7 +643,7 @@ function renderHome(){
     resumeBlock =
       '<div class="resume-card">'+
         '<div class="rc-lbl">Séance en cours</div>'+
-        '<div class="rc-ex">'+String(ex.id).padStart(2,"0")+'. '+ex.short+' · série '+(active.setIndex+1)+'</div>'+
+        '<div class="rc-ex">'+String(ex.pos).padStart(2,"0")+'. '+ex.short+' · série '+(active.setIndex+1)+'</div>'+
       '</div>';
     actionBlock =
       '<button class="btn" data-act="resume">Reprendre la séance</button>'+
@@ -718,7 +727,7 @@ function renderEffort(){
 
   screenEl.innerHTML =
     '<div class="scroll anim-in">'+
-      '<div class="eyebrow">Exercice '+ex.id+'<span class="dot">·</span><span class="muscle">'+ex.muscle+'</span></div>'+
+      '<div class="eyebrow">Exercice '+ex.pos+'<span class="dot">·</span><span class="muscle">'+ex.muscle+'</span></div>'+
       '<div class="ex-title">'+ex.name+'</div>'+
       '<div class="obj-row">'+chips+'</div>'+
       '<div class="dots">'+dots+'</div>'+
@@ -885,7 +894,7 @@ function renderEnd(){
       if(parts.length){ res=parts.join(", "); cls=""; }
     }
     rows += '<div class="recap-row">'+
-      '<div class="recap-num">'+String(e.id).padStart(2,"0")+'</div>'+
+      '<div class="recap-num">'+String(e.pos).padStart(2,"0")+'</div>'+
       '<div class="recap-name">'+e.short+'</div>'+
       '<div class="recap-res'+cls+'">'+res+'</div>'+
     '</div>';
@@ -916,7 +925,7 @@ function sessionText(s){
       items.push({ text: fmtResult(ex,r), lvl: ex.levels ? r.lvl : null });
     });
     if(!items.length) return;
-    let label=ex.id+". "+ex.short;
+    let label=ex.pos+". "+ex.short;
     let resultStr;
     if(ex.levels){
       // regroupe les séries consécutives faites au même niveau
