@@ -578,20 +578,20 @@ const EX_A = [
     type:"reps", sets:4, target:"4–6 réps", lo:4, hi:6, rest:120,
     levels:["Machine à tractions assistées","Élastique épais (assistance forte)","Élastique moyen","Élastique fin","Excentriques seules (descente en 5 s)","Tractions complètes"], lvl0:1,
     techByLevel:[
-      { place:"Genoux ou pieds posés sur le coussin de la machine assistée, mains sur la barre un peu plus larges que les épaules, bras tendus en bas.",
+      { place:"Genoux ou pieds posés sur le coussin de la machine assistée, mains en pronation (paumes vers l'avant, dos des mains face à toi) un peu plus larges que les épaules, bras tendus en bas.",
         move:"Commence par baisser les épaules, puis tire jusqu'à amener le menton au niveau de la barre. Redescends lentement jusqu'aux bras complètement tendus.",
         feel:"Côtés du dos, sous les aisselles, et avant des bras.",
         avoid:"Se balancer; ne pas tendre les bras en bas; hausser les épaules vers les oreilles au départ" },
-      { place:"Élastique épais accroché à la barre, un genou ou un pied posé dedans. Mains sur la barre un peu plus larges que les épaules, bras tendus, corps gainé.",
+      { place:"Élastique épais accroché à la barre, un genou ou un pied posé dedans. Mains en pronation (paumes vers l'avant) un peu plus larges que les épaules, bras tendus, corps gainé.",
         move:"Baisse d'abord les épaules, puis tire jusqu'à passer le menton au-dessus de la barre. Redescends lentement, sans te laisser tomber.",
         feel:"Côtés du dos et avant des bras. Le corps entier reste gainé, pas mou.",
         avoid:"Se balancer avec l'élastique; lâcher la descente; ne pas tendre les bras en bas",
         note:"Tu passes à l'élastique plus fin quand tu tiens 4 séries propres à 6 répétitions." },
-      { place:"Élastique moyen accroché à la barre, un pied dedans. Mains un peu plus larges que les épaules, bras tendus en bas, corps gainé.",
+      { place:"Élastique moyen accroché à la barre, un pied dedans. Mains en pronation (paumes vers l'avant) un peu plus larges que les épaules, bras tendus en bas, corps gainé.",
         move:"Baisse les épaules, tire jusqu'au menton au-dessus de la barre, puis redescends lentement en contrôlant tout le trajet.",
         feel:"Côtés du dos, avant des bras, et le ventre qui empêche le corps de se balancer.",
         avoid:"Se balancer; lâcher la descente; demi-amplitude" },
-      { place:"Élastique fin accroché à la barre, un pied dedans. Mains un peu plus larges que les épaules, bras tendus, corps gainé.",
+      { place:"Élastique fin accroché à la barre, un pied dedans. Mains en pronation (paumes vers l'avant) un peu plus larges que les épaules, bras tendus, corps gainé.",
         move:"Baisse les épaules, tire jusqu'au menton au-dessus de la barre, redescends lentement.",
         feel:"Côtés du dos et avant des bras, avec une aide minimale de l'élastique.",
         avoid:"Se balancer; lâcher la descente; demi-amplitude" },
@@ -599,7 +599,7 @@ const EX_A = [
         move:"Descends le plus lentement possible, compte 5 secondes, jusqu'aux bras tendus. Reviens en haut avec le banc ou le saut : tu ne travailles que la descente.",
         feel:"Côtés du dos et avant des bras, avec une brûlure marquée sur la descente.",
         avoid:"Se laisser tomber sur la fin de la descente; sauter la partie basse; bloquer la respiration" },
-      { place:"Suspendu à la barre, bras tendus, mains un peu plus larges que les épaules, jambes serrées, corps gainé.",
+      { place:"Suspendu à la barre, bras tendus, mains en pronation (paumes vers l'avant) un peu plus larges que les épaules, jambes serrées, corps gainé.",
         move:"Baisse les épaules, tire jusqu'à passer le menton au-dessus de la barre, puis redescends lentement jusqu'aux bras tendus.",
         feel:"Côtés du dos et avant des bras.",
         avoid:"Se balancer pour s'aider; demi-amplitude; lâcher la descente d'un coup" }
@@ -630,6 +630,26 @@ const EX_A = [
         move:"Monte les jambes tendues aussi haut que possible en enroulant le bassin, puis redescends lentement jusqu'à la verticale.",
         feel:"Bas du ventre, intensément, à cause du grand levier des jambes tendues.",
         avoid:"Plier les genoux pour tricher; se balancer; redescendre d'un coup" }
+    ] },
+
+  { id:106, name:"Mollets debout", short:"Mollets debout", muscle:"Mollets",
+    type:"machine", sets:3, target:"15–20 réps", lo:16, hi:20, rest:45, startKg:40,
+    levels:["À la presse à cuisses (pointes sur le bord de la plateforme)","À la machine mollets debout","Une jambe, un haltère à la main"], lvl0:1,
+    techByLevel:[
+      { place:"Assis dans la presse à cuisses, charge légère, seules les pointes de pieds posées sur le bas de la plateforme, talons dans le vide. Genoux presque tendus mais pas verrouillés.",
+        move:"Pousse la plateforme en tendant les chevilles au maximum, marque 1 seconde en haut, puis laisse les talons redescendre lentement jusqu'à sentir l'étirement.",
+        feel:"Les mollets, avec un étirement net en bas.",
+        avoid:"Plier les genoux pour pousser avec les cuisses; rebondir sans marquer la pause; charge trop lourde qui coupe l'amplitude" },
+      { place:"Debout à la machine mollets, épaules sous les coussins, pointes de pieds sur le repose-pied, talons dans le vide, jambes tendues sans verrouiller.",
+        move:"Monte au maximum sur les pointes, marque 1 seconde en haut, puis descends lentement jusqu'à ce que les talons passent sous le niveau du repose-pied.",
+        feel:"Les mollets, sur toute l'amplitude.",
+        avoid:"Rebondir en bas au lieu de contrôler; plier les genoux; amplitude incomplète en haut",
+        note:"C'est ton exercice de la maison, avec de la charge : tu peux enfin continuer à progresser au-delà du poids du corps." },
+      { place:"Debout sur une jambe, pointe du pied sur le bord d'une marche ou d'un step, talon dans le vide. Un haltère dans la main du même côté, l'autre main sur un appui pour l'équilibre.",
+        move:"Monte au maximum sur la pointe, pause 1 seconde en haut, puis laisse le talon redescendre lentement sous le niveau de la marche.",
+        feel:"Le mollet de la jambe qui travaille, avec un étirement profond en bas.",
+        avoid:"Descendre le talon trop vite; perdre l'équilibre; amplitude incomplète en haut",
+        note:"Le poids saisi est celui de l'haltère, et les répétitions sont par jambe." }
     ] },
 ];
 
@@ -682,11 +702,11 @@ const EX_B = [
     type:"reps", sets:4, target:"8–12 réps", lo:8, hi:12, rest:90,
     levels:["Barre haute, corps très incliné","Barre à hauteur des hanches","Barre basse, corps proche de l'horizontale","Pieds surélevés sur un banc","Pause de 2 s poitrine contre la barre"], lvl0:1,
     techByLevel:[
-      { place:"Barre réglée haut, au niveau de la poitrine quand tu es debout. Attrape-la mains largeur d'épaules, recule les pieds pour incliner le corps, talons au sol, corps en ligne droite.",
+      { place:"Barre réglée haut, au niveau de la poitrine quand tu es debout. Attrape-la mains en pronation (paumes vers le bas) largeur d'épaules, recule les pieds pour incliner le corps, talons au sol, corps en ligne droite.",
         move:"Tire la poitrine vers la barre en serrant les omoplates, coudes près du corps, puis redescends lentement jusqu'aux bras tendus.",
         feel:"Milieu du dos, entre les omoplates.",
         avoid:"Bassin qui tombe; tirer seulement avec les bras; demi-amplitude" },
-      { place:"Barre réglée à hauteur des hanches. Corps sous la barre, mains largeur d'épaules, talons au sol, corps en ligne droite des talons à la tête.",
+      { place:"Barre réglée à hauteur des hanches. Corps sous la barre, mains en pronation (paumes vers le bas) largeur d'épaules, talons au sol, corps en ligne droite des talons à la tête.",
         move:"Tire la poitrine jusqu'à la barre en serrant les omoplates, coudes près du corps, puis redescends lentement jusqu'aux bras tendus.",
         feel:"Milieu du dos, entre les omoplates, et avant des bras.",
         avoid:"Bassin qui tombe (serre les fessiers); tirer avec les bras sans serrer les omoplates; ne pas toucher la barre",
@@ -730,6 +750,26 @@ const EX_B = [
         move:"Aucun mouvement, tu tiens la position complète, corps en banane creuse, bas du dos plaqué.",
         feel:"Tout le ventre, au maximum d'intensité pour cet exercice.",
         avoid:"Bas du dos qui décolle; casser la position pour tenir plus longtemps; bloquer la respiration" }
+    ] },
+
+  { id:206, name:"Mollets debout", short:"Mollets debout", muscle:"Mollets",
+    type:"machine", sets:3, target:"15–20 réps", lo:16, hi:20, rest:45, startKg:30,
+    levels:["À la presse à cuisses (pointes sur le bord de la plateforme)","À la machine mollets debout","Une jambe, un haltère à la main"], lvl0:1,
+    techByLevel:[
+      { place:"Assis dans la presse à cuisses, charge légère, seules les pointes de pieds posées sur le bas de la plateforme, talons dans le vide. Genoux presque tendus mais pas verrouillés.",
+        move:"Pousse la plateforme en tendant les chevilles au maximum, marque 1 seconde en haut, puis laisse les talons redescendre lentement jusqu'à sentir l'étirement.",
+        feel:"Les mollets, avec un étirement net en bas.",
+        avoid:"Plier les genoux pour pousser avec les cuisses; rebondir sans marquer la pause; charge trop lourde qui coupe l'amplitude" },
+      { place:"Debout à la machine mollets, épaules sous les coussins, pointes de pieds sur le repose-pied, talons dans le vide, jambes tendues sans verrouiller.",
+        move:"Monte au maximum sur les pointes, marque 1 seconde en haut, puis descends lentement jusqu'à ce que les talons passent sous le niveau du repose-pied.",
+        feel:"Les mollets, sur toute l'amplitude.",
+        avoid:"Rebondir en bas au lieu de contrôler; plier les genoux; amplitude incomplète en haut",
+        note:"C'est ton exercice de la maison, avec de la charge : tu peux enfin continuer à progresser au-delà du poids du corps." },
+      { place:"Debout sur une jambe, pointe du pied sur le bord d'une marche ou d'un step, talon dans le vide. Un haltère dans la main du même côté, l'autre main sur un appui pour l'équilibre.",
+        move:"Monte au maximum sur la pointe, pause 1 seconde en haut, puis laisse le talon redescendre lentement sous le niveau de la marche.",
+        feel:"Le mollet de la jambe qui travaille, avec un étirement profond en bas.",
+        avoid:"Descendre le talon trop vite; perdre l'équilibre; amplitude incomplète en haut",
+        note:"Le poids saisi est celui de l'haltère, et les répétitions sont par jambe." }
     ] },
 ];
 
