@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TEMPO Salle">
+<meta name="theme-color" content="#131210">
+<meta name="format-detection" content="telephone=no">
+<title>TEMPO · Salle</title>
+<style>
+  :root{
+    --bg:#131210; --bg2:#1B1916; --surface:#221F1B; --surface2:#2B2723;
+    --line:#383430; --line2:#4A443D;
+    --ink:#F6F0E7; --mute:#B6A795; --faint:#827566;
+    --effort:#FF6A2C; --effort-soft:rgba(255,106,44,.13);
+    --rest:#26D3AE; --rest-soft:rgba(38,211,174,.12);
+    --warn:#FF6F6F;
+    --accent:var(--effort); --accent-soft:var(--effort-soft);
+    --r:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.45;
+    min-height:100dvh; overscroll-behavior-y:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+  body[data-phase="recovery"]{ --accent:var(--rest); --accent-soft:var(--rest-soft); }
+  body[data-phase="end"]{ --accent:var(--rest); --accent-soft:var(--rest-soft); }
+  button{ font-family:inherit; cursor:pointer; color:inherit; border:none; background:none; touch-action:manipulation; }
+  input{ font-family:inherit; touch-action:manipulation; }
+  .mono{ font-family:ui-monospace,"SF Mono",Menlo,monospace; font-variant-numeric:tabular-nums; }
+
+  #app{
+    position:relative; max-width:480px; margin:0 auto; min-height:100dvh;
+    display:flex; flex-direction:column;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    overflow:hidden;
+  }
+  #app::before{
+    content:""; position:absolute; left:0; right:0; top:0; height:240px; pointer-events:none; z-index:0;
+    background:radial-gradient(120% 100% at 50% -20%, var(--accent-soft), transparent 70%);
+    transition:background .5s ease;
+  }
+
+  /* Topbar */
+  #topbar{ position:relative; z-index:2; display:flex; align-items:center; gap:14px; padding:14px 20px 6px; }
+  #topbar.hide-progress .prog{ visibility:hidden; }
+  .prog{ flex:1; }
+  .prog-meta{ display:flex; justify-content:space-between; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); margin-bottom:6px; }
+  .prog-meta b{ color:var(--mute); font-weight:700; }
+  .prog-track{ height:5px; border-radius:5px; background:var(--surface2); overflow:hidden; }
+  .prog-fill{ height:100%; border-radius:5px; background:var(--accent); width:0; transition:width .45s cubic-bezier(.4,0,.2,1), background .5s ease; }
+  .brandmini{ flex:1; font-weight:800; letter-spacing:.32em; font-size:13px; color:var(--mute); }
+  .mute{ width:42px; height:42px; flex:none; display:flex; align-items:center; justify-content:center; border-radius:12px; background:var(--surface); color:var(--mute); }
+  .mute svg{ width:20px; height:20px; display:block; }
+  .mute.off{ color:var(--faint); }
+
+  /* Screen */
+  #screen{ position:relative; z-index:1; flex:1; display:flex; flex-direction:column; padding:6px 20px 22px; }
+  .scroll{ flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+
+  .eyebrow{ font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); font-weight:700; }
+  .eyebrow .dot{ color:var(--faint); margin:0 7px; }
+  .eyebrow .muscle{ color:var(--mute); }
+
+  /* HOME */
+  .hero{ padding:18px 0 8px; }
+  .wordmark{ display:flex; align-items:baseline; gap:10px; }
+  .wordmark h1{ font-size:46px; font-weight:800; letter-spacing:-.01em; line-height:.95; }
+  .beat{ width:11px; height:11px; border-radius:50%; background:var(--effort); transform:translateY(-2px); box-shadow:0 0 0 0 var(--effort); animation:beat 1.9s ease-in-out infinite; }
+  @keyframes beat{ 0%,100%{ transform:translateY(-2px) scale(1); opacity:1 } 45%{ transform:translateY(-2px) scale(.55); opacity:.5 } }
+  .tagline{ color:var(--mute); margin-top:10px; font-size:15px; }
+  .session-stat{ display:flex; gap:22px; margin-top:18px; padding:14px 16px; background:var(--surface); border:1px solid var(--line); border-radius:var(--r); }
+  .stat b{ display:block; font-size:22px; font-weight:800; }
+  .stat span{ font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); }
+
+  .list-head{ font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); margin:24px 4px 10px; font-weight:700; }
+  .ex-row{ display:flex; align-items:center; gap:14px; padding:13px 4px; border-bottom:1px solid var(--line); }
+  .ex-row:last-child{ border-bottom:none; }
+  .ex-num{ font-size:13px; font-weight:700; color:var(--faint); width:22px; flex:none; }
+  .ex-info{ flex:1; min-width:0; }
+  .ex-name{ font-weight:650; font-size:15.5px; }
+  .ex-muscle{ font-size:12.5px; color:var(--faint); margin-top:1px; }
+  .ex-vol{ font-size:13px; color:var(--mute); font-weight:600; white-space:nowrap; }
+
+  .resume-card{ margin-top:20px; padding:16px; border-radius:var(--r); background:var(--effort-soft); border:1px solid rgba(255,106,44,.3); }
+  .resume-card .rc-lbl{ font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--effort); font-weight:700; }
+  .resume-card .rc-ex{ font-weight:650; margin-top:3px; }
+
+  .home-actions{ margin-top:24px; }
+  .foot-actions{ display:flex; gap:12px; margin-top:14px; }
+  .foot-actions .btn-soft{ flex:1; }
+
+  /* Buttons */
+  .btn{ display:flex; align-items:center; justify-content:center; width:100%; min-height:62px; border-radius:16px;
+    background:var(--accent); color:#17130E; font-weight:800; font-size:17px; letter-spacing:.02em;
+    transition:transform .08s ease, filter .15s ease; }
+  .btn:active{ transform:scale(.985); filter:brightness(1.05); }
+  .btn-soft{ display:flex; align-items:center; justify-content:center; min-height:52px; border-radius:14px;
+    background:var(--surface); color:var(--ink); font-weight:650; font-size:15px; border:1px solid var(--line); }
+  .btn-soft:active{ background:var(--surface2); }
+  .btn-ghost{ display:block; width:100%; text-align:center; padding:14px; margin-top:10px; color:var(--faint); font-size:14px; font-weight:600; }
+  .btn-ghost:active{ color:var(--mute); }
+  .btn.danger{ background:transparent; border:1px solid var(--line); color:var(--warn); }
+
+  /* EFFORT */
+  .ex-title{ font-size:30px; font-weight:800; letter-spacing:-.015em; line-height:1.05; margin-top:12px; }
+  .obj-row{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .chip{ font-size:13px; font-weight:650; padding:6px 12px; border-radius:999px; background:var(--surface); border:1px solid var(--line); color:var(--ink); }
+  .chip.accent{ background:var(--accent-soft); border-color:transparent; color:var(--accent); }
+  .dots{ display:flex; gap:8px; margin:16px 0 4px; }
+  .dots i{ width:13px; height:13px; border-radius:50%; background:var(--surface2); border:1.5px solid var(--line2); }
+  .dots i.done{ background:var(--accent); border-color:var(--accent); }
+  .dots i.active{ background:transparent; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+
+  /* Level stepper */
+  .level{ margin-top:18px; padding:14px; border-radius:var(--r); background:var(--surface); border:1px solid var(--line); }
+  .level-top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
+  .level-top .lt-lbl{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); font-weight:700; }
+  .level-top .lt-pos{ font-size:12px; color:var(--mute); font-weight:700; }
+  .level-ctrl{ display:flex; align-items:center; gap:12px; }
+  .lv-btn{ width:50px; height:50px; flex:none; border-radius:13px; background:var(--surface2); border:1px solid var(--line2);
+    font-size:26px; font-weight:600; color:var(--ink); display:flex; align-items:center; justify-content:center; }
+  .lv-btn:active{ background:var(--accent-soft); color:var(--accent); }
+  .lv-btn:disabled{ opacity:.3; }
+  .lv-name{ flex:1; text-align:center; font-weight:650; font-size:15px; }
+
+  /* Technique */
+  .tech{ margin-top:22px; display:flex; flex-direction:column; gap:16px; }
+  .tblock{ }
+  .tlabel{ font-size:11px; letter-spacing:.15em; text-transform:uppercase; font-weight:700; color:var(--faint); margin-bottom:5px; display:flex; align-items:center; gap:7px; }
+  .tlabel.feel{ color:var(--accent); }
+  .tlabel.avoid{ color:var(--warn); }
+  .tlabel .bar{ width:14px; height:2px; background:currentColor; border-radius:2px; }
+  .tblock p{ font-size:15.5px; color:var(--ink); }
+  .tblock.feel p{ color:var(--ink); }
+  .avoid-list{ list-style:none; display:flex; flex-direction:column; gap:6px; }
+  .avoid-list li{ font-size:14.5px; color:var(--mute); padding-left:18px; position:relative; }
+  .avoid-list li::before{ content:"✕"; position:absolute; left:0; top:1px; color:var(--warn); font-size:11px; font-weight:700; }
+  .tnote{ margin-top:2px; padding:11px 13px; border-radius:13px; background:var(--accent-soft); border:1px solid transparent; font-size:14px; color:var(--ink); }
+  .tnote b{ color:var(--accent); }
+
+  .reminder{ margin-top:20px; font-size:12.5px; color:var(--faint); text-align:center; line-height:1.5; padding:0 6px; }
+  .reminder b{ color:var(--mute); font-weight:650; }
+
+  .action-bar{ padding-top:18px; }
+
+  /* Hold live */
+  .hold-live{ display:flex; flex-direction:column; align-items:center; padding:8px 0 4px; }
+  .ringwrap{ position:relative; width:240px; height:240px; }
+  .ring{ width:100%; height:100%; transform:rotate(0deg); }
+  .ring-bg{ fill:none; stroke:var(--surface2); stroke-width:7; }
+  .ring-fg{ fill:none; stroke:var(--accent); stroke-width:7; stroke-linecap:round; transform:rotate(-90deg); transform-origin:50% 50%; transition:stroke-dashoffset .12s linear, stroke .5s ease; }
+  .ring-center{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .ring-time{ font-size:62px; font-weight:700; letter-spacing:-.02em; }
+  .ring-sub{ font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); margin-top:2px; }
+
+  /* RECOVERY */
+  .rec-top{ display:flex; flex-direction:column; align-items:center; padding:4px 0 6px; }
+  .rec-card{ margin-top:20px; padding:16px; border-radius:var(--r); background:var(--surface); border:1px solid var(--line); }
+  .rec-card h3{ font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); font-weight:700; margin-bottom:14px; }
+  .field{ margin-bottom:14px; }
+  .field:last-child{ margin-bottom:0; }
+  .field > label{ display:block; font-size:13px; color:var(--mute); margin-bottom:8px; font-weight:600; }
+  .num{ display:flex; align-items:stretch; gap:10px; }
+  .num button{ width:56px; flex:none; border-radius:13px; background:var(--surface2); border:1px solid var(--line2); font-size:26px; font-weight:600; color:var(--ink); }
+  .num button:active{ background:var(--accent-soft); color:var(--accent); }
+  .num-mid{ flex:1; min-width:0; display:flex; align-items:center; justify-content:center; gap:6px; background:var(--bg2); border:1px solid var(--line); border-radius:13px; padding:8px; }
+  .num-mid input{ width:100%; max-width:88px; min-width:0; background:none; border:none; color:var(--ink); font-size:30px; font-weight:700; text-align:center; outline:none; }
+  .num-mid input:focus{ }
+  .num-suf{ font-size:14px; color:var(--faint); font-weight:600; }
+  .two-fields{ display:flex; gap:10px; }
+  .two-fields .field{ flex:1; min-width:0; margin-bottom:0; }
+  .two-fields .num{ gap:6px; }
+  .two-fields .num button{ width:38px; font-size:20px; }
+  .two-fields .num-mid{ padding:4px; }
+  .two-fields .num-mid input{ font-size:23px; max-width:50px; }
+
+  .hold-done{ text-align:center; padding:8px 0; }
+  .hold-done .hd-num{ font-size:44px; font-weight:700; }
+  .hold-done .hd-lbl{ font-size:13px; color:var(--mute); margin-top:2px; }
+
+  .lasttime{ margin-top:14px; font-size:13.5px; color:var(--mute); text-align:center; }
+  .lasttime b{ color:var(--ink); font-weight:650; }
+  .nudge{ margin-top:12px; font-size:13.5px; color:var(--rest); text-align:center; font-weight:600; min-height:1px; }
+
+  .nextup{ margin-top:18px; padding:14px 16px; border-radius:var(--r); background:var(--bg2); border:1px solid var(--line); display:flex; align-items:center; gap:12px; }
+  .nextup .nu-lbl{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); font-weight:700; }
+  .nextup .nu-ex{ font-weight:650; font-size:15px; margin-top:2px; }
+  .nextup .nu-arrow{ margin-left:auto; color:var(--accent); font-size:20px; }
+
+  .rec-actions{ padding-top:18px; display:flex; flex-direction:column; gap:10px; }
+  .rec-actions .row{ display:flex; gap:10px; }
+  .rec-actions .row .btn-soft{ flex:1; }
+
+  /* END */
+  .end-hero{ padding:30px 0 10px; text-align:center; }
+  .end-mark{ font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--rest); font-weight:700; }
+  .end-hero h2{ font-size:34px; font-weight:800; letter-spacing:-.01em; margin-top:10px; }
+  .end-hero p{ color:var(--mute); margin-top:10px; }
+  .recap{ margin-top:24px; }
+  .recap-row{ display:flex; gap:12px; padding:11px 2px; border-bottom:1px solid var(--line); }
+  .recap-row:last-child{ border-bottom:none; }
+  .recap-num{ font-size:12px; color:var(--faint); width:20px; flex:none; font-weight:700; padding-top:2px; }
+  .recap-name{ flex:1; font-size:14.5px; font-weight:600; }
+  .recap-res{ font-size:13.5px; color:var(--mute); text-align:right; }
+  .recap-empty{ color:var(--faint); }
+
+  /* Sheet */
+  #sheet{ position:fixed; inset:0; z-index:50; display:none; }
+  #sheet.open{ display:block; }
+  .sheet-scrim{ position:absolute; inset:0; background:rgba(0,0,0,.55); animation:fade .2s ease; }
+  .sheet-panel{ position:absolute; left:0; right:0; bottom:0; background:var(--bg2); border-top:1px solid var(--line);
+    border-radius:22px 22px 0 0; padding:18px 20px calc(20px + env(safe-area-inset-bottom));
+    max-width:480px; margin:0 auto; animation:slideup .26s cubic-bezier(.2,.7,.2,1); max-height:88dvh; overflow-y:auto; }
+  .sheet-grip{ width:40px; height:4px; border-radius:4px; background:var(--line2); margin:0 auto 14px; }
+  .sheet-panel h3{ font-size:18px; font-weight:800; }
+  .seg{ display:flex; gap:8px; margin:14px 0; padding:4px; background:var(--surface); border-radius:13px; }
+  .seg button{ flex:1; padding:10px; border-radius:10px; font-size:14px; font-weight:650; color:var(--mute); }
+  .seg button.on{ background:var(--surface2); color:var(--ink); }
+  .seg-prog button{ display:flex; flex-direction:column; gap:2px; padding:9px 4px; line-height:1.2; }
+  .seg-prog button b{ font-size:14px; font-weight:700; }
+  .seg-prog button i{ font-size:10.5px; font-style:normal; letter-spacing:.06em; text-transform:uppercase; color:var(--faint); }
+  .seg-prog button.on i{ color:var(--mute); }
+  .export-box{ width:100%; min-height:200px; background:var(--bg); border:1px solid var(--line); border-radius:13px;
+    padding:14px; color:var(--ink); font-family:ui-monospace,"SF Mono",Menlo,monospace; font-size:12.5px; line-height:1.6;
+    resize:vertical; -webkit-user-select:text; user-select:text; white-space:pre; overflow:auto; }
+  .sheet-actions{ display:flex; gap:10px; margin-top:14px; }
+  .sheet-actions .btn{ min-height:54px; font-size:16px; }
+  .sheet-actions .btn-soft{ flex:none; padding:0 22px; }
+  .sheet-hint{ font-size:12.5px; color:var(--faint); margin-top:10px; text-align:center; }
+
+  /* Confirm sheet */
+  .confirm h3{ margin-bottom:8px; }
+  .confirm p{ color:var(--mute); font-size:14.5px; }
+  .confirm .sheet-actions{ margin-top:18px; }
+  .confirm .btn-soft{ flex:1; }
+
+  /* Toast */
+  #toast{ position:fixed; left:50%; bottom:calc(30px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:#16120D; font-weight:700; font-size:14px; padding:12px 20px; border-radius:999px; z-index:80;
+    opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease; max-width:90%; }
+  #toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  @keyframes fade{ from{opacity:0} to{opacity:1} }
+  @keyframes slideup{ from{ transform:translateY(100%) } to{ transform:translateY(0) } }
+  @keyframes screenin{ from{ opacity:0; transform:translateY(8px) } to{ opacity:1; transform:none } }
+  .anim-in{ animation:screenin .28s ease; }
+
+  button:focus-visible, input:focus-visible, .export-box:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  @media (max-width:360px){
+    .wordmark h1{ font-size:40px; }
+    .ex-title{ font-size:26px; }
+    .ringwrap{ width:210px; height:210px; }
+    .ring-time{ font-size:54px; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+  }
+</style>
+</head>
+<body data-phase="home">
+  <div id="app">
+    <div id="topbar"></div>
+    <main id="screen"></main>
+  </div>
+  <div id="sheet"></div>
+  <div id="toast"></div>
+
+<script>
+"use strict";
+
+/* ============ SÉANCE MAISON (reprise de l'app maison) ============ */
+const EX_MAISON = [
+  { id:1, name:"Fente, pied arrière surélevé", short:"Fente, pied arrière surélevé", muscle:"Cuisses · Fessiers",
+    type:"reps", sets:4, target:"8–12 réps", lo:10, hi:12, perSide:true, sideWord:"jambe", rest:90,
+    levels:["Fente classique (2 pieds au sol)","Pied arrière posé bas","Pied arrière sur une chaise","Plus profond et plus lent","Avec un sac à dos lesté"], lvl0:2,
+    techByLevel:[
+      { place:"Debout, un pied loin devant, un pied loin derrière, les deux à plat au sol. Buste droit, mains sur les hanches ou le long du corps.",
+        move:"Plie les deux genoux en même temps pour descendre tout droit vers le sol, jusqu'à ce que le genou arrière frôle presque le sol, puis pousse sur le pied avant pour remonter.",
+        feel:"Avant de la cuisse et fessier de la jambe avant, un peu les deux jambes.",
+        avoid:"Genou avant qui dépasse trop loin devant les orteils; buste penché en avant; pas assez profond." },
+      { place:"Debout, dos à une marche basse ou un step. Pose le dessus du pied arrière dessus, pied avant un bon pas devant, à plat. Buste droit.",
+        move:"Plie le genou avant pour descendre, puis pousse sur le talon avant pour remonter. Le pied arrière sert juste d'appui léger.",
+        feel:"Avant de la cuisse et fessier de la jambe avant, un peu plus qu'en fente classique.",
+        avoid:"Genou avant qui rentre vers l'intérieur; reporter le poids sur le pied arrière; buste penché en avant." },
+      { place:"Debout, dos à une chaise. Pose le dessus du pied arrière sur la chaise (≈ hauteur du genou), pied avant un bon pas devant, à plat. Buste droit.",
+        move:"Plie le genou avant pour descendre jusqu'à ce que la cuisse avant soit à l'horizontale, puis pousse sur le talon avant pour remonter. Tout le travail se fait sur la jambe avant.",
+        feel:"Avant de la cuisse et fessier de la jambe avant.",
+        avoid:"Genou avant qui rentre vers l'intérieur; buste trop penché en avant; prendre appui surtout sur le pied arrière." },
+      { place:"Même installation qu'avec la chaise : dos à une chaise, dessus du pied arrière posé dessus, pied avant loin devant, à plat.",
+        move:"Descends encore plus bas que d'habitude (jusqu'à dépasser l'horizontale) en comptant 3-4 secondes de descente, marque une pause d'une seconde en bas, puis remonte.",
+        feel:"Avant de la cuisse et fessier, de façon plus intense, avec une brûlure qui arrive plus vite.",
+        avoid:"Rebondir en bas pour remonter plus facilement; perdre l'équilibre en allant trop loin; couper la descente pour aller plus vite." },
+      { place:"Même installation qu'avec la chaise, mais porte un sac à dos avec du poids dedans (livres, bouteilles d'eau), bien ajusté sur le dos.",
+        move:"Même mouvement que d'habitude, mais le poids supplémentaire demande de bien garder le buste droit pour ne pas basculer en avant.",
+        feel:"Avant de la cuisse et fessier, plus intensément à cause de la charge.",
+        avoid:"Buste qui bascule en avant à cause du poids; perdre l'équilibre; charge trop lourde qui casse la technique — mieux vaut rajouter du poids progressivement." }
+    ] },
+
+  { id:4, name:"Extension des jambes", short:"Extension des jambes", muscle:"Quadriceps",
+    type:"machine", sets:3, target:"12–15 réps", lo:13, hi:15, rest:60, startKg:20,
+    tech:{ place:"Assis, dos calé, le dessus des chevilles derrière le boudin, mains sur les poignées.",
+      move:"Tends complètement les jambes, marque 1 seconde en haut en serrant l'avant des cuisses, puis descente lente.",
+      feel:"Avant des cuisses, surtout sur le temps d'arrêt en haut.",
+      avoid:"Balancer le buste pour s'aider; lâcher d'un coup à la descente; ne pas tendre complètement." } },
+
+  { id:13, name:"Dead bug", short:"Dead bug", muscle:"Gainage profond",
+    type:"reps", sets:3, target:"8–10 réps", lo:8, hi:10, perSide:true, sideWord:"côté", rest:45,
+    levels:["Un membre à la fois (jambe OU bras)","Bras + jambe opposés, genou plié à 90°","Bras + jambe opposés, jambe qui descend plus bas","Jambe tendue qui descend presque au sol","Avec un poids léger tenu dans les mains"], lvl0:1,
+    techByLevel:[
+      { place:"Allongé sur le dos, bas du dos collé au sol activement, bras tendus vers le plafond, genoux pliés à 90° au-dessus des hanches.",
+        move:"Descends lentement un seul bras derrière la tête OU une seule jambe vers le sol (pas les deux en même temps), en t'arrêtant dès que le bas du dos commence à décoller. Reviens, puis fais l'autre membre.",
+        feel:"Le ventre qui reste stable et plaqué pendant que le membre isolé bouge.",
+        avoid:"Laisser le bas du dos se creuser; bouger les deux membres en même temps à ce niveau; aller trop vite." },
+      { place:"Allongé sur le dos, bas du dos collé au sol activement (comme écrasé contre le sol), bras tendus vers le plafond, genoux pliés à 90° au-dessus des hanches.",
+        move:"Descends lentement un bras derrière la tête et la jambe opposée vers le sol, en t'arrêtant DÈS que le bas du dos commence à décoller. Reviens, change de côté.",
+        feel:"Le ventre qui reste plaqué et stable pendant que le bras et la jambe bougent.",
+        avoid:"Laisser le bas du dos se creuser (c'est le signal d'arrêt, pas une limite à dépasser); bouger vite; bloquer la respiration." },
+      { place:"Même installation : bas du dos collé au sol, bras tendus vers le plafond, genoux pliés à 90°.",
+        move:"Descends le bras derrière la tête et la jambe opposée en même temps, mais laisse la jambe descendre un peu plus bas que d'habitude, toujours en t'arrêtant dès que le bas du dos bouge.",
+        feel:"Le ventre, avec un peu plus de travail à cause du levier de jambe allongé.",
+        avoid:"Laisser le bas du dos se creuser pour aller plus bas; bouger vite; bloquer la respiration." },
+      { place:"Même installation : bas du dos collé au sol, bras tendus vers le plafond, genoux pliés à 90°.",
+        move:"Descends le bras derrière la tête et tends complètement la jambe opposée en la faisant descendre presque au sol, en t'arrêtant fermement dès que le bas du dos commence à décoller.",
+        feel:"Le ventre, en profondeur, avec un travail plus intense à cause du grand levier de la jambe tendue.",
+        avoid:"Laisser le bas du dos se creuser (encore plus tentant à ce niveau); forcer la jambe à toucher le sol coûte que coûte; bloquer la respiration." },
+      { place:"Même installation que jambe tendue, mais tiens un petit poids léger (bouteille d'eau, livre) dans les deux mains, bras tendus vers le plafond.",
+        move:"Même mouvement (bras + jambe opposés) : le poids dans les mains ajoute une résistance supplémentaire sur le geste du bras et la stabilité du tronc.",
+        feel:"Le ventre, avec un travail de stabilisation plus important à cause du poids qui bouge.",
+        avoid:"Laisser le bas du dos se creuser à cause du poids; poids trop lourd qui casse le contrôle; bouger vite." }
+    ] },
+
+  { id:11, name:"Relevés de jambes", short:"Relevés de jambes", muscle:"Bas-abdos",
+    type:"reps", sets:3, target:"12–15 réps", lo:13, hi:15, rest:45,
+    levels:["Genoux pliés","Une jambe à la fois","Jambes tendues","Plus bas et plus lent","Tenue « creux » entre les répétitions"], lvl0:2,
+    techByLevel:[
+      { place:"Allongé sur le dos, bas du dos collé au sol, genoux pliés à 90° au-dessus des hanches (comme assis dans les airs), mains sous les fesses ou le long du corps.",
+        move:"Descends lentement les genoux pliés vers le sol jusqu'à ce que le bas du dos commence à décoller, puis remonte sans le laisser se creuser.",
+        feel:"Bas du ventre.",
+        avoid:"Décoller le bas du dos; lâcher les jambes d'un coup; aller plus bas que ce que le dos permet." },
+      { place:"Allongé sur le dos, bas du dos collé au sol, une jambe tendue vers le plafond, l'autre pliée pied à plat au sol pour stabiliser.",
+        move:"Descends lentement la jambe tendue vers le sol sans la toucher et sans décoller le bas du dos, puis remonte. Fais toutes les répétitions d'un côté, puis change.",
+        feel:"Bas du ventre, du côté de la jambe qui travaille.",
+        avoid:"Décoller le bas du dos; la jambe au sol qui se tend et prend le relais; lâcher la jambe d'un coup." },
+      { place:"Allongé sur le dos, bas du dos collé au sol (mains sous les fesses au début si besoin).",
+        move:"Monte les jambes tendues jusqu'à la verticale, puis redescends lentement sans toucher le sol et sans décoller le bas du dos. Enroule légèrement le bassin vers toi en fin de montée.",
+        feel:"Bas du ventre.",
+        avoid:"Décoller le bas du dos (creux); lâcher les jambes d'un coup; toucher le sol entre les répétitions." },
+      { place:"Même installation que jambes tendues, bas du dos collé au sol.",
+        move:"Descends les jambes tendues plus bas que d'habitude (aussi bas que le dos le permet sans se creuser), sur 3-4 secondes de descente, puis remonte.",
+        feel:"Bas du ventre, de façon plus intense à cause de l'amplitude et de la lenteur.",
+        avoid:"Décoller le bas du dos pour aller plus bas; accélérer la descente pour aller plus vite; lâcher les jambes." },
+      { place:"Même installation que jambes tendues, bas du dos collé au sol.",
+        move:"Fais la répétition normalement, mais au lieu de redescendre complètement entre deux répétitions, arrête à quelques centimètres du sol et tiens 1-2 secondes (position « creux ») avant de remonter à nouveau.",
+        feel:"Bas du ventre, avec une tension continue qui ne relâche jamais entre les répétitions.",
+        avoid:"Décoller le bas du dos pendant la tenue basse; relâcher complètement au sol entre les répétitions." }
+    ] },
+
+  { id:6, name:"Pompes", short:"Pompes", muscle:"Poitrine · Triceps",
+    type:"pushup", sets:3, target:"max propre", rest:90,
+    levels:["Contre un mur","Mains surélevées","Au sol, complètes","Pieds surélevés","Mains en losange"], lvl0:2,
+    techByLevel:[
+      { place:"Debout face à un mur, à une bonne distance de bras. Mains sur le mur un peu plus larges que les épaules, à hauteur de poitrine. Corps droit, penché vers le mur.",
+        move:"Plie les coudes pour amener la poitrine vers le mur, puis pousse pour repartir. Garde le corps bien droit, comme une planche inclinée.",
+        feel:"Poitrine et arrière des bras, en léger.",
+        avoid:"Plier les hanches au lieu de garder le corps droit; coudes qui partent trop sur les côtés; aller trop vite." },
+      { place:"Mains posées sur un support stable (banc, chaise solide, rebord) à hauteur de hanche ou de genou, un peu plus larges que les épaules. Pieds au sol, corps tendu en ligne droite.",
+        move:"Descends lentement la poitrine vers le support, coudes légèrement vers l'arrière, puis pousse pour remonter.",
+        feel:"Poitrine et arrière des bras, plus que contre un mur.",
+        avoid:"Bassin qui tombe ou qui pointe vers le haut; support instable; demi-amplitude." },
+      { place:"Mains un peu plus larges que les épaules, sous la poitrine. Corps tendu d'un seul bloc (pieds, fesses, épaules alignés).",
+        move:"Descends lentement, coudes légèrement vers l'arrière (pas écartés sur les côtés), jusqu'à frôler le sol, puis pousse pour remonter. Quand tu ne remontes plus proprement, finis la série en descendant juste lentement.",
+        feel:"Poitrine et arrière des bras. Si tu sens surtout les épaules ou le cou, rapproche les coudes et serre plus le ventre.",
+        avoid:"Bassin qui tombe (creux dans le dos) ou qui pointe en l'air; coudes grands ouverts; demi-amplitude; la tête qui plonge avant la poitrine." },
+      { place:"Mains au sol un peu plus larges que les épaules, pieds posés sur un support stable (chaise, canapé, marche) à 20-40 cm de haut. Corps tendu d'un seul bloc.",
+        move:"Descends lentement jusqu'à frôler le sol, coudes légèrement vers l'arrière, puis pousse pour remonter.",
+        feel:"Poitrine, arrière des bras, et le haut de la poitrine/épaules davantage sollicités qu'au sol.",
+        avoid:"Bassin qui tombe; support des pieds instable; demi-amplitude; tête qui plonge en premier." },
+      { place:"Mains au sol sous la poitrine, pouces et index qui se touchent pour former un losange. Corps tendu d'un seul bloc.",
+        move:"Descends lentement en gardant les coudes près du corps (pas écartés), jusqu'à frôler les mains avec la poitrine, puis pousse pour remonter.",
+        feel:"Beaucoup plus l'arrière des bras (triceps), et le centre de la poitrine.",
+        avoid:"Coudes qui s'écartent sur les côtés; bassin qui tombe; demi-amplitude." }
+    ] },
+
+  { id:2, name:"Tirage à la poulie haute", short:"Tirage poulie haute", muscle:"Dos · Bras",
+    type:"machine", sets:4, target:"8–12 réps", lo:10, hi:12, rest:90, startKg:25,
+    tech:{ place:"Assis face à la machine, cuisses calées sous les coussins. Barre large, mains plus larges que les épaules, paumes vers l'avant, bras tendus en haut, buste légèrement penché en arrière.",
+      move:"Commence par baisser les épaules (descends les omoplates), puis tire la barre vers le haut de la poitrine, devant toi — jamais derrière la nuque. Remonte lentement jusqu'aux bras tendus.",
+      feel:"Côtés du dos (sous les aisselles) et avant des bras. « Ramène tes coudes vers tes poches arrière », ne tire pas qu'avec les mains.",
+      avoid:"Barre derrière la nuque; se balancer avec tout le corps; tout faire avec les bras; lâcher la barre d'un coup." } },
+
+  { id:5, name:"Tirage à la poulie basse (rame)", short:"Tirage poulie basse", muscle:"Milieu du dos",
+    type:"machine", sets:3, target:"10–12 réps", lo:11, hi:12, rest:90, startKg:25,
+    tech:{ place:"Assis, pieds calés, dos droit (pas arrondi). Barre large, mains largeur des épaules, paumes vers le bas, bras tendus devant.",
+      move:"Tire la barre vers le bas du ventre (le nombril) en serrant les omoplates l'une vers l'autre, coudes près du corps. Reviens lentement sans arrondir le dos.",
+      feel:"Milieu du dos, entre les omoplates, et côtés du dos.",
+      avoid:"Arrondir le dos / tirer avec le bas du dos; coudes qui s'écartent loin du corps; tirer avec les bras sans serrer les omoplates; viser la poitrine au lieu du ventre." } },
+
+  { id:7, name:"Pont sur une jambe", short:"Pont sur une jambe", muscle:"Ischios · Fessiers",
+    type:"reps", sets:3, target:"10–12 réps", lo:11, hi:12, perSide:true, sideWord:"jambe", rest:60,
+    levels:["Deux jambes","Deux jambes + pause en haut","Une jambe","Une jambe, pied surélevé","Une jambe + tenue longue"], lvl0:2,
+    techByLevel:[
+      { place:"Allongé sur le dos, les deux genoux pliés, pieds à plat au sol proches des fesses, largeur des hanches. Bras le long du corps.",
+        move:"Pousse dans les deux talons et serre les fesses pour monter le bassin jusqu'à aligner épaules-hanches-genoux, puis redescends lentement.",
+        feel:"Fessiers et arrière des cuisses, des deux côtés en même temps.",
+        avoid:"Cambrer le bas du dos pour monter plus haut; pousser sur la pointe des pieds; ne pas marquer la contraction en haut." },
+      { place:"Même installation : les deux genoux pliés, pieds à plat au sol, bras le long du corps.",
+        move:"Même mouvement, mais une fois en haut, marque une pause de 2-3 secondes en serrant fort les fessiers, avant de redescendre lentement.",
+        feel:"Fessiers, avec une contraction plus marquée grâce à la pause.",
+        avoid:"Relâcher pendant la pause; cambrer le bas du dos; pousser sur la pointe des pieds." },
+      { place:"Allongé sur le dos, un genou plié pied à plat près des fesses, l'autre jambe tendue levée dans le prolongement, bras le long du corps.",
+        move:"Pousse dans le talon et serre la fesse pour monter le bassin jusqu'à aligner épaules-hanches-genou. Temps d'arrêt en haut, fesse serrée, puis descente lente.",
+        feel:"Fessier et arrière de la cuisse de la jambe au sol. Tu ne dois pas sentir le bas du dos.",
+        avoid:"Cambrer le bas du dos pour monter plus haut (erreur n°1 : c'est la fesse qui monte le bassin, pas le dos); pousser sur la pointe au lieu du talon; ne pas marquer la contraction en haut.",
+        note:"Douleur au bas du dos ? Reviens au pont sur deux jambes." },
+      { place:"Allongé sur le dos, un pied posé sur une marche ou un step (5-15 cm), l'autre jambe tendue levée dans le prolongement du corps.",
+        move:"Pousse dans le talon surélevé et serre la fesse pour monter le bassin, temps d'arrêt en haut, puis descente lente.",
+        feel:"Fessier et arrière de la cuisse, plus intensément à cause de l'amplitude augmentée.",
+        avoid:"Cambrer le bas du dos; perdre l'équilibre sur le pied surélevé; ne pas marquer la contraction.",
+        note:"Douleur au bas du dos ? Reviens au pont sur deux jambes." },
+      { place:"Même installation qu'une jambe au sol : genou plié pied à plat près des fesses, l'autre jambe tendue levée.",
+        move:"Monte le bassin comme d'habitude, mais une fois en haut, tiens la position 3-5 secondes en serrant fort la fesse, avant de redescendre lentement.",
+        feel:"Fessier, avec une fatigue qui monte vite à cause de la tenue.",
+        avoid:"Le bassin qui redescend pendant la tenue; cambrer le bas du dos pour compenser la fatigue.",
+        note:"Douleur au bas du dos ? Reviens au pont sur deux jambes." }
+    ] },
+
+  { id:8, name:"Pompes des épaules en V", short:"Pompes en V (épaules)", muscle:"Épaules",
+    type:"reps", sets:3, target:"5–8 réps", lo:5, hi:8, rest:60,
+    levels:["Tenir la position en V","Marcher les mains vers les pieds","Pompe en V mains surélevées sur un banc","Pompe en V amplitude réduite / descente lente","Pompe en V complète","Pieds surélevés"], lvl0:2,
+    techByLevel:[
+      { place:"Mains et pieds au sol, fesses poussées haut vers le plafond, corps en V inversé, jambes tendues, mains largeur d'épaules.",
+        move:"Maintiens la position sans bouger, en poussant activement les mains dans le sol et en gardant les fesses hautes. Respire normalement.",
+        feel:"Épaules et un peu le haut du dos, en statique.",
+        avoid:"Baisser les fesses; plier les genoux; bloquer la respiration." },
+      { place:"Debout, penché en avant, mains au sol : marche avec les mains vers l'arrière pour te rapprocher le plus possible des pieds tout en gardant les jambes tendues, jusqu'à arriver en V inversé.",
+        move:"Une fois en V, plie légèrement les coudes pour descendre un peu la tête vers le sol, puis repousse. Le « marcher » sert à rapprocher progressivement les mains des pieds au fil des séances.",
+        feel:"Épaules, et l'arrière des cuisses qui s'étire.",
+        avoid:"Genoux qui plient pour compenser le manque de souplesse; fesses qui redescendent." },
+      { place:"Mains et pieds au sol, fesses poussées haut vers le plafond : le corps forme un V inversé (comme le chien tête en bas en yoga). Mains largeur d'épaules, jambes tendues.",
+        move:"Plie les coudes pour descendre le sommet du crâne vers le sol, entre les mains, puis pousse pour remonter jusqu'à tendre les bras. Garde les fesses hautes tout du long.",
+        feel:"Épaules, et un peu l'arrière des bras.",
+        avoid:"Baisser les fesses (ça redevient une pompe normale); descendre le front au lieu du sommet du crâne; mains trop écartées." },
+      { place:"Mains et pieds au sol, fesses hautes, corps en V inversé, jambes tendues, mains largeur d'épaules.",
+        move:"Plie les coudes pour descendre le sommet du crâne vers le sol sur 2-3 secondes, sur une petite partie du mouvement (amplitude réduite), puis pousse pour remonter.",
+        feel:"Épaules, avec une tension continue à cause de la lenteur.",
+        avoid:"Baisser les fesses; aller trop vite; descendre le front au lieu du sommet du crâne." },
+      { place:"Mains et pieds au sol, fesses poussées haut vers le plafond, corps en V inversé, mains largeur d'épaules, jambes tendues.",
+        move:"Plie les coudes pour descendre le sommet du crâne vers le sol, entre les mains, en pleine amplitude, puis pousse pour remonter jusqu'à tendre les bras.",
+        feel:"Épaules, et un peu l'arrière des bras.",
+        avoid:"Baisser les fesses; descendre le front au lieu du sommet du crâne; mains trop écartées." },
+      { place:"Mains au sol, pieds posés sur un support stable (chaise, canapé, marche), fesses hautes, corps en V inversé accentué.",
+        move:"Plie les coudes pour descendre le sommet du crâne vers le sol, puis pousse pour remonter. L'angle plus vertical demande plus de force aux épaules.",
+        feel:"Épaules, de façon plus intense qu'au sol.",
+        avoid:"Support des pieds instable; baisser les fesses; mains trop écartées." }
+    ] },
+
+  { id:9, name:"Mollets debout", short:"Mollets debout", muscle:"Mollets",
+    type:"reps", sets:3, target:"15–20 réps", lo:16, hi:20, rest:45,
+    levels:["Deux jambes, petite amplitude","Deux jambes, amplitude complète","Une jambe","Une jambe sur une marche","Une jambe + pause en haut"], lvl0:1,
+    techByLevel:[
+      { place:"Debout, pieds largeur des hanches, près d'un mur pour l'équilibre.",
+        move:"Monte sur la pointe des pieds sur une petite hauteur (juste décoller les talons), pause 1 seconde en haut, puis redescends lentement.",
+        feel:"Les mollets, en léger.",
+        avoid:"Rebondir vite; ne pas marquer la pause en haut." },
+      { place:"Debout, pieds largeur des hanches, près d'un mur pour l'équilibre.",
+        move:"Monte au maximum sur la pointe des pieds, pause 1 seconde en haut, puis redescends lentement jusqu'à sentir l'étirement.",
+        feel:"Les mollets, surtout sur la pause en haut.",
+        avoid:"Rebondir vite sans amplitude; ne pas monter complètement sur la pointe." },
+      { place:"Debout sur une jambe, l'autre légèrement pliée derrière ou devant, près d'un mur pour l'équilibre.",
+        move:"Monte au maximum sur la pointe du pied, pause 1 seconde en haut, puis redescends lentement jusqu'à sentir l'étirement.",
+        feel:"Le mollet de la jambe au sol, plus intensément qu'à deux jambes.",
+        avoid:"Perdre l'équilibre; rebondir vite sans amplitude; ne pas monter complètement." },
+      { place:"Debout sur une jambe, la pointe du pied sur le bord d'une marche ou d'un step, le talon dans le vide. Près d'un mur ou d'une rampe pour l'équilibre.",
+        move:"Monte au maximum sur la pointe, pause 1 seconde en haut, puis laisse le talon redescendre sous le niveau de la marche pour un étirement complet.",
+        feel:"Le mollet, avec un étirement plus profond en bas grâce au talon qui descend sous la marche.",
+        avoid:"Descendre trop vite le talon (contrôle-le); perdre l'équilibre; amplitude incomplète en haut." },
+      { place:"Même installation qu'une jambe sur une marche (ou au sol si plus stable).",
+        move:"Monte au maximum sur la pointe, puis tiens la position 3-4 secondes en haut en gardant la contraction, avant de redescendre lentement.",
+        feel:"Le mollet, avec une fatigue qui monte vite à cause de la tenue.",
+        avoid:"Relâcher pendant la pause; perdre l'équilibre; redescendre trop vite après la pause." }
+    ] },
+
+  { id:10, name:"Planche", short:"Planche", muscle:"Gainage · Abdos",
+    type:"hold", sets:2, target:"tenue 40 s", hold:40, rest:45,
+    levels:["Sur les genoux","Bras tendus","Avant-bras, 40 s","Un pied levé en alternance","Passer des coudes aux mains"], lvl0:2,
+    techByLevel:[
+      { place:"Appui sur les avant-bras (coudes sous les épaules) et les genoux au sol (au lieu des pieds). Corps en ligne droite des genoux à la tête.",
+        move:"Aucun mouvement — maintiens la position en serrant le ventre et les fessiers. Respire normalement.",
+        feel:"Le ventre, en plus léger qu'avec les pieds au sol.",
+        avoid:"Fesses trop hautes ou trop basses; tête qui pend; bloquer la respiration.",
+        note:"Tu tiens facilement ? Monte au niveau bras tendus ou avant-bras." },
+      { place:"Appui sur les mains (bras tendus, comme le haut d'une pompe) et la pointe des pieds. Corps en ligne droite parfaite, des talons à la tête.",
+        move:"Aucun mouvement — maintiens la position en serrant le ventre et les fessiers, en poussant activement les mains dans le sol.",
+        feel:"Le ventre, et un peu les épaules et les avant-bras à cause de l'appui sur les mains.",
+        avoid:"Fesses trop hautes ou trop basses; coudes qui se bloquent en hyperextension; bloquer la respiration.",
+        note:"Tu tiens facilement ? Passe aux avant-bras." },
+      { place:"Appui sur les avant-bras (coudes juste sous les épaules) et la pointe des pieds. Corps en ligne droite parfaite, des talons à la tête.",
+        move:"Aucun mouvement — tu maintiens la position en serrant le ventre et les fesses. Respire normalement, ne bloque pas ta respiration.",
+        feel:"Tout le ventre, en profondeur. Si tu sens surtout le bas du dos, serre plus les fesses et rentre légèrement le bas-ventre.",
+        avoid:"Fesses trop hautes (triche) ou trop basses (dos creux); tête qui pend; bloquer la respiration.",
+        note:"Tu tiens 40 s facilement ? Monte d'un niveau plutôt que d'allonger le temps." },
+      { place:"Même position que la planche sur avant-bras, coudes sous les épaules, pointe des pieds au sol.",
+        move:"En gardant la position stable, décolle un pied de quelques centimètres du sol pendant 3-5 secondes, repose-le, puis fais pareil avec l'autre. Alterne pendant toute la durée de la tenue.",
+        feel:"Le ventre, avec un travail supplémentaire de stabilité à chaque changement de pied.",
+        avoid:"Le bassin qui tourne ou qui bouge quand tu lèves un pied; fesses qui remontent pour compenser." },
+      { place:"Démarre en planche sur les avant-bras, coudes sous les épaules, pointe des pieds au sol.",
+        move:"Sans bouger le bassin, pose une main au sol puis l'autre pour monter en planche bras tendus, puis redescends un coude puis l'autre pour repasser sur les avant-bras. Continue à alterner pendant toute la durée.",
+        feel:"Le ventre en profondeur, et les épaules/triceps qui travaillent à chaque transition.",
+        avoid:"Le bassin qui se balance pendant les transitions; aller trop vite; fesses qui montent pour faciliter le passage." }
+    ] },
+
+  { id:12, name:"Toucher de talon (obliques)", short:"Toucher de talon", muscle:"Obliques",
+    type:"reps", sets:3, target:"12–15 réps", lo:13, hi:15, perSide:true, sideWord:"côté", rest:45,
+    levels:["Genoux pliés, pieds au sol","Plus lent et marqué","Jambes décollées, genoux pliés à 90°","Jambes tendues levées"], lvl0:2,
+    techByLevel:[
+      { place:"Allongé sur le dos, genoux pliés, pieds à plat au sol. Épaules décollées du sol, bras tendus le long du corps.",
+        move:"Plie le buste sur le côté pour aller toucher le talon avec la main, à gauche puis à droite, sans reposer les épaules entre les deux.",
+        feel:"Les côtés du ventre, à chaque touche.",
+        avoid:"Tirer avec les bras; reposer les épaules entre les touches; aller trop vite." },
+      { place:"Même installation : genoux pliés, pieds au sol.",
+        move:"Fais le même mouvement mais ralentis nettement, en marquant 1 seconde de contraction au moment où tu touches le talon, avant de revenir au centre et de partir de l'autre côté.",
+        feel:"Les côtés du ventre, plus intensément à cause du temps sous tension.",
+        avoid:"Reposer les épaules entre les touches; se relâcher pendant le retour au centre." },
+      { place:"Allongé sur le dos, jambes décollées, genoux pliés à 90° (cuisses à la verticale). Épaules décollées du sol.",
+        move:"Épaules décollées du sol en permanence, plie le buste sur le côté pour aller toucher le talon avec la main, à gauche puis à droite. Les bras suivent, ils ne tirent pas.",
+        feel:"Les côtés du ventre, à chaque touche. Si tu sens surtout les épaules ou la nuque, ralentis et concentre-toi sur le pli du buste.",
+        avoid:"Tirer avec les bras au lieu de plier le buste; reposer les épaules entre les touches; balancer les jambes." },
+      { place:"Allongé sur le dos, jambes tendues levées à la verticale (ou proche), épaules décollées du sol, bras tendus vers les pieds.",
+        move:"Plie le buste sur le côté pour aller toucher le pied ou la cheville avec la main, à gauche puis à droite, en gardant les jambes le plus droites et hautes possible.",
+        feel:"Les côtés du ventre, avec une intensité plus forte à cause du plus grand levier des jambes tendues.",
+        avoid:"Plier les genoux pour « tricher » et atteindre plus facilement; reposer les épaules entre les touches; balancer les jambes pour s'aider." }
+    ] },
+];
+
+/* ============ SÉANCE A · MARDI ============ */
+const EX_A = [
+  { id:101, name:"Presse à cuisses", short:"Presse à cuisses", muscle:"Cuisses · Fessiers",
+    type:"machine", sets:4, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:40,
+    levels:["Squat gobelet (haltère)","Presse à cuisses"], lvl0:1,
+    techByLevel:[
+      { place:"Debout, pieds largeur des épaules, un haltère tenu à la verticale contre la poitrine, les deux mains sous la tête de l'haltère. Coudes serrés vers l'intérieur.",
+        move:"Descends en poussant les fesses vers l'arrière et en pliant les genoux, jusqu'à ce que les cuisses arrivent à l'horizontale. Buste droit, talons au sol. Pousse dans les talons pour remonter.",
+        feel:"Avant des cuisses et fessiers.",
+        avoid:"Talons qui décollent; buste qui bascule en avant; genoux qui rentrent vers l'intérieur; arrondir le bas du dos en bas",
+        note:"Choisis gobelet OU presse et garde le même pendant plusieurs semaines : c'est ce qui rend ta progression comparable d'une séance à l'autre." },
+      { place:"Assis dans la presse, dos et bassin bien calés contre le dossier, pieds à plat sur la plateforme, largeur des épaules, à mi-hauteur.",
+        move:"Descends en pliant les genoux jusqu'à environ 90°, sans que le bas du dos décolle du dossier, puis pousse dans les talons sans verrouiller les genoux d'un coup en haut.",
+        feel:"Avant des cuisses et fessiers.",
+        avoid:"Descendre si bas que le bassin s'enroule et décolle du dossier; verrouiller les genoux violemment en haut; talons qui décollent de la plateforme",
+        note:"Choisis gobelet OU presse et garde le même pendant plusieurs semaines : c'est ce qui rend ta progression comparable d'une séance à l'autre." }
+    ] },
+
+  { id:102, name:"Hip thrust", short:"Hip thrust", muscle:"Fessiers · Ischios",
+    type:"machine", sets:3, target:"10–12 réps", lo:10, hi:12, rest:90, startKg:20,
+    tech:{ place:"Haut du dos calé contre un banc (juste sous les omoplates), pieds à plat au sol largeur des hanches, genoux pliés, barre ou charge posée sur le pli des hanches avec une mousse.",
+      move:"Pousse dans les talons et serre les fessiers pour monter le bassin jusqu'à aligner épaules, hanches et genoux. Marque 1 seconde en haut, puis redescends lentement.",
+      feel:"Les fessiers, franchement. C'est ton pont de la maison, en version chargée.",
+      avoid:"Cambrer le bas du dos pour monter plus haut (c'est la fesse qui monte le bassin, pas le dos); menton qui part en arrière; rebondir en bas" } },
+
+  { id:103, name:"Développé couché aux haltères", short:"Développé couché", muscle:"Poitrine · Triceps",
+    type:"machine", sets:4, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:8,
+    tech:{ place:"Allongé sur un banc plat, pieds à plat au sol, un haltère dans chaque main au niveau de la poitrine, paumes vers les pieds, omoplates serrées et plaquées dans le banc.",
+      move:"Pousse les haltères vers le plafond jusqu'à tendre les bras, sans les cogner l'un contre l'autre, puis redescends lentement jusqu'au niveau de la poitrine, coudes à environ 45° du corps.",
+      feel:"Poitrine et arrière des bras.",
+      avoid:"Coudes grands ouverts à 90° du corps; décoller les omoplates du banc; descendre trop vite; cambrer fortement le bas du dos",
+      note:"Le poids que tu saisis est celui d'UN haltère, pas les deux additionnés. Garde la même convention à chaque séance." } },
+
+  { id:104, name:"Tractions assistées", short:"Tractions assistées", muscle:"Dos · Bras",
+    type:"reps", sets:4, target:"4–6 réps", lo:4, hi:6, rest:120,
+    levels:["Machine à tractions assistées","Élastique épais (assistance forte)","Élastique moyen","Élastique fin","Excentriques seules (descente en 5 s)","Tractions complètes"], lvl0:1,
+    techByLevel:[
+      { place:"Genoux ou pieds posés sur le coussin de la machine assistée, mains sur la barre un peu plus larges que les épaules, bras tendus en bas.",
+        move:"Commence par baisser les épaules, puis tire jusqu'à amener le menton au niveau de la barre. Redescends lentement jusqu'aux bras complètement tendus.",
+        feel:"Côtés du dos, sous les aisselles, et avant des bras.",
+        avoid:"Se balancer; ne pas tendre les bras en bas; hausser les épaules vers les oreilles au départ" },
+      { place:"Élastique épais accroché à la barre, un genou ou un pied posé dedans. Mains sur la barre un peu plus larges que les épaules, bras tendus, corps gainé.",
+        move:"Baisse d'abord les épaules, puis tire jusqu'à passer le menton au-dessus de la barre. Redescends lentement, sans te laisser tomber.",
+        feel:"Côtés du dos et avant des bras. Le corps entier reste gainé, pas mou.",
+        avoid:"Se balancer avec l'élastique; lâcher la descente; ne pas tendre les bras en bas",
+        note:"Tu passes à l'élastique plus fin quand tu tiens 4 séries propres à 6 répétitions." },
+      { place:"Élastique moyen accroché à la barre, un pied dedans. Mains un peu plus larges que les épaules, bras tendus en bas, corps gainé.",
+        move:"Baisse les épaules, tire jusqu'au menton au-dessus de la barre, puis redescends lentement en contrôlant tout le trajet.",
+        feel:"Côtés du dos, avant des bras, et le ventre qui empêche le corps de se balancer.",
+        avoid:"Se balancer; lâcher la descente; demi-amplitude" },
+      { place:"Élastique fin accroché à la barre, un pied dedans. Mains un peu plus larges que les épaules, bras tendus, corps gainé.",
+        move:"Baisse les épaules, tire jusqu'au menton au-dessus de la barre, redescends lentement.",
+        feel:"Côtés du dos et avant des bras, avec une aide minimale de l'élastique.",
+        avoid:"Se balancer; lâcher la descente; demi-amplitude" },
+      { place:"Sans assistance. Place-toi directement en position haute, menton au-dessus de la barre, en t'aidant d'un banc ou d'un petit saut. Corps gainé.",
+        move:"Descends le plus lentement possible, compte 5 secondes, jusqu'aux bras tendus. Reviens en haut avec le banc ou le saut : tu ne travailles que la descente.",
+        feel:"Côtés du dos et avant des bras, avec une brûlure marquée sur la descente.",
+        avoid:"Se laisser tomber sur la fin de la descente; sauter la partie basse; bloquer la respiration" },
+      { place:"Suspendu à la barre, bras tendus, mains un peu plus larges que les épaules, jambes serrées, corps gainé.",
+        move:"Baisse les épaules, tire jusqu'à passer le menton au-dessus de la barre, puis redescends lentement jusqu'aux bras tendus.",
+        feel:"Côtés du dos et avant des bras.",
+        avoid:"Se balancer pour s'aider; demi-amplitude; lâcher la descente d'un coup" }
+    ] },
+
+  { id:105, name:"Relevés de genoux suspendus", short:"Relevés de genoux", muscle:"Bas-abdos · Compression",
+    type:"reps", sets:3, target:"8–12 réps", lo:8, hi:12, rest:60,
+    levels:["Aux appuis (avant-bras sur les coussins)","Suspendu, amplitude partielle","Suspendu, genoux à hauteur des hanches","Genoux + bascule du bassin en fin de montée","Jambes tendues"], lvl0:1,
+    techByLevel:[
+      { place:"Avant-bras posés sur les coussins de la chaise romaine, dos calé contre le dossier, jambes pendantes.",
+        move:"Monte les genoux pliés vers la poitrine en enroulant légèrement le bassin, puis redescends lentement sans balancer.",
+        feel:"Bas du ventre.",
+        avoid:"Se balancer pour lancer les jambes; redescendre d'un coup; cambrer le bas du dos en position basse" },
+      { place:"Suspendu à la barre, bras tendus, épaules actives (pas molles), jambes serrées.",
+        move:"Monte les genoux pliés à mi-chemin des hanches seulement, puis redescends lentement en gardant le corps stable.",
+        feel:"Bas du ventre, et les avant-bras qui travaillent à tenir la barre.",
+        avoid:"Se balancer; laisser les épaules complètement molles en bas; redescendre d'un coup",
+        note:"C'est le prolongement direct de tes relevés de jambes au sol : la règle reste la même, tu montes seulement aussi loin que tu contrôles." },
+      { place:"Suspendu à la barre, bras tendus, épaules actives, jambes serrées, corps immobile.",
+        move:"Monte les genoux pliés jusqu'à hauteur des hanches, puis redescends lentement sans laisser le corps partir en balancier.",
+        feel:"Bas du ventre.",
+        avoid:"Se balancer; utiliser l'élan de la répétition précédente; cambrer le bas du dos en bas" },
+      { place:"Suspendu à la barre, bras tendus, épaules actives, jambes serrées.",
+        move:"Monte les genoux jusqu'aux hanches, puis continue en enroulant le bassin vers toi (le bas du dos s'arrondit légèrement) avant de redescendre lentement.",
+        feel:"Bas du ventre, plus profondément grâce à la bascule du bassin en fin de montée.",
+        avoid:"Se balancer; monter les genoux sans jamais enrouler le bassin; redescendre d'un coup" },
+      { place:"Suspendu à la barre, bras tendus, épaules actives, jambes tendues et serrées.",
+        move:"Monte les jambes tendues aussi haut que possible en enroulant le bassin, puis redescends lentement jusqu'à la verticale.",
+        feel:"Bas du ventre, intensément, à cause du grand levier des jambes tendues.",
+        avoid:"Plier les genoux pour tricher; se balancer; redescendre d'un coup" }
+    ] },
+];
+
+/* ============ SÉANCE B · JEUDI ============ */
+const EX_B = [
+  { id:201, name:"Fentes bulgares aux haltères", short:"Fentes bulgares", muscle:"Cuisses · Fessiers",
+    type:"machine", sets:3, target:"8–10 réps", lo:8, hi:10, perSide:true, sideWord:"jambe", rest:90, startKg:6,
+    tech:{ place:"Dos à un banc, dessus du pied arrière posé dessus, pied avant un bon pas devant, à plat. Un haltère dans chaque main, bras le long du corps, buste droit.",
+      move:"Plie le genou avant pour descendre jusqu'à ce que la cuisse avant soit à l'horizontale, puis pousse dans le talon avant pour remonter. Tout le travail se fait sur la jambe avant.",
+      feel:"Avant de la cuisse et fessier de la jambe avant.",
+      avoid:"Genou avant qui rentre vers l'intérieur; buste trop penché en avant; prendre appui sur le pied arrière; haltères trop lourds qui déséquilibrent",
+      note:"C'est ta fente de la maison, en version chargée. Le poids saisi est celui d'UN haltère, et les répétitions sont par jambe." } },
+
+  { id:202, name:"Dips assistés", short:"Dips assistés", muscle:"Poitrine · Triceps",
+    type:"pushup", sets:4, target:"6–10 réps", lo:6, hi:10, rest:120,
+    levels:["Pompes au sol, complètes","Pompes en déficit (mains sur haltères)","Dips à la machine assistée","Dips à l'élastique","Dips complets"], lvl0:1,
+    techByLevel:[
+      { place:"Mains un peu plus larges que les épaules, sous la poitrine. Corps tendu d'un seul bloc.",
+        move:"Descends lentement, coudes légèrement vers l'arrière, jusqu'à frôler le sol, puis pousse pour remonter. Quand tu ne remontes plus proprement, finis la série en descentes lentes.",
+        feel:"Poitrine et arrière des bras.",
+        avoid:"Bassin qui tombe ou qui pointe en l'air; coudes grands ouverts; demi-amplitude" },
+      { place:"Une main sur chaque haltère hexagonal posé au sol, sous la poitrine, poignées parallèles. Corps tendu d'un seul bloc.",
+        move:"Descends lentement jusqu'à ce que la poitrine passe sous le niveau des mains, c'est ça le déficit, puis pousse pour remonter.",
+        feel:"Poitrine, plus étirée en bas qu'en pompe classique, et arrière des bras.",
+        avoid:"Haltères qui roulent (prends des hexagonaux); bassin qui tombe; couper l'amplitude basse, qui est justement l'intérêt du déficit",
+        note:"C'est la suite logique de tes pompes à la maison : même mouvement, amplitude augmentée, sans plafond de charge." },
+      { place:"Genoux ou pieds sur le coussin de la machine à dips assistés, mains sur les poignées, bras tendus, buste légèrement penché en avant.",
+        move:"Descends en pliant les coudes jusqu'à ce que les épaules arrivent au niveau des coudes, environ 90°, puis pousse pour remonter sans verrouiller violemment.",
+        feel:"Poitrine et arrière des bras.",
+        avoid:"Descendre au point de sentir tirer l'avant de l'épaule; hausser les épaules vers les oreilles; rebondir en bas" },
+      { place:"Élastique tendu entre les deux barres parallèles, genoux posés dessus. Mains sur les barres, bras tendus, corps gainé.",
+        move:"Descends en pliant les coudes jusqu'à environ 90°, puis pousse pour remonter en contrôlant.",
+        feel:"Poitrine et arrière des bras, avec une aide dégressive de l'élastique.",
+        avoid:"Se balancer sur l'élastique; descendre trop bas; hausser les épaules" },
+      { place:"Suspendu aux barres parallèles, bras tendus, corps gainé, jambes légèrement croisées.",
+        move:"Descends en pliant les coudes jusqu'à environ 90°, buste légèrement penché en avant, puis pousse pour remonter.",
+        feel:"Poitrine et arrière des bras.",
+        avoid:"Descendre au-delà de 90° si tu sens tirer l'avant de l'épaule; se balancer; hausser les épaules" }
+    ] },
+
+  { id:203, name:"Développé militaire", short:"Développé militaire", muscle:"Épaules · Triceps",
+    type:"machine", sets:3, target:"8–10 réps", lo:8, hi:10, rest:90, startKg:8,
+    tech:{ place:"Assis sur un banc à dossier droit, ou debout ventre et fessiers serrés. Un haltère dans chaque main au niveau des épaules, paumes vers l'avant, coudes sous les mains.",
+      move:"Pousse les haltères vers le plafond jusqu'à tendre les bras au-dessus de la tête, puis redescends lentement jusqu'au niveau des oreilles.",
+      feel:"Le dessus et l'avant des épaules, et l'arrière des bras.",
+      avoid:"Cambrer le bas du dos pour pousser plus fort (serre les fessiers); descendre au point de sentir tirer l'épaule; cogner les haltères en haut",
+      note:"C'est la version chargée de tes pompes en V. Le poids saisi est celui d'UN haltère." } },
+
+  { id:204, name:"Tractions australiennes", short:"Tractions australiennes", muscle:"Milieu du dos",
+    type:"reps", sets:4, target:"8–12 réps", lo:8, hi:12, rest:90,
+    levels:["Barre haute, corps très incliné","Barre à hauteur des hanches","Barre basse, corps proche de l'horizontale","Pieds surélevés sur un banc","Pause de 2 s poitrine contre la barre"], lvl0:1,
+    techByLevel:[
+      { place:"Barre réglée haut, au niveau de la poitrine quand tu es debout. Attrape-la mains largeur d'épaules, recule les pieds pour incliner le corps, talons au sol, corps en ligne droite.",
+        move:"Tire la poitrine vers la barre en serrant les omoplates, coudes près du corps, puis redescends lentement jusqu'aux bras tendus.",
+        feel:"Milieu du dos, entre les omoplates.",
+        avoid:"Bassin qui tombe; tirer seulement avec les bras; demi-amplitude" },
+      { place:"Barre réglée à hauteur des hanches. Corps sous la barre, mains largeur d'épaules, talons au sol, corps en ligne droite des talons à la tête.",
+        move:"Tire la poitrine jusqu'à la barre en serrant les omoplates, coudes près du corps, puis redescends lentement jusqu'aux bras tendus.",
+        feel:"Milieu du dos, entre les omoplates, et avant des bras.",
+        avoid:"Bassin qui tombe (serre les fessiers); tirer avec les bras sans serrer les omoplates; ne pas toucher la barre",
+        note:"C'est l'équivalent au poids du corps de ton tirage poulie basse : même zone du dos, mais c'est le corps qui bouge, pas la charge." },
+      { place:"Barre réglée bas. Corps allongé sous la barre, presque horizontal, talons au sol, corps gainé d'un bloc.",
+        move:"Tire la poitrine jusqu'à toucher la barre en serrant les omoplates, puis redescends lentement jusqu'aux bras tendus.",
+        feel:"Milieu du dos, plus intensément à cause de l'angle proche de l'horizontale.",
+        avoid:"Bassin qui tombe; demi-amplitude; se cambrer pour toucher la barre plus facilement" },
+      { place:"Barre basse, talons posés sur un banc pour que le corps soit horizontal ou légèrement tête en bas. Mains largeur d'épaules.",
+        move:"Tire la poitrine jusqu'à la barre en serrant les omoplates, puis redescends lentement.",
+        feel:"Milieu du dos, avec un travail de gainage plus fort pour tenir le corps aligné.",
+        avoid:"Bassin qui tombe; banc instable; demi-amplitude" },
+      { place:"Même installation que barre basse ou pieds surélevés, corps gainé d'un bloc.",
+        move:"Tire la poitrine contre la barre, tiens 2 secondes en serrant les omoplates, puis redescends lentement.",
+        feel:"Milieu du dos, avec une contraction très marquée pendant la pause.",
+        avoid:"Relâcher pendant la pause; bassin qui tombe pendant la tenue" }
+    ] },
+
+  { id:205, name:"Hollow body", short:"Hollow body", muscle:"Gainage profond",
+    type:"hold", sets:3, target:"tenue 25 s", hold:25, rest:60,
+    levels:["Genoux pliés, bras le long du corps","Genoux pliés, bras au-dessus de la tête","Une jambe tendue","Jambes tendues, bras le long du corps","Jambes tendues, bras au-dessus de la tête"], lvl0:0,
+    techByLevel:[
+      { place:"Allongé sur le dos, bas du dos écrasé activement contre le sol, genoux pliés au-dessus des hanches, épaules et tête légèrement décollées, bras le long du corps.",
+        move:"Aucun mouvement, tu tiens la position en gardant le bas du dos plaqué au sol. Respire normalement.",
+        feel:"Tout le ventre, en profondeur.",
+        avoid:"Laisser le bas du dos décoller (c'est le signal d'arrêt, pas une limite à dépasser); tirer sur la nuque; bloquer la respiration",
+        note:"C'est le successeur direct de ton dead bug : même exigence sur le bas du dos, mais en tenue." },
+      { place:"Même position, bras tendus au-dessus de la tête à côté des oreilles. Bas du dos toujours écrasé au sol.",
+        move:"Aucun mouvement, tu tiens la position, bras et genoux fixes, bas du dos plaqué.",
+        feel:"Tout le ventre, plus intensément à cause des bras allongés.",
+        avoid:"Bas du dos qui décolle quand les bras partent en arrière; tirer sur la nuque; bloquer la respiration" },
+      { place:"Même position, bras au-dessus de la tête, une jambe tendue en l'air et l'autre pliée.",
+        move:"Aucun mouvement. Change de jambe à la moitié de la tenue pour équilibrer les deux côtés.",
+        feel:"Tout le ventre, avec un levier plus long du côté de la jambe tendue.",
+        avoid:"Bas du dos qui décolle; jambe tendue qui descend trop bas; bloquer la respiration" },
+      { place:"Allongé sur le dos, bas du dos écrasé au sol, jambes tendues et serrées levées à environ 30 cm du sol, épaules décollées, bras le long du corps.",
+        move:"Aucun mouvement, tu tiens la position, le corps en forme de banane creuse.",
+        feel:"Tout le ventre, intensément.",
+        avoid:"Bas du dos qui décolle (remonte les jambes plus haut si ça arrive); tirer sur la nuque; bloquer la respiration" },
+      { place:"Même position, jambes tendues serrées à 30 cm du sol, bras tendus au-dessus de la tête à côté des oreilles.",
+        move:"Aucun mouvement, tu tiens la position complète, corps en banane creuse, bas du dos plaqué.",
+        feel:"Tout le ventre, au maximum d'intensité pour cet exercice.",
+        avoid:"Bas du dos qui décolle; casser la position pour tenir plus longtemps; bloquer la respiration" }
+    ] },
+];
+
+/* ============ PROGRAMMES ============ */
+const PROGRAMS = [
+  { id:"A", label:"Séance A", day:"Salle · mardi", ex:EX_A },
+  { id:"B", label:"Séance B", day:"Salle · jeudi", ex:EX_B },
+  { id:"M", label:"Maison",   day:"Full body",     ex:EX_MAISON },
+];
+let EX = [];
+let TOTAL_SETS = 0;
+const RING_C = 2 * Math.PI * 54;
+/* ============ STOCKAGE LOCAL (robuste) ============ */
+const store = {
+  get(k,def){ try{ const v=localStorage.getItem(k); return v==null?def:JSON.parse(v); }catch(e){ return def; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+const K = { SOUND:"TEMPO_S_SOUND", PROG:"TEMPO_S_PROG" };
+/* Clés séparées par séance, et distinctes de l'app maison (qui garde ses propres données). */
+function kLevels(){ return "TEMPO_S_LEVELS_"+progId; }
+function kHist(){ return "TEMPO_S_HIST_"+progId; }
+function kActive(){ return "TEMPO_S_ACTIVE_"+progId; }
+
+/* ============ SÉANCE ACTIVE (A ou B) ============ */
+let progId = store.get("TEMPO_S_PROG", "A");
+function curProg(){ return PROGRAMS.find(p=>p.id===progId) || PROGRAMS[0]; }
+function applyProgram(){
+  EX = curProg().ex;
+  EX.forEach((e,i)=>{ e.pos=i+1; });
+  TOTAL_SETS = EX.reduce((s,e)=>s+e.sets,0);
+}
+applyProgram();
+function setProgram(id){
+  if(id===progId) return;
+  progId=id; store.set(K.PROG, progId);
+  applyProgram();
+  state.levels=loadLevels();
+  state.session=null; state.exIndex=0; state.setIndex=0;
+  stopCountdown(); goHome();
+}
+
+/* ============ ÉTAT ============ */
+const state = {
+  phase:"home", exIndex:0, setIndex:0,
+  session:null,
+  levels: loadLevels(),
+  sound: store.get(K.SOUND, true),
+  cd:null, holdResult:null, holdStart:0,
+};
+
+function loadLevels(){
+  const saved = store.get(kLevels(), {});
+  const out = {};
+  EX.forEach(e=>{ if(e.levels){ out[e.id] = (saved && saved[e.id]!=null) ? saved[e.id] : e.lvl0; } });
+  return out;
+}
+function levelOf(ex){ return ex.levels ? (state.levels[ex.id]!=null ? state.levels[ex.id] : ex.lvl0) : null; }
+function levelName(ex){ return ex.levels ? ex.levels[levelOf(ex)] : null; }
+
+/* ============ RACCOURCIS DOM ============ */
+const screenEl = document.getElementById("screen");
+const topbar = document.getElementById("topbar");
+const sheetEl = document.getElementById("sheet");
+const toastEl = document.getElementById("toast");
+const q = (sel)=> screenEl.querySelector(sel);
+
+/* ============ AUDIO ============ */
+let actx=null;
+function unlockAudio(){ try{ if(!actx){ const AC=window.AudioContext||window.webkitAudioContext; if(AC) actx=new AC(); } if(actx && actx.state==="suspended") actx.resume(); }catch(e){} }
+function beep(freq,dur){
+  if(!state.sound) return;
+  try{
+    if(!actx) unlockAudio();
+    if(!actx) return;
+    const o=actx.createOscillator(), g=actx.createGain();
+    o.type="sine"; o.frequency.value=freq;
+    o.connect(g); g.connect(actx.destination);
+    const t=actx.currentTime;
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(0.32,t+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.start(t); o.stop(t+dur+0.03);
+  }catch(e){}
+}
+
+/* ============ CHRONO GÉNÉRIQUE ============ */
+function startCountdown(totalSec, opts){
+  stopCountdown();
+  state.cd = {
+    endAt: Date.now()+totalSec*1000, total: totalSec,
+    numEl: opts.numEl, ringEl: opts.ringEl,
+    onDone: opts.onDone, beepOn: opts.beep!==false,
+    lastSec: Math.ceil(totalSec), iv:null
+  };
+  tickCountdown();
+  state.cd.iv = setInterval(tickCountdown, 100);
+}
+function tickCountdown(){
+  const cd=state.cd; if(!cd) return;
+  let rem=(cd.endAt-Date.now())/1000; if(rem<0) rem=0;
+  const remCeil=Math.ceil(rem);
+  if(cd.numEl) cd.numEl.textContent = mmss(remCeil);
+  if(cd.ringEl) cd.ringEl.style.strokeDashoffset = (RING_C*(1-(cd.total? rem/cd.total : 0))).toFixed(1);
+  if(remCeil<cd.lastSec){
+    cd.lastSec=remCeil;
+    if(cd.beepOn && remCeil>=1 && remCeil<=3) beep(880,0.08);
+  }
+  if(rem<=0){
+    clearInterval(cd.iv);
+    const done=cd.onDone, b=cd.beepOn;
+    state.cd=null;
+    if(b) beep(540,0.26);
+    if(done) done();
+  }
+}
+function stopCountdown(){ if(state.cd && state.cd.iv) clearInterval(state.cd.iv); state.cd=null; }
+function addTime(sec){ if(state.cd){ state.cd.endAt+=sec*1000; state.cd.total+=sec; tickCountdown(); } }
+function mmss(s){ const m=Math.floor(s/60), r=s%60; return m+":"+String(r).padStart(2,"0"); }
+
+/* ============ FORMATAGE RÉSULTATS ============ */
+function frNum(n){ if(n==null||isNaN(n)) return "0"; return (n%1===0)? String(n) : String(n).replace(".",","); }
+function fmtResult(ex,r){
+  if(!r || r.skipped) return "—";
+  if(ex.type==="machine") return frNum(r.kg)+" kg × "+r.reps;
+  if(ex.type==="pushup") return r.strict+"/"+r.neg;
+  if(ex.type==="reps") return ex.perSide ? (r.l+"/"+r.r) : String(r.reps);
+  if(ex.type==="hold") return r.sec+" s";
+  return "—";
+}
+function frDate(iso){ const d=new Date(iso); const p=(x)=>String(x).padStart(2,"0"); return p(d.getDate())+"/"+p(d.getMonth()+1)+"/"+d.getFullYear(); }
+
+/* ============ HISTORIQUE / DERNIÈRE FOIS ============ */
+function getHistory(){ return store.get(kHist(), []); }
+function lastTimeResult(exId, setIdx){
+  const h=getHistory();
+  for(let i=h.length-1;i>=0;i--){
+    const e=h[i].entries && h[i].entries[exId];
+    if(e && e.sets && e.sets[setIdx] && !e.sets[setIdx].skipped) return e.sets[setIdx];
+  }
+  return null;
+}
+
+/* ============ SESSION ACTIVE ============ */
+function newSession(){ return { date:new Date().toISOString(), prog:progId, entries:{} }; }
+function ensureEntry(){
+  const ex=EX[state.exIndex];
+  if(!state.session.entries[ex.id]){
+    state.session.entries[ex.id] = { levelIndex: levelOf(ex), sets: Array(ex.sets).fill(null) };
+  }
+}
+function saveActive(){ store.set(kActive(), { exIndex:state.exIndex, setIndex:state.setIndex, session:state.session }); }
+function clearActive(){ store.del(kActive()); }
+function getActive(){ return store.get(kActive(), null); }
+
+/* ============ NAVIGATION ============ */
+function setPhase(p){
+  state.phase=p;
+  document.body.dataset.phase=p;
+}
+function nextPointer(exI,setI){
+  const ex=EX[exI];
+  if(setI+1 < ex.sets) return { exIndex:exI, setIndex:setI+1 };
+  if(exI+1 < EX.length) return { exIndex:exI+1, setIndex:0 };
+  return null;
+}
+
+function start(fresh){
+  unlockAudio();
+  state.session=newSession(); state.exIndex=0; state.setIndex=0;
+  saveActive(); goEffort();
+}
+function resume(){
+  unlockAudio();
+  const a=getActive(); if(!a){ goHome(); return; }
+  state.session=a.session || newSession();
+  state.exIndex=a.exIndex||0; state.setIndex=a.setIndex||0;
+  goEffort();
+}
+function goHome(){ stopCountdown(); setPhase("home"); renderTopbar(); renderHome(); }
+function goEffort(){ stopCountdown(); state.holdResult=null; setPhase("effort"); ensureEntry(); saveActive(); renderTopbar(); renderEffort(); }
+function goRecovery(){ setPhase("recovery"); renderTopbar(); renderRecovery(); }
+function goEnd(){
+  stopCountdown();
+  // sauvegarder la séance dans l'historique
+  const h=getHistory();
+  h.push(state.session);
+  while(h.length>60) h.shift();
+  store.set(kHist(), h);
+  clearActive();
+  setPhase("end"); renderTopbar(); renderEnd();
+}
+
+function setFait(){ // depuis l'écran d'effort (hors gainage)
+  goRecovery();
+}
+function skipSet(){
+  ensureEntry();
+  state.session.entries[EX[state.exIndex].id].sets[state.setIndex] = { skipped:true };
+  saveActive();
+  const nx=nextPointer(state.exIndex,state.setIndex);
+  if(!nx){ goEnd(); return; }
+  state.exIndex=nx.exIndex; state.setIndex=nx.setIndex; goEffort();
+}
+function finishRest(){
+  commitInput();
+  stopCountdown();
+  const nx=nextPointer(state.exIndex,state.setIndex);
+  if(!nx){ goEnd(); return; }
+  state.exIndex=nx.exIndex; state.setIndex=nx.setIndex; goEffort();
+}
+function commitInput(){
+  const ex=EX[state.exIndex]; ensureEntry();
+  let r;
+  if(ex.type==="hold"){ r={ sec: (state.holdResult!=null? state.holdResult : ex.hold) }; }
+  else r=readResult(ex);
+  if(ex.levels) r.lvl = levelOf(ex);
+  state.session.entries[ex.id].sets[state.setIndex]=r;
+  saveActive();
+}
+
+/* ============ GAINAGE (tenue chronométrée) ============ */
+function startHold(){
+  const ex=EX[state.exIndex];
+  state.holdResult=null; state.holdStart=Date.now();
+  // remplace la zone d'action par le chrono live
+  const bar=q("#actionbar");
+  bar.innerHTML =
+    '<div class="hold-live">'+ ringHTML("hold") +
+      '<button class="btn-soft" data-act="hold-stop" style="margin-top:18px;width:100%">J\'arrête</button>'+
+    '</div>';
+  q("#hold-sub").textContent="Tiens la position";
+  startCountdown(ex.hold, {
+    numEl:q("#hold-time"), ringEl:q("#hold-fg"),
+    onDone:()=>{ state.holdResult=ex.hold; afterHold(); }
+  });
+}
+function stopHold(){
+  const ex=EX[state.exIndex];
+  const elapsed=Math.min(ex.hold, Math.round((Date.now()-state.holdStart)/1000));
+  stopCountdown();
+  state.holdResult = elapsed>0 ? elapsed : 1;
+  afterHold();
+}
+function afterHold(){
+  const ex=EX[state.exIndex]; ensureEntry();
+  const r = { sec: state.holdResult };
+  if(ex.levels) r.lvl = levelOf(ex);
+  state.session.entries[ex.id].sets[state.setIndex] = r;
+  saveActive();
+  goRecovery();
+}
+
+/* ============ RENDU : TOPBAR ============ */
+function renderTopbar(){
+  const muteIcon = state.sound ? iconSound() : iconMute();
+  if(state.phase==="home" || state.phase==="end"){
+    topbar.className="hide-progress";
+    topbar.innerHTML =
+      '<div class="brandmini">TEMPO</div>'+
+      '<button class="mute '+(state.sound?'':'off')+'" data-act="mute" aria-label="Son">'+muteIcon+'</button>';
+  } else {
+    const done = setsBefore(state.exIndex)+state.setIndex+1;
+    const pct = Math.round(done/TOTAL_SETS*100);
+    topbar.className="";
+    topbar.innerHTML =
+      '<div class="prog">'+
+        '<div class="prog-meta"><span>'+(state.phase==="recovery"?"Récup":"Effort")+'</span><span><b>'+done+'</b> / '+TOTAL_SETS+' séries</span></div>'+
+        '<div class="prog-track"><div class="prog-fill" style="width:'+pct+'%"></div></div>'+
+      '</div>'+
+      '<button class="mute '+(state.sound?'':'off')+'" data-act="mute" aria-label="Son">'+muteIcon+'</button>';
+  }
+}
+function setsBefore(exI){ let s=0; for(let i=0;i<exI;i++) s+=EX[i].sets; return s; }
+function iconSound(){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>'; }
+function iconMute(){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>'; }
+
+/* ============ RENDU : ACCUEIL ============ */
+function renderHome(){
+  const est = Math.round(EX.reduce((s,e)=> s + e.sets*(e.rest+35), 0)/60);
+  const active = getActive();
+  let rows="";
+  EX.forEach(e=>{
+    rows += '<div class="ex-row">'+
+      '<div class="ex-num">'+String(e.pos).padStart(2,"0")+'</div>'+
+      '<div class="ex-info"><div class="ex-name">'+e.short+'</div><div class="ex-muscle">'+e.muscle+'</div></div>'+
+      '<div class="ex-vol">'+e.sets+' × '+volShort(e)+'</div>'+
+    '</div>';
+  });
+  let resumeBlock="", actionBlock="";
+  if(active){
+    const ex=EX[active.exIndex];
+    resumeBlock =
+      '<div class="resume-card">'+
+        '<div class="rc-lbl">Séance en cours</div>'+
+        '<div class="rc-ex">'+String(ex.pos).padStart(2,"0")+'. '+ex.short+' · série '+(active.setIndex+1)+'</div>'+
+      '</div>';
+    actionBlock =
+      '<button class="btn" data-act="resume">Reprendre la séance</button>'+
+      '<button class="btn-ghost" data-act="ask-restart">Recommencer à zéro</button>';
+  } else {
+    actionBlock = '<button class="btn" data-act="start">Commencer la séance</button>';
+  }
+  screenEl.innerHTML =
+    '<div class="scroll anim-in">'+
+      '<div class="hero">'+
+        '<div class="wordmark"><h1>TEMPO</h1><div class="beat" aria-hidden="true"></div></div>'+
+        '<div class="tagline">Séance guidée, série par série. Effort puis récup, tu remplis tes résultats pendant le repos.</div>'+
+        '<div class="seg seg-prog">'+
+          PROGRAMS.map(p=>'<button class="'+(p.id===progId?"on":"")+'" data-act="prog" data-prog="'+p.id+'"><b>'+p.label+'</b><i>'+p.day+'</i></button>').join("")+
+        '</div>'+
+        '<div class="session-stat">'+
+          '<div class="stat"><b>'+EX.length+'</b><span>Exercices</span></div>'+
+          '<div class="stat"><b>'+TOTAL_SETS+'</b><span>Séries</span></div>'+
+          '<div class="stat"><b>≈'+est+'</b><span>Minutes</span></div>'+
+        '</div>'+
+        resumeBlock+
+      '</div>'+
+      '<div class="list-head">La séance</div>'+
+      rows+
+    '</div>'+
+    '<div class="home-actions">'+
+      actionBlock+
+      '<div class="foot-actions">'+
+        '<button class="btn-soft" data-act="export-home">Exporter cette séance</button>'+
+        '<button class="btn-soft danger" data-act="ask-erase">Effacer mes données</button>'+
+      '</div>'+
+    '</div>';
+}
+function volShort(e){
+  if(e.type==="hold") return "tenue "+e.hold+" s";
+  if(e.type==="pushup") return e.target ? e.target.replace(" réps","") : "max propre";
+  return e.target.replace(" réps","");
+}
+
+/* ============ RENDU : EFFORT ============ */
+function renderEffort(){
+  const ex=EX[state.exIndex];
+  const t = ex.techByLevel ? ex.techByLevel[levelOf(ex)] : ex.tech;
+  // chips objectif
+  let chips='<span class="chip accent">'+objText(ex)+'</span>';
+  if(ex.perSide) chips+='<span class="chip">par '+ex.sideWord+'</span>';
+  chips+='<span class="chip">repos '+ex.rest+' s</span>';
+  // dots
+  let dots="";
+  for(let i=0;i<ex.sets;i++){ dots+='<i class="'+(i<state.setIndex?"done":(i===state.setIndex?"active":""))+'"></i>'; }
+  // niveau
+  let levelBlock="";
+  if(ex.levels){
+    const i=levelOf(ex);
+    levelBlock =
+      '<div class="level">'+
+        '<div class="level-top"><span class="lt-lbl">Niveau de difficulté</span><span class="lt-pos" id="lvl-pos">'+(i+1)+'/'+ex.levels.length+'</span></div>'+
+        '<div class="level-ctrl">'+
+          '<button class="lv-btn" data-act="lvl" data-dir="-1" '+(i<=0?"disabled":"")+'>−</button>'+
+          '<div class="lv-name" id="lvl-name">'+ex.levels[i]+'</div>'+
+          '<button class="lv-btn" data-act="lvl" data-dir="1" '+(i>=ex.levels.length-1?"disabled":"")+'>+</button>'+
+        '</div>'+
+      '</div>';
+  }
+  // technique
+  const avoidItems = t.avoid.split(/;\s*/).filter(Boolean).map(s=>'<li>'+s.trim().replace(/\.$/,"")+'</li>').join("");
+  let tech =
+    '<div class="tech">'+
+      tblock("Placement","",t.place)+
+      tblock("Mouvement","",t.move)+
+      tblock("Où le sentir","feel",t.feel)+
+      '<div class="tblock"><div class="tlabel avoid"><span class="bar"></span>À éviter</div><ul class="avoid-list">'+avoidItems+'</ul></div>'+
+      (t.note?'<div class="tnote"><b>↳</b> '+t.note+'</div>':"")+
+    '</div>';
+  // barre d'action
+  let actionInner;
+  if(ex.type==="hold"){
+    actionInner = '<button class="btn" data-act="hold-start">Démarrer la tenue · '+mmss(ex.hold)+'</button>'+
+      '<button class="btn-ghost" data-act="skip">Passer cette série</button>';
+  } else {
+    actionInner = '<button class="btn" data-act="fait">Série faite</button>'+
+      '<button class="btn-ghost" data-act="skip">Passer cette série</button>';
+  }
+
+  screenEl.innerHTML =
+    '<div class="scroll anim-in">'+
+      '<div class="eyebrow">Exercice '+ex.id+'<span class="dot">·</span><span class="muscle">'+ex.muscle+'</span></div>'+
+      '<div class="ex-title">'+ex.name+'</div>'+
+      '<div class="obj-row">'+chips+'</div>'+
+      '<div class="dots">'+dots+'</div>'+
+      levelBlock+
+      tech+
+      '<div class="reminder"><b>Tempo</b> · descente en 2–3 s · ventre &amp; fessiers serrés · amplitude complète</div>'+
+    '</div>'+
+    '<div class="action-bar" id="actionbar">'+actionInner+'</div>';
+}
+function tblock(label,cls,text){
+  return '<div class="tblock"><div class="tlabel '+cls+'"><span class="bar"></span>'+label+'</div><p>'+text+'</p></div>';
+}
+function objText(ex){
+  if(ex.type==="hold") return "Tenue "+ex.hold+" s";
+  if(ex.type==="pushup") return ex.target || "Au max propre";
+  return ex.target;
+}
+
+/* ============ RENDU : RÉCUPÉRATION ============ */
+function renderRecovery(){
+  const ex=EX[state.exIndex];
+  // bloc saisie / confirmation
+  let inputBlock;
+  if(ex.type==="hold"){
+    inputBlock =
+      '<div class="rec-card"><h3>Série tenue</h3>'+
+        '<div class="hold-done"><div class="hd-num mono">'+state.holdResult+' s</div><div class="hd-lbl">'+(levelName(ex)||"")+'</div></div>'+
+      '</div>';
+  } else {
+    inputBlock = '<div class="rec-card"><h3>Ta série · saisis tes résultats</h3>'+ inputFields(ex) +'</div>';
+  }
+  // dernière fois
+  const last=lastTimeResult(ex.id, state.setIndex);
+  const lastHtml = last ? '<div class="lasttime">Dernière fois : <b>'+fmtResult(ex,last)+'</b></div>'
+                        : '<div class="lasttime" style="color:var(--faint)">Première fois sur cette série</div>';
+  // à suivre
+  const nx=nextPointer(state.exIndex,state.setIndex);
+  let nextHtml;
+  if(nx){
+    const nex=EX[nx.exIndex];
+    const label = (nx.exIndex===state.exIndex) ? ("Série "+(nx.setIndex+1)+" · "+nex.short) : (nex.short+" · série 1");
+    nextHtml = '<div class="nextup"><div><div class="nu-lbl">À suivre</div><div class="nu-ex">'+label+'</div></div><div class="nu-arrow">→</div></div>';
+  } else {
+    nextHtml = '<div class="nextup"><div><div class="nu-lbl">À suivre</div><div class="nu-ex">Fin de séance 🏁</div></div></div>';
+  }
+
+  screenEl.innerHTML =
+    '<div class="scroll anim-in">'+
+      '<div class="rec-top">'+ ringHTML("rec") +'</div>'+
+      inputBlock+
+      lastHtml+
+      '<div class="nudge" id="nudge"></div>'+
+      nextHtml+
+    '</div>'+
+    '<div class="rec-actions">'+
+      '<div class="row">'+
+        '<button class="btn-soft" data-act="add15">+ 15 s</button>'+
+        '<button class="btn-soft" data-act="mute-row">'+(state.sound?"Couper le son":"Activer le son")+'</button>'+
+      '</div>'+
+      '<button class="btn" data-act="finish-rest">Terminer le repos</button>'+
+    '</div>';
+
+  q("#rec-sub").textContent="Récupération";
+  // chrono de repos
+  startCountdown(ex.rest, {
+    numEl:q("#rec-time"), ringEl:q("#rec-fg"),
+    onDone:()=>{ finishRest(); }
+  });
+
+  // écouteurs de saisie pour le nudge
+  if(ex.type!=="hold"){
+    screenEl.querySelectorAll(".num-mid input").forEach(inp=>{
+      inp.addEventListener("input", updateNudge);
+    });
+  }
+  updateNudge();
+}
+
+function ringHTML(prefix){
+  // prefix: "rec" ou "hold"
+  const target = prefix==="hold" ? EX[state.exIndex].hold : EX[state.exIndex].rest;
+  return '<div class="ringwrap">'+
+    '<svg class="ring" viewBox="0 0 120 120">'+
+      '<circle class="ring-bg" cx="60" cy="60" r="54"></circle>'+
+      '<circle class="ring-fg" id="'+prefix+'-fg" cx="60" cy="60" r="54" stroke-dasharray="'+RING_C.toFixed(1)+'" stroke-dashoffset="0"></circle>'+
+    '</svg>'+
+    '<div class="ring-center"><div class="ring-time mono" id="'+prefix+'-time">'+mmss(target)+'</div><div class="ring-sub" id="'+prefix+'-sub"></div></div>'+
+  '</div>';
+}
+
+function inputFields(ex){
+  const pf=prefill(ex);
+  if(ex.type==="machine"){
+    return field("Poids","kg", numHTML("in-kg", pf.kg, 2.5, "kg")) +
+           field("Répétitions","", numHTML("in-reps", pf.reps, 1, "réps"));
+  }
+  if(ex.type==="pushup"){
+    return field("Strictes (montées)","", numHTML("in-strict", pf.strict, 1, "")) +
+           field("Négatives (descentes lentes)","", numHTML("in-neg", pf.neg, 1, ""));
+  }
+  if(ex.type==="reps"){
+    if(ex.perSide){
+      return '<div class="two-fields">'+
+        field("Gauche","", numHTML("in-l", pf.l, 1, "")) +
+        field("Droite","", numHTML("in-r", pf.r, 1, "")) +
+      '</div>';
+    }
+    return field("Répétitions","", numHTML("in-reps", pf.reps, 1, "réps"));
+  }
+  return "";
+}
+function field(label,suf,inner){ return '<div class="field"><label>'+label+'</label>'+inner+'</div>'; }
+function numHTML(id, val, step, suf){
+  return '<div class="num">'+
+    '<button data-act="step" data-tgt="'+id+'" data-step="'+step+'" data-dir="-1">−</button>'+
+    '<div class="num-mid"><input id="'+id+'" inputmode="'+(step<1?"decimal":"numeric")+'" value="'+val+'">'+(suf?'<span class="num-suf">'+suf+'</span>':'')+'</div>'+
+    '<button data-act="step" data-tgt="'+id+'" data-step="'+step+'" data-dir="1">+</button>'+
+  '</div>';
+}
+function prefill(ex){
+  const L=(idx)=>lastTimeResult(ex.id, idx);
+  const last=L(state.setIndex);
+  if(ex.type==="machine") return last ? {kg:last.kg, reps:last.reps} : {kg:ex.startKg, reps:ex.lo};
+  if(ex.type==="pushup")  return last ? {strict:last.strict, neg:last.neg} : {strict:5, neg:3};
+  if(ex.type==="reps"){
+    if(ex.perSide) return last ? {l:last.l, r:last.r} : {l:ex.lo, r:ex.lo};
+    return last ? {reps:last.reps} : {reps:ex.lo};
+  }
+  return {};
+}
+function readResult(ex){
+  const iv=(id)=>{ const el=q("#"+id); const n=parseInt((el?el.value:"0").replace(/[^0-9]/g,""),10); return isNaN(n)?0:n; };
+  const fv=(id)=>{ const el=q("#"+id); const n=parseFloat((el?el.value:"0").replace(",",".").replace(/[^0-9.]/g,"")); return isNaN(n)?0:n; };
+  if(ex.type==="machine") return { kg:fv("in-kg"), reps:iv("in-reps") };
+  if(ex.type==="pushup")  return { strict:iv("in-strict"), neg:iv("in-neg") };
+  if(ex.type==="reps")    return ex.perSide ? { l:iv("in-l"), r:iv("in-r") } : { reps:iv("in-reps") };
+  return {};
+}
+function updateNudge(){
+  const ex=EX[state.exIndex]; const el=q("#nudge"); if(!el) return;
+  let txt="";
+  if(ex.type==="machine"){
+    const r=readResult(ex);
+    if(r.reps>ex.hi) txt="Objectif dépassé — la prochaine fois, monte d'une plaque.";
+  } else if(ex.type==="reps"){
+    const r=readResult(ex);
+    const v=ex.perSide ? Math.min(r.l,r.r) : r.reps;
+    if(v>ex.hi) txt="Objectif dépassé — la prochaine fois, monte d'un niveau.";
+  } else if(ex.type==="pushup"){
+    const r=readResult(ex);
+    if(ex.hi && r.strict>ex.hi) txt="Objectif dépassé — la prochaine fois, monte d'un niveau.";
+  } else if(ex.type==="hold"){
+    if(state.holdResult>=ex.hold) txt="Tenu jusqu'au bout — passe au niveau suivant la prochaine fois.";
+  }
+  el.textContent=txt;
+}
+
+/* ============ RENDU : FIN ============ */
+function renderEnd(){
+  const s=state.session;
+  let rows="";
+  EX.forEach(e=>{
+    const ent=s.entries[e.id];
+    let res="—", cls=" recap-empty";
+    if(ent){
+      const parts=ent.sets.map(r=> (r&&!r.skipped)? fmtResult(e,r) : null).filter(Boolean);
+      if(parts.length){ res=parts.join(", "); cls=""; }
+    }
+    rows += '<div class="recap-row">'+
+      '<div class="recap-num">'+String(e.pos).padStart(2,"0")+'</div>'+
+      '<div class="recap-name">'+e.short+'</div>'+
+      '<div class="recap-res'+cls+'">'+res+'</div>'+
+    '</div>';
+  });
+  screenEl.innerHTML =
+    '<div class="scroll anim-in">'+
+      '<div class="end-hero">'+
+        '<div class="end-mark">Séance terminée</div>'+
+        '<h2>Beau travail.</h2>'+
+        '<p>Tes résultats sont enregistrés. Exporte-les pour suivre ta progression.</p>'+
+      '</div>'+
+      '<div class="recap">'+rows+'</div>'+
+    '</div>'+
+    '<div class="home-actions">'+
+      '<button class="btn" data-act="export-end">Copier la séance</button>'+
+      '<button class="btn-ghost" data-act="go-home">Retour à l\'accueil</button>'+
+    '</div>';
+}
+
+/* ============ EXPORT ============ */
+function sessionText(s){
+  const lines=["Séance "+(s.prog||progId)+" du "+frDate(s.date)];
+  EX.forEach(ex=>{
+    const e=s.entries[ex.id]; if(!e) return;
+    const items=[];
+    e.sets.forEach(r=>{
+      if(!r || r.skipped) return;
+      items.push({ text: fmtResult(ex,r), lvl: ex.levels ? r.lvl : null });
+    });
+    if(!items.length) return;
+    let label=ex.id+". "+ex.short;
+    let resultStr;
+    if(ex.levels){
+      // regroupe les séries consécutives faites au même niveau
+      const groups=[];
+      items.forEach(it=>{
+        const last=groups[groups.length-1];
+        if(last && last.lvl===it.lvl) last.texts.push(it.text);
+        else groups.push({ lvl: it.lvl, texts:[it.text] });
+      });
+      if(groups.length===1){
+        const ln=(ex.levels[groups[0].lvl]||"").toLowerCase();
+        label+=" (niveau : "+ln+")";
+        resultStr=groups[0].texts.join(", ");
+      } else {
+        resultStr=groups.map(g=>{
+          const ln=(ex.levels[g.lvl]||"").toLowerCase();
+          return g.texts.join(", ")+" ("+ln+")";
+        }).join(", ");
+      }
+    } else {
+      resultStr=items.map(it=>it.text).join(", ");
+    }
+    let line=label+" — "+resultStr;
+    if(ex.perSide) line+=" (par "+ex.sideWord+")";
+    lines.push(line);
+  });
+  return lines.join("\n");
+}
+function buildExport(scope){
+  const h=getHistory();
+  if(!h.length) return "";
+  if(scope==="last") return sessionText(h[h.length-1]);
+  return h.map(sessionText).join("\n\n");
+}
+function openExport(defaultScope){
+  const h=getHistory();
+  let scope=defaultScope||"last";
+  if(!h.length){
+    sheetEl.innerHTML =
+      '<div class="sheet-scrim" data-act="sheet-close"></div>'+
+      '<div class="sheet-panel confirm"><div class="sheet-grip"></div>'+
+        '<h3>Aucune séance enregistrée</h3>'+
+        '<p>Termine une séance pour pouvoir l\'exporter.</p>'+
+        '<div class="sheet-actions"><button class="btn-soft" data-act="sheet-close">Fermer</button></div>'+
+      '</div>';
+    sheetEl.classList.add("open"); return;
+  }
+  const render=()=>{
+    sheetEl.innerHTML =
+      '<div class="sheet-scrim" data-act="sheet-close"></div>'+
+      '<div class="sheet-panel"><div class="sheet-grip"></div>'+
+        '<h3>Exporter mes séances</h3>'+
+        '<div class="seg">'+
+          '<button class="'+(scope==="last"?"on":"")+'" data-act="exp-scope" data-scope="last">Dernière séance</button>'+
+          '<button class="'+(scope==="all"?"on":"")+'" data-act="exp-scope" data-scope="all">Tout l\'historique</button>'+
+        '</div>'+
+        '<textarea class="export-box" id="export-box" readonly>'+escapeHtml(buildExport(scope))+'</textarea>'+
+        '<div class="sheet-actions">'+
+          '<button class="btn" data-act="exp-copy">Copier</button>'+
+          '<button class="btn-soft" data-act="sheet-close">Fermer</button>'+
+        '</div>'+
+        '<div class="sheet-hint">Si la copie ne marche pas, sélectionne le texte ci-dessus et copie-le à la main.</div>'+
+      '</div>';
+    sheetEl.classList.add("open");
+  };
+  sheetEl._setScope=(sc)=>{ scope=sc; render(); };
+  render();
+}
+function escapeHtml(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function doCopy(){
+  const box=document.getElementById("export-box");
+  if(!box) return;
+  const text=box.value;
+  const ok=()=>toast("Copié ✓");
+  const fail=()=>{ box.focus(); box.select(); try{ box.setSelectionRange(0,text.length);}catch(e){} toast("Sélectionne et copie le texte"); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(ok).catch(fail);
+  } else {
+    box.focus(); box.select();
+    try{ document.execCommand("copy"); ok(); }catch(e){ fail(); }
+  }
+}
+function closeSheet(){ sheetEl.classList.remove("open"); sheetEl.innerHTML=""; }
+
+/* ============ CONFIRMATIONS ============ */
+function askRestart(){
+  sheetEl.innerHTML =
+    '<div class="sheet-scrim" data-act="sheet-close"></div>'+
+    '<div class="sheet-panel confirm"><div class="sheet-grip"></div>'+
+      '<h3>Recommencer la séance ?</h3>'+
+      '<p>La séance en cours sera abandonnée et tu repartiras du premier exercice.</p>'+
+      '<div class="sheet-actions">'+
+        '<button class="btn-soft" data-act="sheet-close">Annuler</button>'+
+        '<button class="btn-soft danger" data-act="do-restart">Recommencer</button>'+
+      '</div>'+
+    '</div>';
+  sheetEl.classList.add("open");
+}
+function askErase(){
+  sheetEl.innerHTML =
+    '<div class="sheet-scrim" data-act="sheet-close"></div>'+
+    '<div class="sheet-panel confirm"><div class="sheet-grip"></div>'+
+      '<h3>Effacer les données de cette séance ?</h3>'+
+      '<p>Historique et niveaux de la séance affichée seulement. La seconde séance reste intacte. Action irréversible.</p>'+
+      '<div class="sheet-actions">'+
+        '<button class="btn-soft" data-act="sheet-close">Annuler</button>'+
+        '<button class="btn-soft danger" data-act="do-erase">Tout effacer</button>'+
+      '</div>'+
+    '</div>';
+  sheetEl.classList.add("open");
+}
+function eraseAll(){
+  store.del(kHist()); store.del(kLevels()); store.del(kActive());
+  /* n'efface que la séance affichée : l'autre séance et l'app maison sont intactes */
+  state.levels=loadLevels();
+  closeSheet(); goHome(); toast("Données effacées");
+}
+
+/* ============ NIVEAU ============ */
+function changeLevel(dir){
+  const ex=EX[state.exIndex]; if(!ex.levels) return;
+  let i=levelOf(ex)+dir; i=Math.max(0,Math.min(ex.levels.length-1,i));
+  state.levels[ex.id]=i; store.set(kLevels(), state.levels);
+  ensureEntry(); state.session.entries[ex.id].levelIndex=i; saveActive();
+  renderEffort();
+}
+
+/* ============ STEPPER NUMÉRIQUE ============ */
+function step(tgt,stepVal,dir){
+  const el=q("#"+tgt); if(!el) return;
+  let cur=parseFloat((el.value||"0").replace(",","."));
+  if(isNaN(cur)) cur=0;
+  let v=cur + dir*stepVal;
+  if(v<0) v=0;
+  v=Math.round(v*100)/100;
+  const isDecimal = (stepVal % 1 !== 0);
+  el.value = isDecimal ? frNum(v) : String(Math.round(v));
+  updateNudge();
+}
+
+/* ============ SON ============ */
+function toggleMute(){
+  state.sound=!state.sound; store.set(K.SOUND, state.sound);
+  unlockAudio();
+  renderTopbar();
+  const rowBtn=screenEl.querySelector('[data-act="mute-row"]');
+  if(rowBtn) rowBtn.textContent = state.sound ? "Couper le son" : "Activer le son";
+  toast(state.sound ? "Son activé" : "Son coupé");
+}
+
+/* ============ TOAST ============ */
+let toastTimer=null;
+function toast(msg){
+  toastEl.textContent=msg; toastEl.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>toastEl.classList.remove("show"),1700);
+}
+
+/* ============ DELEGATION DES CLICS ============ */
+document.addEventListener("click",(ev)=>{
+  const btn=ev.target.closest("[data-act]"); if(!btn) return;
+  const act=btn.getAttribute("data-act");
+  switch(act){
+    case "start": start(true); break;
+    case "resume": resume(); break;
+    case "ask-restart": askRestart(); break;
+    case "do-restart": closeSheet(); start(true); break;
+    case "fait": setFait(); break;
+    case "skip": skipSet(); break;
+    case "hold-start": startHold(); break;
+    case "hold-stop": stopHold(); break;
+    case "finish-rest": finishRest(); break;
+    case "add15": addTime(15); toast("+15 s"); break;
+    case "lvl": changeLevel(parseInt(btn.getAttribute("data-dir"),10)); break;
+    case "step": step(btn.getAttribute("data-tgt"), parseFloat(btn.getAttribute("data-step")), parseInt(btn.getAttribute("data-dir"),10)); break;
+    case "mute": case "mute-row": toggleMute(); break;
+    case "export-home": case "export-end": openExport("last"); break;
+    case "exp-scope": if(sheetEl._setScope) sheetEl._setScope(btn.getAttribute("data-scope")); break;
+    case "exp-copy": doCopy(); break;
+    case "sheet-close": closeSheet(); break;
+    case "ask-erase": askErase(); break;
+    case "do-erase": eraseAll(); break;
+    case "prog": setProgram(btn.getAttribute("data-prog")); break;
+    case "go-home": goHome(); break;
+  }
+});
+
+/* ============ DÉMARRAGE ============ */
+renderTopbar();
+goHome();
+</script>
+</body>
+</html>
