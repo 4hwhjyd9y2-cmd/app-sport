@@ -204,6 +204,7 @@
   .end-mark{ font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--rest); font-weight:700; }
   .end-hero h2{ font-size:34px; font-weight:800; letter-spacing:-.01em; margin-top:10px; }
   .end-hero p{ color:var(--mute); margin-top:10px; }
+  .end-time{ margin-top:12px; font-size:22px; font-weight:700; color:var(--rest); }
   .recap{ margin-top:24px; }
   .recap-row{ display:flex; gap:12px; padding:11px 2px; border-bottom:1px solid var(--line); }
   .recap-row:last-child{ border-bottom:none; }
@@ -544,7 +545,7 @@ const EX_MAISON = [
 /* ============ SÉANCE A · MARDI ============ */
 const EX_A = [
   { id:101, name:"Presse à cuisses", short:"Presse à cuisses", muscle:"Cuisses · Fessiers",
-    type:"machine", sets:4, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:40,
+    type:"machine", sets:4, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:40, kgStep:5,
     levels:["Squat gobelet (haltère)","Presse à cuisses"], lvl0:1,
     techByLevel:[
       { place:"Debout, pieds largeur des épaules, un haltère tenu à la verticale contre la poitrine, les deux mains sous la tête de l'haltère. Coudes serrés vers l'intérieur.",
@@ -559,15 +560,15 @@ const EX_A = [
         note:"Choisis gobelet OU presse et garde le même pendant plusieurs semaines : c'est ce qui rend ta progression comparable d'une séance à l'autre." }
     ] },
 
-  { id:102, name:"Hip thrust", short:"Hip thrust", muscle:"Fessiers · Ischios",
-    type:"machine", sets:3, target:"10–12 réps", lo:10, hi:12, rest:90, startKg:20,
-    tech:{ place:"Haut du dos calé contre un banc (juste sous les omoplates), pieds à plat au sol largeur des hanches, genoux pliés, barre ou charge posée sur le pli des hanches avec une mousse.",
+  { id:107, name:"Hip thrust (banc + haltère)", short:"Hip thrust", muscle:"Fessiers · Ischios",
+    type:"machine", sets:3, target:"10–12 réps", lo:10, hi:12, rest:90, startKg:20, kgStep:2,
+    tech:{ place:"Pas de machine pour cet exercice. Assis au sol, le haut du dos calé contre le bord d'un banc plat (juste sous les omoplates), pieds à plat au sol largeur des hanches, genoux pliés. Un haltère lourd tenu à deux mains, posé à plat sur le pli des hanches (une serviette pliée dessous protège les os du bassin).",
       move:"Pousse dans les talons et serre les fessiers pour monter le bassin jusqu'à aligner épaules, hanches et genoux. Marque 1 seconde en haut, puis redescends lentement.",
-      feel:"Les fessiers, franchement. C'est ton pont de la maison, en version chargée.",
+      feel:"Les fessiers, franchement. C'est ton pont de la maison, en version chargée. Si tu sens surtout l'arrière des cuisses, rapproche un peu les pieds des fesses.",
       avoid:"Cambrer le bas du dos pour monter plus haut (c'est la fesse qui monte le bassin, pas le dos); menton qui part en arrière; rebondir en bas" } },
 
   { id:103, name:"Développé couché aux haltères", short:"Développé couché", muscle:"Poitrine · Triceps",
-    type:"machine", sets:4, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:8,
+    type:"machine", sets:4, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:8, kgStep:2,
     tech:{ place:"Allongé sur un banc plat, pieds à plat au sol, un haltère dans chaque main au niveau de la poitrine, paumes vers les pieds, omoplates serrées et plaquées dans le banc.",
       move:"Pousse les haltères vers le plafond jusqu'à tendre les bras, sans les cogner l'un contre l'autre, puis redescends lentement jusqu'au niveau de la poitrine, coudes à environ 45° du corps.",
       feel:"Poitrine et arrière des bras.",
@@ -575,7 +576,7 @@ const EX_A = [
       note:"Le poids que tu saisis est celui d'UN haltère, pas les deux additionnés. Garde la même convention à chaque séance." } },
 
   { id:104, name:"Tractions assistées", short:"Tractions assistées", muscle:"Dos · Bras",
-    type:"reps", sets:4, target:"4–6 réps", lo:4, hi:6, rest:120,
+    type:"reps", sets:4, target:"4–6 réps", lo:4, hi:6, rest:120, assistLevels:[0], startAssist:15, assistStep:2.5,
     levels:["Machine à tractions assistées","Élastique épais (assistance forte)","Élastique moyen","Élastique fin","Excentriques seules (descente en 5 s)","Tractions complètes"], lvl0:1,
     techByLevel:[
       { place:"Genoux ou pieds posés sur le coussin de la machine assistée, mains en pronation (paumes vers l'avant, dos des mains face à toi) un peu plus larges que les épaules, bras tendus en bas.",
@@ -632,9 +633,9 @@ const EX_A = [
         avoid:"Plier les genoux pour tricher; se balancer; redescendre d'un coup" }
     ] },
 
-  { id:106, name:"Mollets debout", short:"Mollets debout", muscle:"Mollets",
-    type:"machine", sets:3, target:"15–20 réps", lo:16, hi:20, rest:45, startKg:40,
-    levels:["À la presse à cuisses (pointes sur le bord de la plateforme)","À la machine mollets debout","Une jambe, un haltère à la main"], lvl0:1,
+  { id:108, name:"Mollets debout", short:"Mollets debout", muscle:"Mollets",
+    type:"machine", sets:3, target:"15–20 réps", lo:16, hi:20, rest:45, kgStep:5, startKg:50,
+    levels:["À la presse à cuisses (pointes sur le bord de la plateforme)","À la machine mollets debout","Une jambe, un haltère à la main"], lvl0:0,
     techByLevel:[
       { place:"Assis dans la presse à cuisses, charge légère, seules les pointes de pieds posées sur le bas de la plateforme, talons dans le vide. Genoux presque tendus mais pas verrouillés.",
         move:"Pousse la plateforme en tendant les chevilles au maximum, marque 1 seconde en haut, puis laisse les talons redescendre lentement jusqu'à sentir l'étirement.",
@@ -656,7 +657,7 @@ const EX_A = [
 /* ============ SÉANCE B · JEUDI ============ */
 const EX_B = [
   { id:201, name:"Fentes bulgares aux haltères", short:"Fentes bulgares", muscle:"Cuisses · Fessiers",
-    type:"machine", sets:3, target:"8–10 réps", lo:8, hi:10, perSide:true, sideWord:"jambe", rest:90, startKg:6,
+    type:"machine", sets:3, target:"8–10 réps", lo:8, hi:10, perSide:true, sideWord:"jambe", rest:90, startKg:6, kgStep:2,
     tech:{ place:"Dos à un banc, dessus du pied arrière posé dessus, pied avant un bon pas devant, à plat. Un haltère dans chaque main, bras le long du corps, buste droit.",
       move:"Plie le genou avant pour descendre jusqu'à ce que la cuisse avant soit à l'horizontale, puis pousse dans le talon avant pour remonter. Tout le travail se fait sur la jambe avant.",
       feel:"Avant de la cuisse et fessier de la jambe avant.",
@@ -691,7 +692,7 @@ const EX_B = [
     ] },
 
   { id:203, name:"Développé militaire", short:"Développé militaire", muscle:"Épaules · Triceps",
-    type:"machine", sets:3, target:"8–10 réps", lo:8, hi:10, rest:90, startKg:8,
+    type:"machine", sets:3, target:"8–10 réps", lo:8, hi:10, rest:90, startKg:8, kgStep:2,
     tech:{ place:"Assis sur un banc à dossier droit, ou debout ventre et fessiers serrés. Un haltère dans chaque main au niveau des épaules, paumes vers l'avant, coudes sous les mains.",
       move:"Pousse les haltères vers le plafond jusqu'à tendre les bras au-dessus de la tête, puis redescends lentement jusqu'au niveau des oreilles.",
       feel:"Le dessus et l'avant des épaules, et l'arrière des bras.",
@@ -752,9 +753,9 @@ const EX_B = [
         avoid:"Bas du dos qui décolle; casser la position pour tenir plus longtemps; bloquer la respiration" }
     ] },
 
-  { id:206, name:"Mollets debout", short:"Mollets debout", muscle:"Mollets",
-    type:"machine", sets:3, target:"15–20 réps", lo:16, hi:20, rest:45, startKg:30,
-    levels:["À la presse à cuisses (pointes sur le bord de la plateforme)","À la machine mollets debout","Une jambe, un haltère à la main"], lvl0:1,
+  { id:208, name:"Mollets debout", short:"Mollets debout", muscle:"Mollets",
+    type:"machine", sets:3, target:"15–20 réps", lo:16, hi:20, rest:45, kgStep:5, startKg:50,
+    levels:["À la presse à cuisses (pointes sur le bord de la plateforme)","À la machine mollets debout","Une jambe, un haltère à la main"], lvl0:0,
     techByLevel:[
       { place:"Assis dans la presse à cuisses, charge légère, seules les pointes de pieds posées sur le bas de la plateforme, talons dans le vide. Genoux presque tendus mais pas verrouillés.",
         move:"Pousse la plateforme en tendant les chevilles au maximum, marque 1 seconde en haut, puis laisse les talons redescendre lentement jusqu'à sentir l'étirement.",
@@ -896,6 +897,7 @@ function fmtResult(ex,r){
   if(!r || r.skipped) return "—";
   if(ex.type==="machine") return frNum(r.kg)+" kg × "+r.reps;
   if(ex.type==="pushup") return r.strict+"/"+r.neg;
+  if(ex.type==="reps" && r.assist!=null) return "assist. "+frNum(r.assist)+" kg × "+r.reps;
   if(ex.type==="reps") return ex.perSide ? (r.l+"/"+r.r) : String(r.reps);
   if(ex.type==="hold") return r.sec+" s";
   return "—";
@@ -914,7 +916,24 @@ function lastTimeResult(exId, setIdx){
 }
 
 /* ============ SESSION ACTIVE ============ */
-function newSession(){ return { date:new Date().toISOString(), prog:progId, entries:{} }; }
+function newSession(){ return { date:new Date().toISOString(), startedAt:Date.now(), prog:progId, entries:{} }; }
+
+/* ============ CHRONO GLOBAL DE SÉANCE ============ */
+function sessionStart(s){ return (s && (s.startedAt || Date.parse(s.date))) || Date.now(); }
+function fmtClock(ms){
+  const t=Math.max(0,Math.floor(ms/1000)), h=Math.floor(t/3600), m=Math.floor((t%3600)/60), sec=t%60;
+  const p=(x)=>String(x).padStart(2,"0");
+  return h ? h+":"+p(m)+":"+p(sec) : p(m)+":"+p(sec);
+}
+function fmtDuration(ms){
+  const min=Math.round(ms/60000), h=Math.floor(min/60), m=min%60;
+  return h ? h+" h "+String(m).padStart(2,"0") : m+" min";
+}
+function updateElapsed(){
+  const el=document.getElementById("elapsed");
+  if(el && state.session) el.textContent=fmtClock(Date.now()-sessionStart(state.session));
+}
+setInterval(updateElapsed, 1000);
 function ensureEntry(){
   const ex=EX[state.exIndex];
   if(!state.session.entries[ex.id]){
@@ -954,6 +973,7 @@ function goEffort(){ stopCountdown(); state.holdResult=null; setPhase("effort");
 function goRecovery(){ setPhase("recovery"); renderTopbar(); renderRecovery(); }
 function goEnd(){
   stopCountdown();
+  state.session.durationMs = Date.now()-sessionStart(state.session);
   // sauvegarder la séance dans l'historique
   const h=getHistory();
   h.push(state.session);
@@ -1037,7 +1057,7 @@ function renderTopbar(){
     topbar.className="";
     topbar.innerHTML =
       '<div class="prog">'+
-        '<div class="prog-meta"><span>'+(state.phase==="recovery"?"Récup":"Effort")+'</span><span><b>'+done+'</b> / '+TOTAL_SETS+' séries</span></div>'+
+        '<div class="prog-meta"><span>'+(state.phase==="recovery"?"Récup":"Effort")+' · <b class="mono" id="elapsed">'+fmtClock(Date.now()-sessionStart(state.session))+'</b></span><span><b>'+done+'</b> / '+TOTAL_SETS+' séries</span></div>'+
         '<div class="prog-track"><div class="prog-fill" style="width:'+pct+'%"></div></div>'+
       '</div>'+
       '<button class="mute '+(state.sound?'':'off')+'" data-act="mute" aria-label="Son">'+muteIcon+'</button>';
@@ -1049,7 +1069,7 @@ function iconMute(){ return '<svg viewBox="0 0 24 24" fill="none" stroke="curren
 
 /* ============ RENDU : ACCUEIL ============ */
 function renderHome(){
-  const est = Math.round(EX.reduce((s,e)=> s + e.sets*(e.rest+35), 0)/60);
+  const est = Math.round(EX.reduce((s,e)=> s + e.sets*(e.rest+35) + 180, 0)/60);
   const active = getActive();
   let rows="";
   EX.forEach(e=>{
@@ -1111,6 +1131,9 @@ function renderEffort(){
   const t = ex.techByLevel ? ex.techByLevel[levelOf(ex)] : ex.tech;
   // chips objectif
   let chips='<span class="chip accent">'+objText(ex)+'</span>';
+  const sg=suggestLoad(ex, state.setIndex);
+  if(sg && sg.kg!=null) chips+='<span class="chip accent">'+frNum(sg.kg)+' kg'+(sg.bumped?' ↑':'')+'</span>';
+  if(sg && sg.assist!=null) chips+='<span class="chip accent">assistance '+frNum(sg.assist)+' kg'+(sg.bumped?' ↓':'')+'</span>';
   if(ex.perSide) chips+='<span class="chip">par '+ex.sideWord+'</span>';
   chips+='<span class="chip">repos '+ex.rest+' s</span>';
   // dots
@@ -1186,7 +1209,9 @@ function renderRecovery(){
   }
   // dernière fois
   const last=lastTimeResult(ex.id, state.setIndex);
-  const lastHtml = last ? '<div class="lasttime">Dernière fois : <b>'+fmtResult(ex,last)+'</b></div>'
+  const sgr=suggestLoad(ex, state.setIndex);
+  const bumpTxt = (sgr && sgr.bumped) ? '<div class="lasttime" style="color:var(--rest)">Haut de fourchette atteint la dernière fois : '+(sgr.kg!=null?'charge montée':'assistance baissée')+'</div>' : '';
+  const lastHtml = last ? '<div class="lasttime">Dernière fois : <b>'+fmtResult(ex,last)+'</b></div>'+bumpTxt
                         : '<div class="lasttime" style="color:var(--faint)">Première fois sur cette série</div>';
   // à suivre
   const nx=nextPointer(state.exIndex,state.setIndex);
@@ -1260,6 +1285,10 @@ function inputFields(ex){
         field("Droite","", numHTML("in-r", pf.r, 1, "")) +
       '</div>';
     }
+    if(isAssisted(ex)){
+      return field("Assistance de la machine","", numHTML("in-assist", pf.assist, ex.assistStep, "kg")) +
+             field("Répétitions","", numHTML("in-reps", pf.reps, 1, "réps"));
+    }
     return field("Répétitions","", numHTML("in-reps", pf.reps, 1, "réps"));
   }
   return "";
@@ -1272,10 +1301,29 @@ function numHTML(id, val, step, suf){
     '<button data-act="step" data-tgt="'+id+'" data-step="'+step+'" data-dir="1">+</button>'+
   '</div>';
 }
+function isAssisted(ex){ return !!(ex.assistLevels && ex.assistLevels.indexOf(levelOf(ex))>=0); }
+/* Double progression : si le haut de fourchette a été atteint sur cette série la dernière fois,
+   on propose la charge suivante (ou moins d'assistance). Sinon on reprend la même. */
+function suggestLoad(ex, setIdx){
+  let last=lastTimeResult(ex.id, setIdx);
+  if(last && ex.levels && last.lvl!=null && last.lvl!==levelOf(ex)) last=null;
+  if(ex.type==="machine"){
+    if(!last) return { kg:ex.startKg, bumped:false };
+    if(ex.kgStep && last.reps>=ex.hi) return { kg:last.kg+ex.kgStep, bumped:true };
+    return { kg:last.kg, bumped:false };
+  }
+  if(isAssisted(ex)){
+    if(!last || last.assist==null) return { assist:ex.startAssist, bumped:false };
+    if(last.reps>=ex.hi) return { assist:Math.max(0,last.assist-ex.assistStep), bumped:true };
+    return { assist:last.assist, bumped:false };
+  }
+  return null;
+}
 function prefill(ex){
   const L=(idx)=>lastTimeResult(ex.id, idx);
   const last=L(state.setIndex);
-  if(ex.type==="machine") return last ? {kg:last.kg, reps:last.reps} : {kg:ex.startKg, reps:ex.lo};
+  if(ex.type==="machine") return { kg:suggestLoad(ex,state.setIndex).kg, reps:last?last.reps:ex.lo };
+  if(isAssisted(ex)) return { assist:suggestLoad(ex,state.setIndex).assist, reps:last?last.reps:ex.lo };
   if(ex.type==="pushup")  return last ? {strict:last.strict, neg:last.neg} : {strict:5, neg:3};
   if(ex.type==="reps"){
     if(ex.perSide) return last ? {l:last.l, r:last.r} : {l:ex.lo, r:ex.lo};
@@ -1288,6 +1336,7 @@ function readResult(ex){
   const fv=(id)=>{ const el=q("#"+id); const n=parseFloat((el?el.value:"0").replace(",",".").replace(/[^0-9.]/g,"")); return isNaN(n)?0:n; };
   if(ex.type==="machine") return { kg:fv("in-kg"), reps:iv("in-reps") };
   if(ex.type==="pushup")  return { strict:iv("in-strict"), neg:iv("in-neg") };
+  if(ex.type==="reps" && isAssisted(ex)) return { assist:fv("in-assist"), reps:iv("in-reps") };
   if(ex.type==="reps")    return ex.perSide ? { l:iv("in-l"), r:iv("in-r") } : { reps:iv("in-reps") };
   return {};
 }
@@ -1296,16 +1345,16 @@ function updateNudge(){
   let txt="";
   if(ex.type==="machine"){
     const r=readResult(ex);
-    if(r.reps>ex.hi) txt="Objectif dépassé — la prochaine fois, monte d'une plaque.";
+    if(r.reps>ex.hi) txt="Objectif dépassé : la prochaine fois, la charge montera d'un cran.";
   } else if(ex.type==="reps"){
     const r=readResult(ex);
     const v=ex.perSide ? Math.min(r.l,r.r) : r.reps;
-    if(v>ex.hi) txt="Objectif dépassé — la prochaine fois, monte d'un niveau.";
+    if(v>ex.hi) txt = isAssisted(ex) ? "Objectif dépassé : la prochaine fois, baisse l'assistance." : "Objectif dépassé : la prochaine fois, monte d'un niveau.";
   } else if(ex.type==="pushup"){
     const r=readResult(ex);
-    if(ex.hi && r.strict>ex.hi) txt="Objectif dépassé — la prochaine fois, monte d'un niveau.";
+    if(ex.hi && r.strict>ex.hi) txt="Objectif dépassé : la prochaine fois, monte d'un niveau.";
   } else if(ex.type==="hold"){
-    if(state.holdResult>=ex.hold) txt="Tenu jusqu'au bout — passe au niveau suivant la prochaine fois.";
+    if(state.holdResult>=ex.hold) txt="Tenu jusqu'au bout : passe au niveau suivant la prochaine fois.";
   }
   el.textContent=txt;
 }
@@ -1332,6 +1381,7 @@ function renderEnd(){
       '<div class="end-hero">'+
         '<div class="end-mark">Séance terminée</div>'+
         '<h2>Beau travail.</h2>'+
+        (s.durationMs ? '<div class="end-time mono">'+fmtDuration(s.durationMs)+'</div>' : '')+
         '<p>Tes résultats sont enregistrés. Exporte-les pour suivre ta progression.</p>'+
       '</div>'+
       '<div class="recap">'+rows+'</div>'+
@@ -1344,7 +1394,7 @@ function renderEnd(){
 
 /* ============ EXPORT ============ */
 function sessionText(s){
-  const lines=["Séance "+(s.prog||progId)+" du "+frDate(s.date)];
+  const lines=["Séance "+(s.prog||progId)+" du "+frDate(s.date)+(s.durationMs ? " (durée "+fmtDuration(s.durationMs)+")" : "")];
   EX.forEach(ex=>{
     const e=s.entries[ex.id]; if(!e) return;
     const items=[];
@@ -1353,7 +1403,7 @@ function sessionText(s){
       items.push({ text: fmtResult(ex,r), lvl: ex.levels ? r.lvl : null });
     });
     if(!items.length) return;
-    let label=ex.id+". "+ex.short;
+    let label=ex.pos+". "+ex.short;
     let resultStr;
     if(ex.levels){
       // regroupe les séries consécutives faites au même niveau
