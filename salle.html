@@ -665,8 +665,8 @@ const EX_B = [
       note:"C'est ta fente de la maison, en version chargée. Le poids saisi est celui d'UN haltère, et les répétitions sont par jambe." } },
 
   { id:202, name:"Dips assistés", short:"Dips assistés", muscle:"Poitrine · Triceps",
-    type:"pushup", sets:4, target:"6–10 réps", lo:6, hi:10, rest:120,
-    levels:["Pompes au sol, complètes","Pompes en déficit (mains sur haltères)","Dips à la machine assistée","Dips à l'élastique","Dips complets"], lvl0:1,
+    type:"pushup", sets:4, target:"6–10 réps", lo:6, hi:10, rest:120, assistLevels:[2], startAssist:25, assistStep:2.5,
+    levels:["Pompes au sol, complètes","Pompes en déficit (mains sur haltères)","Dips à la machine assistée","Dips à l'élastique","Dips complets"], lvl0:2,
     techByLevel:[
       { place:"Mains un peu plus larges que les épaules, sous la poitrine. Corps tendu d'un seul bloc.",
         move:"Descends lentement, coudes légèrement vers l'arrière, jusqu'à frôler le sol, puis pousse pour remonter. Quand tu ne remontes plus proprement, finis la série en descentes lentes.",
@@ -690,14 +690,6 @@ const EX_B = [
         feel:"Poitrine et arrière des bras.",
         avoid:"Descendre au-delà de 90° si tu sens tirer l'avant de l'épaule; se balancer; hausser les épaules" }
     ] },
-
-  { id:203, name:"Développé militaire", short:"Développé militaire", muscle:"Épaules · Triceps",
-    type:"machine", sets:3, target:"8–10 réps", lo:8, hi:10, rest:90, startKg:8, kgStep:2,
-    tech:{ place:"Assis sur un banc à dossier droit, ou debout ventre et fessiers serrés. Un haltère dans chaque main au niveau des épaules, paumes vers l'avant, coudes sous les mains.",
-      move:"Pousse les haltères vers le plafond jusqu'à tendre les bras au-dessus de la tête, puis redescends lentement jusqu'au niveau des oreilles.",
-      feel:"Le dessus et l'avant des épaules, et l'arrière des bras.",
-      avoid:"Cambrer le bas du dos pour pousser plus fort (serre les fessiers); descendre au point de sentir tirer l'épaule; cogner les haltères en haut",
-      note:"C'est la version chargée de tes pompes en V. Le poids saisi est celui d'UN haltère." } },
 
   { id:204, name:"Tractions australiennes", short:"Tractions australiennes", muscle:"Milieu du dos",
     type:"reps", sets:4, target:"8–12 réps", lo:8, hi:12, rest:90,
@@ -725,6 +717,14 @@ const EX_B = [
         feel:"Milieu du dos, avec une contraction très marquée pendant la pause.",
         avoid:"Relâcher pendant la pause; bassin qui tombe pendant la tenue" }
     ] },
+
+  { id:209, name:"Développé militaire à la machine", short:"Développé militaire", muscle:"Épaules · Triceps",
+    type:"machine", sets:3, target:"8–10 réps", lo:8, hi:10, rest:90, startKg:7.5, kgStep:2.5,
+    tech:{ place:"Assis sur la machine, dos bien calé contre le dossier, siège réglé pour que les poignées arrivent à hauteur des épaules. Mains sur les poignées, coudes sous les mains.",
+      move:"Pousse les poignées vers le plafond jusqu'à presque tendre les bras, sans verrouiller les coudes, puis redescends lentement jusqu'à hauteur des épaules.",
+      feel:"Le dessus et l'avant des épaules, et l'arrière des bras.",
+      avoid:"Décoller le dos du dossier pour pousser plus fort; verrouiller les coudes violemment en haut; laisser retomber la charge à la descente",
+      note:"Garde toujours la même machine : les charges affichées ne se comparent pas d'une machine à l'autre, ni avec des haltères." } },
 
   { id:205, name:"Hollow body", short:"Hollow body", muscle:"Gainage profond",
     type:"hold", sets:3, target:"tenue 25 s", hold:25, rest:60,
@@ -895,9 +895,10 @@ function mmss(s){ const m=Math.floor(s/60), r=s%60; return m+":"+String(r).padSt
 function frNum(n){ if(n==null||isNaN(n)) return "0"; return (n%1===0)? String(n) : String(n).replace(".",","); }
 function fmtResult(ex,r){
   if(!r || r.skipped) return "—";
+  if(r.assist!=null) return "assist. "+frNum(r.assist)+" kg × "+r.reps;
   if(ex.type==="machine") return frNum(r.kg)+" kg × "+r.reps;
   if(ex.type==="pushup") return r.strict+"/"+r.neg;
-  if(ex.type==="reps" && r.assist!=null) return "assist. "+frNum(r.assist)+" kg × "+r.reps;
+  if(r.assist!=null) return "assist. "+frNum(r.assist)+" kg × "+r.reps;
   if(ex.type==="reps") return ex.perSide ? (r.l+"/"+r.r) : String(r.reps);
   if(ex.type==="hold") return r.sec+" s";
   return "—";
@@ -1270,6 +1271,10 @@ function ringHTML(prefix){
 
 function inputFields(ex){
   const pf=prefill(ex);
+  if(isAssisted(ex)){
+    return field("Assistance de la machine","", numHTML("in-assist", pf.assist, ex.assistStep, "kg")) +
+           field("Répétitions","", numHTML("in-reps", pf.reps, 1, "réps"));
+  }
   if(ex.type==="machine"){
     return field("Poids","kg", numHTML("in-kg", pf.kg, 2.5, "kg")) +
            field("Répétitions","", numHTML("in-reps", pf.reps, 1, "réps"));
@@ -1336,14 +1341,17 @@ function readResult(ex){
   const fv=(id)=>{ const el=q("#"+id); const n=parseFloat((el?el.value:"0").replace(",",".").replace(/[^0-9.]/g,"")); return isNaN(n)?0:n; };
   if(ex.type==="machine") return { kg:fv("in-kg"), reps:iv("in-reps") };
   if(ex.type==="pushup")  return { strict:iv("in-strict"), neg:iv("in-neg") };
-  if(ex.type==="reps" && isAssisted(ex)) return { assist:fv("in-assist"), reps:iv("in-reps") };
+  if(isAssisted(ex)) return { assist:fv("in-assist"), reps:iv("in-reps") };
   if(ex.type==="reps")    return ex.perSide ? { l:iv("in-l"), r:iv("in-r") } : { reps:iv("in-reps") };
   return {};
 }
 function updateNudge(){
   const ex=EX[state.exIndex]; const el=q("#nudge"); if(!el) return;
   let txt="";
-  if(ex.type==="machine"){
+  if(isAssisted(ex)){
+    const r=readResult(ex);
+    if(r.reps>ex.hi) txt="Objectif dépassé : la prochaine fois, baisse l'assistance.";
+  } else if(ex.type==="machine"){
     const r=readResult(ex);
     if(r.reps>ex.hi) txt="Objectif dépassé : la prochaine fois, la charge montera d'un cran.";
   } else if(ex.type==="reps"){
