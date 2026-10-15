@@ -1533,7 +1533,7 @@ function openBackup(){
       '<textarea class="export-box" id="export-box" readonly>'+escapeHtml(backupCode())+'</textarea>'+
       '<div class="sheet-actions"><button class="btn" data-act="exp-copy">Copier la sauvegarde</button></div>'+
       '<h3 style="margin-top:22px">Restaurer</h3>'+
-      '<p class="sheet-hint" style="margin:0 0 10px">Colle ici un code de sauvegarde. Il remplace les données actuelles de l\'app.</p>'+
+      '<p class="sheet-hint" style="margin:0 0 10px">Colle ici un code de sauvegarde. Ses séances s\'ajoutent à celles déjà présentes, rien n\'est effacé.</p>'+
       '<textarea class="export-box" id="restore-box" placeholder="Colle ton code ici"></textarea>'+
       '<div class="sheet-actions">'+
         '<button class="btn" data-act="restore">Restaurer</button>'+
@@ -1549,13 +1549,30 @@ function doRestore(){
   if(!obj || obj.app!=="TEMPO_SALLE" || !obj.data || typeof obj.data!=="object"){
     toast("Code de sauvegarde illisible"); return;
   }
+  /* Fusion : les séances du code s'ajoutent à celles déjà présentes (doublons ignorés),
+     et les réglages actuels (niveaux, séance en cours) sont conservés s'ils existent. */
+  let added=0;
   try{
-    Object.keys(backupKeys()).forEach(k=>localStorage.removeItem(k));
-    Object.keys(obj.data).forEach(k=>{ if(k.indexOf("TEMPO_S_")===0) localStorage.setItem(k, obj.data[k]); });
+    Object.keys(obj.data).forEach(k=>{
+      if(k.indexOf("TEMPO_S_")!==0) return;
+      const cur=localStorage.getItem(k);
+      if(k.indexOf("TEMPO_S_HIST_")===0){
+        let a=[], b=[];
+        try{ a=JSON.parse(cur||"[]"); }catch(e){}
+        try{ b=JSON.parse(obj.data[k]||"[]"); }catch(e){}
+        const seen=new Set(a.map(x=>x.date));
+        b.forEach(x=>{ if(x && x.date && !seen.has(x.date)){ a.push(x); seen.add(x.date); added++; } });
+        a.sort((x,y)=> String(x.date).localeCompare(String(y.date)));
+        while(a.length>60) a.shift();
+        localStorage.setItem(k, JSON.stringify(a));
+      } else if(cur==null){
+        localStorage.setItem(k, obj.data[k]);
+      }
+    });
   }catch(e){ toast("Restauration impossible"); return; }
   progId = store.get(K.PROG, "A");
   applyProgram(); state.levels=loadLevels(); state.session=null;
-  closeSheet(); goHome(); toast("Données restaurées ✓");
+  closeSheet(); goHome(); toast(added+" séance"+(added>1?"s":"")+" ajoutée"+(added>1?"s":"")+" ✓");
 }
 
 /* ============ CONFIRMATIONS ============ */
