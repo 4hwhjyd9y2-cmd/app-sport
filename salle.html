@@ -606,6 +606,33 @@ const EX_A = [
         avoid:"Se balancer pour s'aider; demi-amplitude; lâcher la descente d'un coup" }
     ] },
 
+  { id:110, name:"L-sit", short:"L-sit", muscle:"Compression · Triceps · Épaules",
+    type:"hold", sets:3, target:"tenue 20 s", hold:20, rest:90,
+    levels:["Fesses décollées, pieds au sol","Un pied levé en alternance","Tuck (deux genoux groupés)","Tuck + une jambe tendue en alternance","L-sit complet"], lvl0:0,
+    techByLevel:[
+      { place:"Assis au sol entre deux haltères hexagonaux (ou deux parallettes), posés à côté des hanches. Mains sur les haltères, bras tendus, jambes tendues devant toi, talons au sol.",
+        move:"Pousse dans les mains en tendant les bras et en baissant les épaules, pour décoller les fesses du sol. Les talons restent posés. Tiens la position.",
+        feel:"Arrière des bras, bas des épaules, et le ventre qui se gaine.",
+        avoid:"Épaules qui remontent vers les oreilles (pousse le sol loin de toi); coudes pliés; haltères qui roulent",
+        note:"Ce premier niveau apprend les deux bases du L-sit : bras verrouillés et épaules basses. Les jambes viendront ensuite." },
+      { place:"Même installation, fesses décollées, bras tendus, épaules basses.",
+        move:"Décolle un pied du sol en pliant le genou vers la poitrine, l'autre talon reste posé. Change de pied à la moitié de la tenue.",
+        feel:"Arrière des bras, bas des épaules, bas du ventre du côté du genou levé.",
+        avoid:"Épaules qui remontent; s'asseoir en arrière en laissant retomber les fesses; bloquer la respiration" },
+      { place:"Même installation. Si les pieds touchent le sol, monte sur les barres de dips, plus hautes.",
+        move:"Fesses décollées, bras tendus, ramène les deux genoux groupés contre la poitrine, pieds en l'air. Tiens la position en gardant le dos rond.",
+        feel:"Le bas du ventre qui serre fort, plus l'arrière des bras et le bas des épaules.",
+        avoid:"Épaules qui remontent; genoux qui redescendent au fil de la tenue; pencher le buste trop en arrière" },
+      { place:"Position tuck, bras tendus, épaules basses.",
+        move:"Depuis le tuck, tends une jambe devant toi à l'horizontale, l'autre reste groupée. Change de jambe à la moitié de la tenue.",
+        feel:"Bas du ventre et avant de la hanche de la jambe tendue.",
+        avoid:"Jambe tendue qui tombe sous l'horizontale; laisser le buste partir en arrière pour compenser; épaules qui remontent" },
+      { place:"Sur les barres de dips ou des parallettes, bras tendus, épaules basses.",
+        move:"Les deux jambes tendues et serrées, à l'horizontale devant toi. Pointes de pieds tendues, tiens la position.",
+        feel:"Tout le ventre, l'avant des hanches, l'arrière des bras.",
+        avoid:"Genoux qui se plient; jambes qui tombent sous l'horizontale; épaules qui remontent" }
+    ] },
+
   { id:105, name:"Relevés de genoux suspendus", short:"Relevés de genoux", muscle:"Bas-abdos · Compression",
     type:"reps", sets:3, target:"8–12 réps", lo:8, hi:12, rest:60,
     levels:["Aux appuis (avant-bras sur les coussins)","Suspendu, amplitude partielle","Suspendu, genoux à hauteur des hanches","Genoux + bascule du bassin en fin de montée","Jambes tendues"], lvl0:1,
@@ -631,26 +658,6 @@ const EX_A = [
         move:"Monte les jambes tendues aussi haut que possible en enroulant le bassin, puis redescends lentement jusqu'à la verticale.",
         feel:"Bas du ventre, intensément, à cause du grand levier des jambes tendues.",
         avoid:"Plier les genoux pour tricher; se balancer; redescendre d'un coup" }
-    ] },
-
-  { id:108, name:"Mollets debout", short:"Mollets debout", muscle:"Mollets",
-    type:"machine", sets:3, target:"15–20 réps", lo:16, hi:20, rest:45, kgStep:5, startKg:50,
-    levels:["À la presse à cuisses (pointes sur le bord de la plateforme)","À la machine mollets debout","Une jambe, un haltère à la main"], lvl0:0,
-    techByLevel:[
-      { place:"Assis dans la presse à cuisses, charge légère, seules les pointes de pieds posées sur le bas de la plateforme, talons dans le vide. Genoux presque tendus mais pas verrouillés.",
-        move:"Pousse la plateforme en tendant les chevilles au maximum, marque 1 seconde en haut, puis laisse les talons redescendre lentement jusqu'à sentir l'étirement.",
-        feel:"Les mollets, avec un étirement net en bas.",
-        avoid:"Plier les genoux pour pousser avec les cuisses; rebondir sans marquer la pause; charge trop lourde qui coupe l'amplitude" },
-      { place:"Debout à la machine mollets, épaules sous les coussins, pointes de pieds sur le repose-pied, talons dans le vide, jambes tendues sans verrouiller.",
-        move:"Monte au maximum sur les pointes, marque 1 seconde en haut, puis descends lentement jusqu'à ce que les talons passent sous le niveau du repose-pied.",
-        feel:"Les mollets, sur toute l'amplitude.",
-        avoid:"Rebondir en bas au lieu de contrôler; plier les genoux; amplitude incomplète en haut",
-        note:"C'est ton exercice de la maison, avec de la charge : tu peux enfin continuer à progresser au-delà du poids du corps." },
-      { place:"Debout sur une jambe, pointe du pied sur le bord d'une marche ou d'un step, talon dans le vide. Un haltère dans la main du même côté, l'autre main sur un appui pour l'équilibre.",
-        move:"Monte au maximum sur la pointe, pause 1 seconde en haut, puis laisse le talon redescendre lentement sous le niveau de la marche.",
-        feel:"Le mollet de la jambe qui travaille, avec un étirement profond en bas.",
-        avoid:"Descendre le talon trop vite; perdre l'équilibre; amplitude incomplète en haut",
-        note:"Le poids saisi est celui de l'haltère, et les répétitions sont par jambe." }
     ] },
 ];
 
@@ -754,7 +761,7 @@ const EX_B = [
     ] },
 
   { id:208, name:"Mollets debout", short:"Mollets debout", muscle:"Mollets",
-    type:"machine", sets:3, target:"15–20 réps", lo:16, hi:20, rest:45, kgStep:5, startKg:50,
+    type:"machine", sets:4, target:"15–20 réps", lo:16, hi:20, rest:45, kgStep:5, startKg:50,
     levels:["À la presse à cuisses (pointes sur le bord de la plateforme)","À la machine mollets debout","Une jambe, un haltère à la main"], lvl0:0,
     techByLevel:[
       { place:"Assis dans la presse à cuisses, charge légère, seules les pointes de pieds posées sur le bas de la plateforme, talons dans le vide. Genoux presque tendus mais pas verrouillés.",
