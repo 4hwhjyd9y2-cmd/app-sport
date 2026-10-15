@@ -1131,6 +1131,7 @@ function renderHome(){
       actionBlock+
       '<div class="foot-actions">'+
         '<button class="btn-soft" data-act="export-home">Exporter cette séance</button>'+
+        '<button class="btn-soft" data-act="backup">Sauvegarder / restaurer</button>'+
         '<button class="btn-soft danger" data-act="ask-erase">Effacer mes données</button>'+
       '</div>'+
     '</div>';
@@ -1511,6 +1512,52 @@ function doCopy(){
 }
 function closeSheet(){ sheetEl.classList.remove("open"); sheetEl.innerHTML=""; }
 
+/* ============ SAUVEGARDE / RESTAURATION ============ */
+function backupKeys(){
+  const out={};
+  try{
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(k && k.indexOf("TEMPO_S_")===0) out[k]=localStorage.getItem(k);
+    }
+  }catch(e){}
+  return out;
+}
+function backupCode(){ return JSON.stringify({ app:"TEMPO_SALLE", v:1, date:new Date().toISOString(), data:backupKeys() }); }
+function openBackup(){
+  sheetEl.innerHTML =
+    '<div class="sheet-scrim" data-act="sheet-close"></div>'+
+    '<div class="sheet-panel"><div class="sheet-grip"></div>'+
+      '<h3>Sauvegarder mes données</h3>'+
+      '<p class="sheet-hint" style="margin:0 0 10px">Historique, niveaux et séance en cours des trois séances. Copie ce code et garde-le dans tes notes.</p>'+
+      '<textarea class="export-box" id="export-box" readonly>'+escapeHtml(backupCode())+'</textarea>'+
+      '<div class="sheet-actions"><button class="btn" data-act="exp-copy">Copier la sauvegarde</button></div>'+
+      '<h3 style="margin-top:22px">Restaurer</h3>'+
+      '<p class="sheet-hint" style="margin:0 0 10px">Colle ici un code de sauvegarde. Il remplace les données actuelles de l\'app.</p>'+
+      '<textarea class="export-box" id="restore-box" placeholder="Colle ton code ici"></textarea>'+
+      '<div class="sheet-actions">'+
+        '<button class="btn" data-act="restore">Restaurer</button>'+
+        '<button class="btn-soft" data-act="sheet-close">Fermer</button>'+
+      '</div>'+
+    '</div>';
+  sheetEl.classList.add("open");
+}
+function doRestore(){
+  const box=document.getElementById("restore-box");
+  let obj=null;
+  try{ obj=JSON.parse((box&&box.value||"").trim()); }catch(e){}
+  if(!obj || obj.app!=="TEMPO_SALLE" || !obj.data || typeof obj.data!=="object"){
+    toast("Code de sauvegarde illisible"); return;
+  }
+  try{
+    Object.keys(backupKeys()).forEach(k=>localStorage.removeItem(k));
+    Object.keys(obj.data).forEach(k=>{ if(k.indexOf("TEMPO_S_")===0) localStorage.setItem(k, obj.data[k]); });
+  }catch(e){ toast("Restauration impossible"); return; }
+  progId = store.get(K.PROG, "A");
+  applyProgram(); state.levels=loadLevels(); state.session=null;
+  closeSheet(); goHome(); toast("Données restaurées ✓");
+}
+
 /* ============ CONFIRMATIONS ============ */
 function askRestart(){
   sheetEl.innerHTML =
@@ -1605,6 +1652,8 @@ document.addEventListener("click",(ev)=>{
     case "export-home": case "export-end": openExport("last"); break;
     case "exp-scope": if(sheetEl._setScope) sheetEl._setScope(btn.getAttribute("data-scope")); break;
     case "exp-copy": doCopy(); break;
+    case "backup": openBackup(); break;
+    case "restore": doRestore(); break;
     case "sheet-close": closeSheet(); break;
     case "ask-erase": askErase(); break;
     case "do-erase": eraseAll(); break;
