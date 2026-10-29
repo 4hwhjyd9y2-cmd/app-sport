@@ -23,7 +23,8 @@ Les deux apps cohabitent sur le même domaine sans se lire l'une l'autre. `index
 ### Points d'attention connus
 
 - Contrôle lombo-pelvien : les fléchisseurs de hanche dominent sur les abdos profonds, le bas du dos se creuse quand les jambes descendent. D'où le dead bug (maison) et le hollow body (séance B). Ne pas ajouter de travail des fléchisseurs de hanche pour régler ça.
-- Prise de main : elle lâche avant les abdos en suspension. D'où les relevés de jambes à la chaise romaine et la suspension à la barre en fin de séance A. Retour aux relevés suspendus quand il tient 40 s en suspension.
+- Prise de main : elle lâchait avant les abdos en suspension. Après deux séances à 2 × 40 s de suspension, la chaise romaine (id 111) et la suspension (id 112) ont été remplacées par les relevés suspendus (id 114), dont le niveau 0 sert de repli sur la chaise romaine si la prise lâche à nouveau.
+- Ischios : ajout du leg curl assis (id 113) en séance A, le hip thrust ne travaillant que peu l'arrière des cuisses.
 - En salle, le tronc va en fin de séance (le gainage doit rester disponible sous charge lourde). À la maison, sans charge lourde, le contrôle moteur était placé tôt.
 - Les pompes ont été gardées volontairement (préférence de l'utilisateur), et les dips assistés y donnent accès en séance B.
 
