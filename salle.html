@@ -229,6 +229,9 @@
   .seg-prog button b{ font-size:14px; font-weight:700; }
   .seg-prog button i{ font-size:10.5px; font-style:normal; letter-spacing:.06em; text-transform:uppercase; color:var(--faint); }
   .seg-prog button.on i{ color:var(--mute); }
+  .seg-gym{ margin-top:0; }
+  .seg-gym button{ padding:8px; font-size:13px; }
+  .gym-hint{ font-size:11.5px; color:var(--faint); margin:-6px 2px 12px; }
   .export-box{ width:100%; min-height:200px; background:var(--bg); border:1px solid var(--line); border-radius:13px;
     padding:14px; color:var(--ink); font-family:ui-monospace,"SF Mono",Menlo,monospace; font-size:12.5px; line-height:1.6;
     resize:vertical; -webkit-user-select:text; user-select:text; white-space:pre; overflow:auto; }
@@ -545,7 +548,7 @@ const EX_MAISON = [
 /* ============ SÉANCE A · MARDI ============ */
 const EX_A = [
   { id:101, name:"Presse à cuisses", short:"Presse à cuisses", muscle:"Cuisses · Fessiers",
-    type:"machine", sets:4, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:40, kgStep:5,
+    gymDep:true, type:"machine", sets:4, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:40, kgStep:5,
     levels:["Squat gobelet (haltère)","Presse à cuisses"], lvl0:1,
     techByLevel:[
       { place:"Debout, pieds largeur des épaules, un haltère tenu à la verticale contre la poitrine, les deux mains sous la tête de l'haltère. Coudes serrés vers l'intérieur.",
@@ -568,7 +571,7 @@ const EX_A = [
       avoid:"Cambrer le bas du dos pour monter plus haut (c'est la fesse qui monte le bassin, pas le dos); menton qui part en arrière; rebondir en bas" } },
 
   { id:113, name:"Leg curl assis à la machine", short:"Leg curl assis", muscle:"Ischios",
-    type:"machine", sets:3, target:"10–12 réps", lo:10, hi:12, rest:90, startKg:20, kgStep:5,
+    gymDep:true, type:"machine", sets:3, target:"10–12 réps", lo:10, hi:12, rest:90, startKg:20, kgStep:5,
     tech:{ place:"Assis sur la machine, dos bien calé contre le dossier, genoux alignés avec l'axe de rotation de la machine. Le rouleau du bas posé juste au-dessus des talons, le rouleau du haut bien serré sur les cuisses. Mains sur les poignées.",
       move:"Plie les genoux pour ramener les talons sous le siège, le plus loin possible. Marque 1 seconde, puis remonte lentement en 2 à 3 secondes jusqu'aux jambes presque tendues.",
       feel:"L'arrière des cuisses, sur toute la longueur.",
@@ -577,14 +580,14 @@ const EX_A = [
 
   { id:103, name:"Développé couché aux haltères", short:"Développé couché", muscle:"Poitrine · Triceps",
     type:"machine", sets:4, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:8, kgStep:2.5,
-    tech:{ place:"Allongé sur un banc plat, pieds à plat au sol, un haltère dans chaque main au niveau de la poitrine, paumes vers les pieds, omoplates serrées et plaquées dans le banc.",
+    tech:{ place:"Allongé sur un banc plat, pieds à plat au sol, fesses collées au banc, un haltère dans chaque main au niveau de la poitrine, paumes vers les pieds, omoplates serrées et plaquées dans le banc.",
       move:"Pousse les haltères vers le plafond jusqu'à tendre les bras, sans les cogner l'un contre l'autre, puis redescends lentement jusqu'au niveau de la poitrine, coudes à environ 45° du corps.",
       feel:"Poitrine et arrière des bras.",
-      avoid:"Coudes grands ouverts à 90° du corps; décoller les omoplates du banc; descendre trop vite; cambrer fortement le bas du dos",
-      note:"Le poids que tu saisis est celui d'UN haltère, pas les deux additionnés. Garde la même convention à chaque séance." } },
+      avoid:"Coudes grands ouverts à 90° du corps; décoller les omoplates du banc; descendre trop vite; décoller les fesses ou creuser le bas du dos pour finir la poussée",
+      note:"Un petit creux naturel sous le bas du dos est normal. S'il grandit sur les dernières répétitions, la charge est trop lourde : arrête la série là, sans compter cette répétition. Le poids saisi est celui d'UN haltère." } },
 
   { id:104, name:"Tractions assistées", short:"Tractions assistées", muscle:"Dos · Bras",
-    type:"reps", sets:4, target:"4–6 réps", lo:4, hi:6, rest:120, assistLevels:[0], startAssist:15, assistStep:2.5,
+    gymDep:true, type:"reps", sets:4, target:"4–6 réps", lo:4, hi:6, rest:120, assistLevels:[0], startAssist:15, assistStep:2.5,
     levels:["Machine à tractions assistées","Élastique épais (assistance forte)","Élastique moyen","Élastique fin","Excentriques seules (descente en 5 s)","Tractions complètes"], lvl0:1,
     techByLevel:[
       { place:"Genoux ou pieds posés sur le coussin de la machine assistée, mains en pronation (paumes vers l'avant, dos des mains face à toi) un peu plus larges que les épaules, bras tendus en bas.",
@@ -627,10 +630,11 @@ const EX_A = [
         move:"Décolle un pied du sol en pliant le genou vers la poitrine, l'autre talon reste posé. Change de pied à la moitié de la tenue.",
         feel:"Arrière des bras, bas des épaules, bas du ventre du côté du genou levé.",
         avoid:"Épaules qui remontent; s'asseoir en arrière en laissant retomber les fesses; bloquer la respiration" },
-      { place:"Même installation. Si les pieds touchent le sol, monte sur les barres de dips, plus hautes.",
-        move:"Fesses décollées, bras tendus, ramène les deux genoux groupés contre la poitrine, pieds en l'air. Tiens la position en gardant le dos rond.",
-        feel:"Le bas du ventre qui serre fort, plus l'arrière des bras et le bas des épaules.",
-        avoid:"Épaules qui remontent; genoux qui redescendent au fil de la tenue; pencher le buste trop en arrière" },
+      { place:"De préférence sur les barres de dips : les pieds pendent sans toucher le sol, tu n'as pas à lever les jambes juste pour éviter le sol.",
+        move:"Bras tendus, épaules poussées vers le bas et légèrement en avant des mains. Ramène les deux genoux plus haut que les hanches, cuisses contre le ventre, et enroule le bassin comme au hollow body : le bas du dos s'arrondit. Tiens la position.",
+        feel:"Surtout l'arrière des bras et le bas des épaules : à ce niveau, ce sont eux qui lâchent en premier. Le ventre travaille en tenue, sans brûlure, c'est normal de peu le sentir. Si tu ne le sens pas du tout, tes genoux sont trop bas ou ton bassin n'est pas enroulé.",
+        avoid:"Genoux sous le niveau des hanches; dos creux et bassin basculé en avant; épaules qui remontent; genoux qui redescendent au fil de la tenue; buste penché en arrière",
+        note:"Tu passes au niveau suivant quand tu tiens 3 × 20 s avec les genoux au-dessus des hanches du début à la fin." },
       { place:"Position tuck, bras tendus, épaules basses.",
         move:"Depuis le tuck, tends une jambe devant toi à l'horizontale, l'autre reste groupée. Change de jambe à la moitié de la tenue.",
         feel:"Bas du ventre et avant de la hanche de la jambe tendue.",
@@ -641,33 +645,42 @@ const EX_A = [
         avoid:"Genoux qui se plient; jambes qui tombent sous l'horizontale; épaules qui remontent" }
     ] },
 
-  { id:114, name:"Relevés de jambes suspendus", short:"Relevés suspendus", muscle:"Bas-abdos · Compression · Prise",
-    type:"reps", sets:3, target:"8–12 réps", lo:8, hi:12, rest:75,
-    levels:["Repli : chaise romaine, jambes tendues","Suspendu, genoux groupés","Suspendu, genoux groupés + enroulement du bassin","Suspendu, jambes tendues jusqu'à l'horizontale","Suspendu, jambes tendues + enroulement du bassin"], lvl0:2,
+  { id:111, name:"Relevés de jambes à la chaise romaine", short:"Relevés de jambes (chaise)", muscle:"Bas-abdos · Compression",
+    type:"reps", sets:3, target:"8–12 réps", lo:8, hi:12, rest:60,
+    levels:["Genoux pliés","Jambes tendues jusqu'à l'horizontale","Jambes tendues + enroulement du bassin","Enroulement + descente lente (3 s)","Haltère léger entre les pieds"], lvl0:1,
     techByLevel:[
-      { place:"Avant-bras posés sur les coussins de la chaise romaine, mains sur les poignées, dos calé contre le dossier, jambes tendues et serrées.",
+      { place:"Avant-bras posés sur les coussins de la chaise romaine, mains sur les poignées, dos calé contre le dossier, jambes pendantes.",
+        move:"Monte les genoux pliés vers la poitrine, puis continue en enroulant le bassin : le bas du dos décolle légèrement du dossier. Redescends lentement sans balancer.",
+        feel:"Bas du ventre. C'est l'enroulement du bassin qui fait travailler les abdos, pas la montée des genoux.",
+        avoid:"Se balancer pour lancer les jambes; monter les genoux sans enrouler le bassin; redescendre d'un coup; cambrer le bas du dos en position basse",
+        note:"Passe aux jambes tendues seulement quand tu fais 3 × 12 avec l'enroulement, le bas du dos calé contre le dossier à chaque descente." },
+      { place:"Avant-bras sur les coussins, dos calé contre le dossier, jambes tendues et serrées, pointes de pieds tendues.",
         move:"Monte les jambes tendues jusqu'à l'horizontale, puis redescends lentement jusqu'à la verticale sans balancer.",
-        feel:"Bas du ventre.",
+        feel:"Bas du ventre, plus fort qu'avec les genoux pliés à cause du levier des jambes.",
         avoid:"Plier les genoux pour tricher; prendre de l'élan en bas; cambrer le bas du dos à la descente",
-        note:"Niveau de repli : reviens ici si ta prise lâche avant tes abdos en suspension." },
-      { place:"Suspendu à la barre de traction, mains en pronation largeur d'épaules, pouces enroulés, bras tendus, épaules légèrement tirées vers le bas.",
-        move:"Monte les genoux groupés jusqu'à hauteur des hanches, puis redescends lentement sans te balancer.",
-        feel:"Bas du ventre, et les avant-bras qui tiennent la barre.",
-        avoid:"Se balancer pour lancer les genoux; épaules relâchées dans les oreilles; redescendre d'un coup" },
-      { place:"Suspendu à la barre, mains largeur d'épaules, pouces enroulés, bras tendus, épaules légèrement tirées vers le bas.",
-        move:"Monte les genoux vers la poitrine, puis continue en enroulant le bassin : les fesses avancent et le bas du dos s'arrondit. Redescends lentement jusqu'à jambes pendantes.",
-        feel:"Bas du ventre, en profondeur. C'est l'enroulement qui fait travailler les abdos, pas la montée des genoux.",
-        avoid:"Monter les genoux sans jamais enrouler le bassin; se balancer d'avant en arrière; cambrer le bas du dos en bas",
-        note:"Si ton corps balance, marque un temps d'arrêt jambes pendantes avant chaque répétition." },
-      { place:"Suspendu à la barre, bras tendus, épaules engagées, jambes tendues et serrées, pointes de pieds tendues.",
-        move:"Monte les jambes tendues jusqu'à l'horizontale, puis redescends lentement sans balancer.",
-        feel:"Bas du ventre, plus fort qu'avec les genoux groupés à cause du levier des jambes.",
-        avoid:"Plier les genoux pour tricher; prendre de l'élan en bas; cambrer le bas du dos à la descente" },
-      { place:"Suspendu à la barre, bras tendus, épaules engagées, jambes tendues et serrées.",
-        move:"Monte les jambes à l'horizontale, puis continue en enroulant le bassin : les pieds montent vers la barre. Redescends lentement.",
-        feel:"Bas du ventre, en profondeur, avec la ceinture abdominale qui travaille en entier.",
-        avoid:"Monter les jambes sans enrouler le bassin; se balancer; redescendre d'un coup" }
+        note:"Si le bas du dos se creuse quand les jambes descendent, reviens au niveau genoux pliés : c'est le contrôle du bassin qui compte, pas la jambe tendue." },
+      { place:"Avant-bras sur les coussins, dos calé contre le dossier, jambes tendues et serrées.",
+        move:"Monte les jambes à l'horizontale, puis continue en enroulant le bassin : les pieds montent vers le visage et le bas du dos décolle légèrement du dossier. Redescends lentement.",
+        feel:"Bas du ventre, en profondeur. C'est l'enroulement qui fait travailler les abdos, pas la montée des jambes.",
+        avoid:"Monter les jambes sans jamais enrouler le bassin; se jeter en arrière contre le dossier; redescendre d'un coup",
+        note:"C'est ce geste d'enroulement qui te servira pour le L-sit et, plus tard, les relevés suspendus." },
+      { place:"Même installation, jambes tendues et serrées.",
+        move:"Monte avec l'enroulement du bassin, puis redescends en comptant 3 secondes jusqu'à la verticale.",
+        feel:"Bas du ventre, avec une brûlure marquée sur la descente.",
+        avoid:"Accélérer en fin de descente; prendre de l'élan pour la répétition suivante; cambrer le bas du dos en bas" },
+      { place:"Même installation, un petit haltère coincé entre les pieds (commence à 2 kg).",
+        move:"Monte avec l'enroulement du bassin, redescends lentement, sans lâcher l'haltère.",
+        feel:"Bas du ventre, sous charge.",
+        avoid:"Haltère trop lourd qui t'oblige à balancer; plier les genoux; laisser retomber les jambes" }
     ] },
+
+  { id:112, name:"Suspension à la barre", short:"Suspension à la barre", muscle:"Prise · Avant-bras · Épaules",
+    type:"hold", sets:2, target:"tenue 40 s", hold:40, rest:60,
+    tech:{ place:"Suspendu à la barre de traction, mains en pronation (paumes vers l'avant) largeur d'épaules, pouces enroulés autour de la barre, bras tendus, pieds dans le vide.",
+      move:"Engage légèrement les épaules : tire-les un peu vers le bas, sans plier les coudes. Tiens aussi longtemps que possible, puis arrête le chrono quand tu lâches.",
+      feel:"Les mains et les avant-bras surtout, un peu le dos.",
+      avoid:"Épaules complètement relâchées dans les oreilles; se balancer; bloquer la respiration",
+      note:"Les relevés suspendus reviendront quand tu tiendras 40 s sur les deux séries à chaque séance, et 3 × 12 jambes tendues à la chaise sans creuser le dos." } },
 ];
 
 /* ============ SÉANCE B · JEUDI ============ */
@@ -681,7 +694,7 @@ const EX_B = [
       note:"C'est ta fente de la maison, en version chargée. Le poids saisi est celui d'UN haltère, et les répétitions sont par jambe." } },
 
   { id:202, name:"Dips assistés", short:"Dips assistés", muscle:"Poitrine · Triceps",
-    type:"pushup", sets:4, target:"6–10 réps", lo:6, hi:10, rest:120, assistLevels:[2], startAssist:25, assistStep:2.5,
+    gymDep:true, type:"pushup", sets:4, target:"6–10 réps", lo:6, hi:10, rest:120, assistLevels:[2], startAssist:25, assistStep:2.5,
     levels:["Pompes au sol, complètes","Pompes en déficit (mains sur haltères)","Dips à la machine assistée","Dips à l'élastique","Dips complets"], lvl0:2,
     techByLevel:[
       { place:"Mains un peu plus larges que les épaules, sous la poitrine. Corps tendu d'un seul bloc.",
@@ -735,7 +748,7 @@ const EX_B = [
     ] },
 
   { id:209, name:"Développé militaire à la machine", short:"Développé militaire", muscle:"Épaules · Triceps",
-    type:"machine", sets:3, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:7.5, kgStep:2.5,
+    gymDep:true, type:"machine", sets:3, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:7.5, kgStep:2.5,
     tech:{ place:"Assis sur la machine, dos bien calé contre le dossier, siège réglé pour que les poignées arrivent à hauteur des épaules. Mains sur les poignées, coudes sous les mains.",
       move:"Pousse les poignées vers le plafond jusqu'à presque tendre les bras, sans verrouiller les coudes, puis redescends lentement jusqu'à hauteur des épaules.",
       feel:"Le dessus et l'avant des épaules, et l'arrière des bras.",
@@ -759,10 +772,11 @@ const EX_B = [
         move:"Aucun mouvement. Change de jambe à la moitié de la tenue pour équilibrer les deux côtés.",
         feel:"Tout le ventre, avec un levier plus long du côté de la jambe tendue.",
         avoid:"Bas du dos qui décolle; jambe tendue qui descend trop bas; bloquer la respiration" },
-      { place:"Allongé sur le dos, bas du dos écrasé au sol, jambes tendues et serrées levées à environ 30 cm du sol, épaules décollées, bras le long du corps.",
-        move:"Aucun mouvement, tu tiens la position, le corps en forme de banane creuse.",
+      { place:"Allongé sur le dos, bas du dos écrasé au sol, jambes tendues et serrées, épaules décollées, bras le long du corps.",
+        move:"Lève les jambes assez haut pour que le bas du dos reste plaqué, puis tiens. Plus elles sont basses, plus c'est dur : la cible est environ 30 cm du sol, mais tu peux commencer presque à la verticale et les descendre un peu de séance en séance.",
         feel:"Tout le ventre, intensément.",
-        avoid:"Bas du dos qui décolle (remonte les jambes plus haut si ça arrive); tirer sur la nuque; bloquer la respiration" },
+        avoid:"Bas du dos qui décolle (remonte les jambes plus haut si ça arrive); descendre les jambes plus bas que ce que ton dos supporte; tirer sur la nuque; bloquer la respiration",
+        note:"Passe aux bras au-dessus de la tête seulement quand tu tiens 3 × 25 s jambes à environ 30 cm du sol." },
       { place:"Même position, jambes tendues serrées à 30 cm du sol, bras tendus au-dessus de la tête à côté des oreilles.",
         move:"Aucun mouvement, tu tiens la position complète, corps en banane creuse, bas du dos plaqué.",
         feel:"Tout le ventre, au maximum d'intensité pour cet exercice.",
@@ -770,7 +784,7 @@ const EX_B = [
     ] },
 
   { id:208, name:"Mollets debout", short:"Mollets debout", muscle:"Mollets",
-    type:"machine", sets:4, target:"15–20 réps", lo:15, hi:20, rest:45, kgStep:5, startKg:50,
+    gymDep:true, type:"machine", sets:4, target:"15–20 réps", lo:15, hi:20, rest:45, kgStep:5, startKg:50,
     levels:["À la presse à cuisses (pointes sur le bord de la plateforme)","À la machine mollets debout","Une jambe, un haltère à la main"], lvl0:0,
     techByLevel:[
       { place:"Assis dans la presse à cuisses, charge légère, seules les pointes de pieds posées sur le bas de la plateforme, talons dans le vide. Genoux presque tendus mais pas verrouillés.",
@@ -805,7 +819,7 @@ const store = {
   set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} },
   del(k){ try{ localStorage.removeItem(k); }catch(e){} }
 };
-const K = { SOUND:"TEMPO_S_SOUND", PROG:"TEMPO_S_PROG" };
+const K = { SOUND:"TEMPO_S_SOUND", PROG:"TEMPO_S_PROG", GYM:"TEMPO_S_GYM", GYM_NAMES:"TEMPO_S_GYM_NAMES" };
 /* Clés séparées par séance, et distinctes de l'app maison (qui garde ses propres données). */
 function kLevels(){ return "TEMPO_S_LEVELS_"+progId; }
 function kHist(){ return "TEMPO_S_HIST_"+progId; }
@@ -835,6 +849,7 @@ const state = {
   session:null,
   levels: loadLevels(),
   sound: store.get(K.SOUND, true),
+  gym: store.get(K.GYM, "1"),
   cd:null, holdResult:null, holdStart:0,
 };
 
@@ -923,17 +938,45 @@ function frDate(iso){ const d=new Date(iso); const p=(x)=>String(x).padStart(2,"
 
 /* ============ HISTORIQUE / DERNIÈRE FOIS ============ */
 function getHistory(){ return store.get(kHist(), []); }
+/* Charges sur machine : on ne compare qu'avec les séances faites dans la même salle.
+   Les séances enregistrées avant le choix de la salle servent de repli. */
+function gymBound(ex){ return !!(ex && ex.gymDep && (ex.type==="machine" || isAssisted(ex))); }
+function curGym(){ return (state.session && state.session.gym) || state.gym; }
 function lastTimeResult(exId, setIdx){
   const h=getHistory();
+  const bound=gymBound(EX.find(e=>e.id===exId)), g=curGym();
+  let fallback=null;
   for(let i=h.length-1;i>=0;i--){
     const e=h[i].entries && h[i].entries[exId];
-    if(e && e.sets && e.sets[setIdx] && !e.sets[setIdx].skipped) return e.sets[setIdx];
+    if(e && e.sets && e.sets[setIdx] && !e.sets[setIdx].skipped){
+      if(!bound || h[i].gym===g) return e.sets[setIdx];
+      if(!h[i].gym && !fallback) fallback=e.sets[setIdx];
+    }
   }
-  return null;
+  return fallback;
+}
+
+/* ============ SALLE ============ */
+function gymNames(){ const n=store.get(K.GYM_NAMES, null); return { "1":(n&&n["1"])||"Salle 1", "2":(n&&n["2"])||"Salle 2" }; }
+function gymName(g){ return gymNames()[g] || ""; }
+function setGym(g){
+  if(g===state.gym){ renameGym(g); return; }
+  state.gym=g; store.set(K.GYM, g);
+  const a=getActive();
+  if(a && a.session){ a.session.gym=g; store.set(kActive(), a); }
+  renderHome();
+}
+function renameGym(g){
+  let v=null;
+  try{ v=window.prompt("Nom de cette salle", gymName(g)); }catch(e){}
+  if(v==null) return;
+  v=v.trim().slice(0,24); if(!v) return;
+  const n=gymNames(); n[g]=v; store.set(K.GYM_NAMES, n);
+  renderHome();
 }
 
 /* ============ SESSION ACTIVE ============ */
-function newSession(){ return { date:new Date().toISOString(), startedAt:Date.now(), prog:progId, entries:{} }; }
+function newSession(){ return { date:new Date().toISOString(), startedAt:Date.now(), prog:progId, gym:(progId==="M"?null:state.gym), entries:{} }; }
 
 /* ============ CHRONO GLOBAL DE SÉANCE ============ */
 function sessionStart(s){ return (s && (s.startedAt || Date.parse(s.date))) || Date.now(); }
@@ -1123,6 +1166,11 @@ function renderHome(){
           '<div class="stat"><b>'+TOTAL_SETS+'</b><span>Séries</span></div>'+
           '<div class="stat"><b>≈'+est+'</b><span>Minutes</span></div>'+
         '</div>'+
+        (progId==="M" ? "" :
+          '<div class="seg seg-gym">'+
+            ["1","2"].map(g=>'<button class="'+(g===state.gym?"on":"")+'" data-act="gym" data-gym="'+g+'">'+escapeHtml(gymName(g))+'</button>').join("")+
+          '</div>'+
+          '<div class="gym-hint">Les charges sur machine sont suivies salle par salle. Touche la salle choisie pour la renommer.</div>')+
         resumeBlock+
       '</div>'+
       '<div class="list-head">La séance</div>'+
@@ -1419,7 +1467,7 @@ function renderEnd(){
 
 /* ============ EXPORT ============ */
 function sessionText(s){
-  const lines=["Séance "+(s.prog||progId)+" du "+frDate(s.date)+(s.durationMs ? " (durée "+fmtDuration(s.durationMs)+")" : "")];
+  const lines=["Séance "+(s.prog||progId)+" du "+frDate(s.date)+(s.gym ? " · "+gymName(s.gym) : "")+(s.durationMs ? " (durée "+fmtDuration(s.durationMs)+")" : "")];
   EX.forEach(ex=>{
     const e=s.entries[ex.id]; if(!e) return;
     const items=[];
@@ -1676,6 +1724,7 @@ document.addEventListener("click",(ev)=>{
     case "ask-erase": askErase(); break;
     case "do-erase": eraseAll(); break;
     case "prog": setProgram(btn.getAttribute("data-prog")); break;
+    case "gym": setGym(btn.getAttribute("data-gym")); break;
     case "go-home": goHome(); break;
   }
 });

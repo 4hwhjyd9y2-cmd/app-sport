@@ -23,8 +23,11 @@ Les deux apps cohabitent sur le même domaine sans se lire l'une l'autre. `index
 ### Points d'attention connus
 
 - Contrôle lombo-pelvien : les fléchisseurs de hanche dominent sur les abdos profonds, le bas du dos se creuse quand les jambes descendent. D'où le dead bug (maison) et le hollow body (séance B). Ne pas ajouter de travail des fléchisseurs de hanche pour régler ça.
-- Prise de main : elle lâchait avant les abdos en suspension. Après deux séances à 2 × 40 s de suspension, la chaise romaine (id 111) et la suspension (id 112) ont été remplacées par les relevés suspendus (id 114), dont le niveau 0 sert de repli sur la chaise romaine si la prise lâche à nouveau.
-- Ischios : ajout du leg curl assis (id 113) en séance A, le hip thrust ne travaillant que peu l'arrière des cuisses.
+- Prise de main : elle lâche avant les abdos en suspension. D'où les relevés de jambes à la chaise romaine et la suspension à la barre en fin de séance A. Retour aux relevés suspendus quand il tient 40 s en suspension à chaque séance **et** 3 × 12 jambes tendues à la chaise sans creuser le dos (fin octobre 2026 : 40 s pas encore systématique, et retour aux genoux pliés à la chaise parce que le dos se creusait jambes tendues).
+- Le bas du dos se creuse aussi sous charge au développé couché, et au hollow body quand les jambes descendent trop. Les fiches techniques disent d'arrêter la série ou de remonter les jambes à ce moment-là, plutôt que de forcer.
+- Ischios : leg curl assis (id 113) en séance A, le hip thrust ne travaillant que peu l'arrière des cuisses.
+- L-sit en tuck : il sent peu les abdos et les genoux tendent à descendre. La fiche insiste sur genoux au-dessus des hanches et bassin enroulé, sur barres de dips.
+- Il s'entraîne dans deux salles différentes selon les semaines (machines différentes). Ne jamais écrire le nom de ces salles dans le dépôt.
 - En salle, le tronc va en fin de séance (le gainage doit rester disponible sous charge lourde). À la maison, sans charge lourde, le contrôle moteur était placé tôt.
 - Les pompes ont été gardées volontairement (préférence de l'utilisateur), et les dips assistés y donnent accès en séance B.
 
@@ -41,11 +44,12 @@ Les deux apps cohabitent sur le même domaine sans se lire l'une l'autre. `index
 - Poids des haltères : toujours le poids d'**un** haltère.
 - Double progression (`suggestLoad`) : quand une série atteint `hi` répétitions, la charge proposée la fois suivante monte de `kgStep` (ou l'assistance baisse de `assistStep`) pour cette série-là.
 - Chrono global de séance, durée enregistrée dans `durationMs` et ajoutée à l'export.
+- Salle : choix « Salle 1 / Salle 2 » sur l'accueil (renommable, noms stockés dans `TEMPO_S_GYM_NAMES`, choix courant dans `TEMPO_S_GYM`), enregistré dans `session.gym`. Un exercice marqué `gymDep:true` ne compare ses charges (machine ou assistance) qu'avec les séances de la même salle ; les séances sans salle, antérieures à cette fonction, servent de repli.
 - Sauvegarde / restauration par code JSON. La restauration **fusionne** : elle ajoute les séances absentes (dédoublonnées par `date`) et ne remplace pas les niveaux ni la séance en cours déjà présents.
 
 ## Règles de modification
 
-1. **Ne jamais renommer les clés de stockage** (`TEMPO_S_HIST_<prog>`, `TEMPO_S_LEVELS_<prog>`, `TEMPO_S_ACTIVE_<prog>`, `TEMPO_S_PROG`, `TEMPO_S_SOUND`) : l'historique de l'utilisateur deviendrait invisible.
+1. **Ne jamais renommer les clés de stockage** (`TEMPO_S_HIST_<prog>`, `TEMPO_S_LEVELS_<prog>`, `TEMPO_S_ACTIVE_<prog>`, `TEMPO_S_PROG`, `TEMPO_S_SOUND`, `TEMPO_S_GYM`, `TEMPO_S_GYM_NAMES`) : l'historique de l'utilisateur deviendrait invisible.
 2. **Garder l'`id` d'un exercice** tant que ses charges restent comparables. Ne donner un nouvel `id` que si l'exercice change vraiment (autre machine, autre mouvement), et prévenir l'utilisateur que cet exercice repart de zéro.
 3. Si tu changes les niveaux d'un exercice existant, vérifie que les index déjà enregistrés gardent leur sens, sinon change l'`id`.
 4. `techByLevel.length` doit toujours être égal à `levels.length`.
