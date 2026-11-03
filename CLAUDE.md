@@ -27,6 +27,7 @@ Les deux apps cohabitent sur le même domaine sans se lire l'une l'autre. `index
 - Le bas du dos se creuse aussi sous charge au développé couché, et au hollow body quand les jambes descendent trop. Les fiches techniques disent d'arrêter la série ou de remonter les jambes à ce moment-là, plutôt que de forcer.
 - Ischios : leg curl assis (id 113) en séance A, le hip thrust ne travaillant que peu l'arrière des cuisses.
 - L-sit en tuck : il sent peu les abdos et les genoux tendent à descendre. La fiche insiste sur genoux au-dessus des hanches et bassin enroulé, sur barres de dips.
+- L-sit : id 115 (ancien id 110) depuis l'ajout d'un niveau intermédiaire « tuck + une jambe à moitié tendue », le saut entre tuck + jambe tendue et tuck étant trop grand.
 - Il s'entraîne dans deux salles différentes selon les semaines (machines différentes). Ne jamais écrire le nom de ces salles dans le dépôt.
 - En salle, le tronc va en fin de séance (le gainage doit rester disponible sous charge lourde). À la maison, sans charge lourde, le contrôle moteur était placé tôt.
 - Les pompes ont été gardées volontairement (préférence de l'utilisateur), et les dips assistés y donnent accès en séance B.
