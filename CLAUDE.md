@@ -42,7 +42,7 @@ Les deux apps cohabitent sur le même domaine sans se lire l'une l'autre. `index
   - `assistLevels`, `startAssist`, `assistStep` : niveaux où l'on saisit un poids d'assistance (machine à tractions, machine à dips)
 - Fiche technique : `place`, `move`, `feel`, `avoid` (séparés par `;`), `note` facultative.
 - Poids des haltères : toujours le poids d'**un** haltère.
-- Double progression (`suggestLoad`) : quand une série atteint `hi` répétitions, la charge proposée la fois suivante monte de `kgStep` (ou l'assistance baisse de `assistStep`) pour cette série-là.
+- Double progression (`suggestLoad`) : la charge proposée monte de `kgStep` (ou l'assistance baisse de `assistStep`) seulement si, à la dernière séance, **toutes** les séries prévues ont atteint `hi` répétitions. La même charge est proposée pour toutes les séries : la plus lourde (ou l'assistance la plus faible) tenue avec au moins `lo` répétitions la dernière fois. Jamais de montée série par série.
 - Chrono global de séance, durée enregistrée dans `durationMs` et ajoutée à l'export.
 - Salle : choix « Salle 1 / Salle 2 » sur l'accueil (renommable, noms stockés dans `TEMPO_S_GYM_NAMES`, choix courant dans `TEMPO_S_GYM`), enregistré dans `session.gym`. Un exercice marqué `gymDep:true` ne compare ses charges (machine ou assistance) qu'avec les séances de la même salle ; les séances sans salle, antérieures à cette fonction, servent de repli.
 - Sauvegarde / restauration par code JSON. La restauration **fusionne** : elle ajoute les séances absentes (dédoublonnées par `date`) et ne remplace pas les niveaux ni la séance en cours déjà présents.

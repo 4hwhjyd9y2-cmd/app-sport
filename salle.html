@@ -1197,7 +1197,7 @@ function renderEffort(){
   const t = ex.techByLevel ? ex.techByLevel[levelOf(ex)] : ex.tech;
   // chips objectif
   let chips='<span class="chip accent">'+objText(ex)+'</span>';
-  const sg=suggestLoad(ex, state.setIndex);
+  const sg=suggestLoad(ex);
   if(sg && sg.kg!=null) chips+='<span class="chip accent">'+frNum(sg.kg)+' kg'+(sg.bumped?' ↑':'')+'</span>';
   if(sg && sg.assist!=null) chips+='<span class="chip accent">assistance '+frNum(sg.assist)+' kg'+(sg.bumped?' ↓':'')+'</span>';
   if(ex.perSide) chips+='<span class="chip">par '+ex.sideWord+'</span>';
@@ -1275,8 +1275,8 @@ function renderRecovery(){
   }
   // dernière fois
   const last=lastTimeResult(ex.id, state.setIndex);
-  const sgr=suggestLoad(ex, state.setIndex);
-  const bumpTxt = (sgr && sgr.bumped) ? '<div class="lasttime" style="color:var(--rest)">Haut de fourchette atteint la dernière fois : '+(sgr.kg!=null?'charge montée':'assistance baissée')+'</div>' : '';
+  const sgr=suggestLoad(ex);
+  const bumpTxt = (sgr && sgr.bumped) ? '<div class="lasttime" style="color:var(--rest)">Toutes tes séries ont atteint le haut de fourchette la dernière fois : '+(sgr.kg!=null?'charge montée':'assistance baissée')+'</div>' : '';
   const lastHtml = last ? '<div class="lasttime">Dernière fois : <b>'+fmtResult(ex,last)+'</b></div>'+bumpTxt
                         : '<div class="lasttime" style="color:var(--faint)">Première fois sur cette série</div>';
   // à suivre
@@ -1372,28 +1372,48 @@ function numHTML(id, val, step, suf){
   '</div>';
 }
 function isAssisted(ex){ return !!(ex.assistLevels && ex.assistLevels.indexOf(levelOf(ex))>=0); }
-/* Double progression : si le haut de fourchette a été atteint sur cette série la dernière fois,
-   on propose la charge suivante (ou moins d'assistance). Sinon on reprend la même. */
-function suggestLoad(ex, setIdx){
-  let last=lastTimeResult(ex.id, setIdx);
-  if(last && ex.levels && last.lvl!=null && last.lvl!==levelOf(ex)) last=null;
+/* Double progression : la charge (ou l'assistance) ne change que si, la dernière fois,
+   TOUTES les séries prévues ont atteint le haut de fourchette. Toutes les séries reçoivent
+   la même charge : la plus lourde (ou l'assistance la plus faible) tenue dans la fourchette. */
+function lastSessionSets(ex){
+  const h=getHistory(), bound=gymBound(ex), g=curGym(), lvl=levelOf(ex);
+  let fallback=null;
+  for(let i=h.length-1;i>=0;i--){
+    const e=h[i].entries && h[i].entries[ex.id];
+    if(!e || !e.sets) continue;
+    const done=e.sets.filter(r=> r && !r.skipped && !(ex.levels && r.lvl!=null && r.lvl!==lvl));
+    if(!done.length) continue;
+    if(!bound || h[i].gym===g) return done;
+    if(!h[i].gym && !fallback) fallback=done;
+  }
+  return fallback;
+}
+function suggestLoad(ex){
+  const done=lastSessionSets(ex);
+  const allTop = !!done && done.length>=ex.sets && done.every(r=>r.reps>=ex.hi);
   if(ex.type==="machine"){
-    if(!last) return { kg:ex.startKg, bumped:false };
-    if(ex.kgStep && last.reps>=ex.hi) return { kg:last.kg+ex.kgStep, bumped:true };
-    return { kg:last.kg, bumped:false };
+    const sets=done ? done.filter(r=>r.kg!=null) : [];
+    if(!sets.length) return { kg:ex.startKg, bumped:false };
+    const ok=sets.filter(r=>r.reps>=ex.lo);
+    const base=Math.max.apply(null,(ok.length?ok:sets).map(r=>r.kg));
+    if(ex.kgStep && allTop) return { kg:base+ex.kgStep, bumped:true };
+    return { kg:base, bumped:false };
   }
   if(isAssisted(ex)){
-    if(!last || last.assist==null) return { assist:ex.startAssist, bumped:false };
-    if(last.reps>=ex.hi) return { assist:Math.max(0,last.assist-ex.assistStep), bumped:true };
-    return { assist:last.assist, bumped:false };
+    const sets=done ? done.filter(r=>r.assist!=null) : [];
+    if(!sets.length) return { assist:ex.startAssist, bumped:false };
+    const ok=sets.filter(r=>r.reps>=ex.lo);
+    const base=Math.min.apply(null,(ok.length?ok:sets).map(r=>r.assist));
+    if(allTop) return { assist:Math.max(0,base-ex.assistStep), bumped:true };
+    return { assist:base, bumped:false };
   }
   return null;
 }
 function prefill(ex){
   const L=(idx)=>lastTimeResult(ex.id, idx);
   const last=L(state.setIndex);
-  if(ex.type==="machine") return { kg:suggestLoad(ex,state.setIndex).kg, reps:last?last.reps:ex.lo };
-  if(isAssisted(ex)) return { assist:suggestLoad(ex,state.setIndex).assist, reps:last?last.reps:ex.lo };
+  if(ex.type==="machine") return { kg:suggestLoad(ex).kg, reps:last?last.reps:ex.lo };
+  if(isAssisted(ex)) return { assist:suggestLoad(ex).assist, reps:last?last.reps:ex.lo };
   if(ex.type==="pushup")  return last ? {strict:last.strict, neg:last.neg} : {strict:5, neg:3};
   if(ex.type==="reps"){
     if(ex.perSide) return last ? {l:last.l, r:last.r} : {l:ex.lo, r:ex.lo};
@@ -1415,19 +1435,19 @@ function updateNudge(){
   let txt="";
   if(isAssisted(ex)){
     const r=readResult(ex);
-    if(r.reps>ex.hi) txt="Objectif dépassé : la prochaine fois, baisse l'assistance.";
+    if(r.reps>=ex.hi) txt="Haut de fourchette atteint : l'assistance baissera la prochaine fois si toutes tes séries y arrivent.";
   } else if(ex.type==="machine"){
     const r=readResult(ex);
-    if(r.reps>ex.hi) txt="Objectif dépassé : la prochaine fois, la charge montera d'un cran.";
+    if(r.reps>=ex.hi) txt="Haut de fourchette atteint : la charge montera la prochaine fois si toutes tes séries y arrivent.";
   } else if(ex.type==="reps"){
     const r=readResult(ex);
     const v=ex.perSide ? Math.min(r.l,r.r) : r.reps;
-    if(v>ex.hi) txt = isAssisted(ex) ? "Objectif dépassé : la prochaine fois, baisse l'assistance." : "Objectif dépassé : la prochaine fois, monte d'un niveau.";
+    if(v>=ex.hi && ex.levels) txt="Haut de fourchette atteint : monte d'un niveau la prochaine fois si toutes tes séries y arrivent.";
   } else if(ex.type==="pushup"){
     const r=readResult(ex);
-    if(ex.hi && r.strict>ex.hi) txt="Objectif dépassé : la prochaine fois, monte d'un niveau.";
+    if(ex.hi && r.strict>=ex.hi) txt="Haut de fourchette atteint : monte d'un niveau la prochaine fois si toutes tes séries y arrivent.";
   } else if(ex.type==="hold"){
-    if(state.holdResult>=ex.hold) txt = ex.levels ? "Tenu jusqu'au bout : passe au niveau suivant la prochaine fois." : "Tenu jusqu'au bout.";
+    if(state.holdResult>=ex.hold) txt = ex.levels ? "Tenu jusqu'au bout : passe au niveau suivant la prochaine fois si toutes tes séries y arrivent." : "Tenu jusqu'au bout.";
   }
   el.textContent=txt;
 }
