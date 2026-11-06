@@ -876,22 +876,54 @@ const q = (sel)=> screenEl.querySelector(sel);
 
 /* ============ AUDIO ============ */
 let actx=null;
-function unlockAudio(){ try{ if(!actx){ const AC=window.AudioContext||window.webkitAudioContext; if(AC) actx=new AC(); } if(actx && actx.state==="suspended") actx.resume(); }catch(e){} }
-function beep(freq,dur){
+/* iOS : le contexte audio ne démarre ou ne repart (après verrouillage, appel, autre app)
+   que pendant un geste de l'utilisateur. On le relance donc à chaque toucher, et on joue
+   un son vide pour débloquer la sortie. */
+function unlockAudio(){
+  try{
+    if(!actx || actx.state==="closed"){ const AC=window.AudioContext||window.webkitAudioContext; if(AC) actx=new AC(); }
+    if(!actx) return;
+    if(actx.state!=="running") actx.resume();
+    const src=actx.createBufferSource(); src.buffer=actx.createBuffer(1,1,22050);
+    src.connect(actx.destination); src.start(0);
+  }catch(e){}
+}
+function tone(freq,dur,at){
+  const o=actx.createOscillator(), g=actx.createGain();
+  o.type="triangle"; o.frequency.value=freq;
+  o.connect(g); g.connect(actx.destination);
+  g.gain.setValueAtTime(0.0001,at);
+  g.gain.exponentialRampToValueAtTime(0.9,at+0.01);
+  g.gain.setValueAtTime(0.9,at+dur*0.6);
+  g.gain.exponentialRampToValueAtTime(0.0001,at+dur);
+  o.start(at); o.stop(at+dur+0.03);
+}
+function beep(freq,dur,count){
   if(!state.sound) return;
   try{
     if(!actx) unlockAudio();
     if(!actx) return;
-    const o=actx.createOscillator(), g=actx.createGain();
-    o.type="sine"; o.frequency.value=freq;
-    o.connect(g); g.connect(actx.destination);
-    const t=actx.currentTime;
-    g.gain.setValueAtTime(0.0001,t);
-    g.gain.exponentialRampToValueAtTime(0.32,t+0.012);
-    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
-    o.start(t); o.stop(t+dur+0.03);
+    if(actx.state!=="running") actx.resume();
+    const t=actx.currentTime+0.02, n=count||1;
+    for(let i=0;i<n;i++) tone(freq, dur, t+i*(dur+0.12));
   }catch(e){}
 }
+
+/* ============ ÉCRAN ALLUMÉ ============ */
+/* Pendant la séance, l'écran reste allumé : écran verrouillé, le chrono et le son s'arrêtent. */
+let wakeLock=null;
+function keepAwake(){
+  try{
+    if(wakeLock || !("wakeLock" in navigator) || document.visibilityState==="hidden") return;
+    navigator.wakeLock.request("screen").then(l=>{
+      wakeLock=l; l.addEventListener("release",()=>{ wakeLock=null; });
+    }).catch(()=>{});
+  }catch(e){}
+}
+function releaseAwake(){ try{ if(wakeLock) wakeLock.release(); }catch(e){} wakeLock=null; }
+function inSession(){ return state.phase==="effort" || state.phase==="recovery"; }
+document.addEventListener("touchend", unlockAudio, { passive:true });
+document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible" && inSession()) keepAwake(); });
 
 /* ============ CHRONO GÉNÉRIQUE ============ */
 function startCountdown(totalSec, opts){
@@ -913,13 +945,13 @@ function tickCountdown(){
   if(cd.ringEl) cd.ringEl.style.strokeDashoffset = (RING_C*(1-(cd.total? rem/cd.total : 0))).toFixed(1);
   if(remCeil<cd.lastSec){
     cd.lastSec=remCeil;
-    if(cd.beepOn && remCeil>=1 && remCeil<=3) beep(880,0.08);
+    if(cd.beepOn && remCeil>=1 && remCeil<=3) beep(880,0.12);
   }
   if(rem<=0){
     clearInterval(cd.iv);
     const done=cd.onDone, b=cd.beepOn;
     state.cd=null;
-    if(b) beep(540,0.26);
+    if(b) beep(660,0.3,3);
     if(done) done();
   }
 }
@@ -1033,11 +1065,11 @@ function resume(){
   state.exIndex=a.exIndex||0; state.setIndex=a.setIndex||0;
   goEffort();
 }
-function goHome(){ stopCountdown(); setPhase("home"); renderTopbar(); renderHome(); }
-function goEffort(){ stopCountdown(); state.holdResult=null; setPhase("effort"); ensureEntry(); saveActive(); renderTopbar(); renderEffort(); }
-function goRecovery(){ setPhase("recovery"); renderTopbar(); renderRecovery(); }
+function goHome(){ stopCountdown(); releaseAwake(); setPhase("home"); renderTopbar(); renderHome(); }
+function goEffort(){ stopCountdown(); keepAwake(); state.holdResult=null; setPhase("effort"); ensureEntry(); saveActive(); renderTopbar(); renderEffort(); }
+function goRecovery(){ keepAwake(); setPhase("recovery"); renderTopbar(); renderRecovery(); }
 function goEnd(){
-  stopCountdown();
+  stopCountdown(); releaseAwake();
   state.session.durationMs = Date.now()-sessionStart(state.session);
   // sauvegarder la séance dans l'historique
   const h=getHistory();
@@ -1709,6 +1741,7 @@ function step(tgt,stepVal,dir){
 function toggleMute(){
   state.sound=!state.sound; store.set(K.SOUND, state.sound);
   unlockAudio();
+  if(state.sound) beep(880,0.15);
   renderTopbar();
   const rowBtn=screenEl.querySelector('[data-act="mute-row"]');
   if(rowBtn) rowBtn.textContent = state.sound ? "Couper le son" : "Activer le son";
@@ -1724,6 +1757,7 @@ function toast(msg){
 
 /* ============ DELEGATION DES CLICS ============ */
 document.addEventListener("click",(ev)=>{
+  unlockAudio();
   const btn=ev.target.closest("[data-act]"); if(!btn) return;
   const act=btn.getAttribute("data-act");
   switch(act){
