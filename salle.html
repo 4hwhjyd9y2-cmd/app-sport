@@ -570,14 +570,6 @@ const EX_A = [
       feel:"Les fessiers, franchement. C'est ton pont de la maison, en version chargée. Si tu sens surtout l'arrière des cuisses, rapproche un peu les pieds des fesses.",
       avoid:"Cambrer le bas du dos pour monter plus haut (c'est la fesse qui monte le bassin, pas le dos); menton qui part en arrière; rebondir en bas" } },
 
-  { id:113, name:"Leg curl assis à la machine", short:"Leg curl assis", muscle:"Ischios",
-    gymDep:true, type:"machine", sets:3, target:"10–12 réps", lo:10, hi:12, rest:90, startKg:20, kgStep:5,
-    tech:{ place:"Assis sur la machine, dos bien calé contre le dossier, genoux alignés avec l'axe de rotation de la machine. Le rouleau du bas posé juste au-dessus des talons, le rouleau du haut bien serré sur les cuisses. Mains sur les poignées.",
-      move:"Plie les genoux pour ramener les talons sous le siège, le plus loin possible. Marque 1 seconde, puis remonte lentement en 2 à 3 secondes jusqu'aux jambes presque tendues.",
-      feel:"L'arrière des cuisses, sur toute la longueur.",
-      avoid:"Décoller les fesses du siège; remonter d'un coup en laissant tomber la charge; s'arrêter à mi-course",
-      note:"Garde toujours la même machine : les charges ne se comparent pas d'une machine à l'autre." } },
-
   { id:103, name:"Développé couché aux haltères", short:"Développé couché", muscle:"Poitrine · Triceps",
     type:"machine", sets:4, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:8, kgStep:2.5,
     tech:{ place:"Allongé sur un banc plat, pieds à plat au sol, fesses collées au banc, un haltère dans chaque main au niveau de la poitrine, paumes vers les pieds, omoplates serrées et plaquées dans le banc.",
@@ -697,6 +689,14 @@ const EX_B = [
       feel:"Avant de la cuisse et fessier de la jambe avant.",
       avoid:"Genou avant qui rentre vers l'intérieur; buste trop penché en avant; prendre appui sur le pied arrière; haltères trop lourds qui déséquilibrent",
       note:"C'est ta fente de la maison, en version chargée. Le poids saisi est celui d'UN haltère, et les répétitions sont par jambe." } },
+
+  { id:113, name:"Leg curl assis à la machine", short:"Leg curl assis", muscle:"Ischios",
+    gymDep:true, type:"machine", sets:3, target:"10–12 réps", lo:10, hi:12, rest:90, startKg:20, kgStep:5,
+    tech:{ place:"Assis sur la machine, dos bien calé contre le dossier, genoux alignés avec l'axe de rotation de la machine. Le rouleau du bas posé juste au-dessus des talons, le rouleau du haut bien serré sur les cuisses. Mains sur les poignées.",
+      move:"Plie les genoux pour ramener les talons sous le siège, le plus loin possible. Marque 1 seconde, puis remonte lentement en 2 à 3 secondes jusqu'aux jambes presque tendues.",
+      feel:"L'arrière des cuisses, sur toute la longueur.",
+      avoid:"Décoller les fesses du siège; remonter d'un coup en laissant tomber la charge; s'arrêter à mi-course",
+      note:"Garde toujours la même machine : les charges ne se comparent pas d'une machine à l'autre." } },
 
   { id:202, name:"Dips assistés", short:"Dips assistés", muscle:"Poitrine · Triceps",
     gymDep:true, type:"pushup", sets:4, target:"6–10 réps", lo:6, hi:10, rest:120, assistLevels:[2], startAssist:25, assistStep:2.5,
@@ -975,12 +975,19 @@ function frDate(iso){ const d=new Date(iso); const p=(x)=>String(x).padStart(2,"
 
 /* ============ HISTORIQUE / DERNIÈRE FOIS ============ */
 function getHistory(){ return store.get(kHist(), []); }
+/* Toutes les séances (A, B, Maison) triées par date : les id d'exercice sont uniques entre
+   séances, donc un exercice déplacé d'une séance à l'autre retrouve son historique. */
+function allHistory(){
+  let all=[];
+  PROGRAMS.forEach(p=>{ all=all.concat(store.get("TEMPO_S_HIST_"+p.id, [])); });
+  return all.sort((x,y)=> String(x.date).localeCompare(String(y.date)));
+}
 /* Charges sur machine : on ne compare qu'avec les séances faites dans la même salle.
    Les séances enregistrées avant le choix de la salle servent de repli. */
 function gymBound(ex){ return !!(ex && ex.gymDep && (ex.type==="machine" || isAssisted(ex))); }
 function curGym(){ return (state.session && state.session.gym) || state.gym; }
 function lastTimeResult(exId, setIdx){
-  const h=getHistory();
+  const h=allHistory();
   const bound=gymBound(EX.find(e=>e.id===exId)), g=curGym();
   let fallback=null;
   for(let i=h.length-1;i>=0;i--){
@@ -1413,7 +1420,7 @@ function isAssisted(ex){ return !!(ex.assistLevels && ex.assistLevels.indexOf(le
    TOUTES les séries prévues ont atteint le haut de fourchette. Toutes les séries reçoivent
    la même charge : la plus lourde (ou l'assistance la plus faible) tenue dans la fourchette. */
 function lastSessionSets(ex){
-  const h=getHistory(), bound=gymBound(ex), g=curGym(), lvl=levelOf(ex);
+  const h=allHistory(), bound=gymBound(ex), g=curGym(), lvl=levelOf(ex);
   let fallback=null;
   for(let i=h.length-1;i>=0;i--){
     const e=h[i].entries && h[i].entries[ex.id];
