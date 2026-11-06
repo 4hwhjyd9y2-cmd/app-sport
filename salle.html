@@ -22,14 +22,16 @@
     --r:18px;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+  html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; height:100%; overflow:hidden; }
   body{
     background:var(--bg); color:var(--ink);
     font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",system-ui,sans-serif;
     -webkit-font-smoothing:antialiased; line-height:1.45;
-    min-height:100dvh; overscroll-behavior-y:none;
+    height:100%; overflow:hidden; overscroll-behavior:none;
     -webkit-tap-highlight-color:transparent;
+    -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;
   }
+  input, textarea{ -webkit-user-select:text; user-select:text; }
   body[data-phase="recovery"]{ --accent:var(--rest); --accent-soft:var(--rest-soft); }
   body[data-phase="end"]{ --accent:var(--rest); --accent-soft:var(--rest-soft); }
   button{ font-family:inherit; cursor:pointer; color:inherit; border:none; background:none; touch-action:manipulation; }
@@ -37,9 +39,9 @@
   .mono{ font-family:ui-monospace,"SF Mono",Menlo,monospace; font-variant-numeric:tabular-nums; }
 
   #app{
-    position:relative; max-width:480px; margin:0 auto; min-height:100dvh;
+    position:relative; max-width:480px; margin:0 auto; height:100vh; height:100dvh;
     display:flex; flex-direction:column;
-    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
     overflow:hidden;
   }
   #app::before{
@@ -49,10 +51,10 @@
   }
 
   /* Topbar */
-  #topbar{ position:relative; z-index:2; display:flex; align-items:center; gap:14px; padding:14px 20px 6px; }
+  #topbar{ position:relative; z-index:2; flex:none; display:flex; align-items:center; gap:14px; padding:10px 20px 8px; }
   #topbar.hide-progress .prog{ visibility:hidden; }
   .prog{ flex:1; }
-  .prog-meta{ display:flex; justify-content:space-between; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); margin-bottom:6px; }
+  .prog-meta{ display:flex; justify-content:space-between; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); margin-bottom:6px; }
   .prog-meta b{ color:var(--mute); font-weight:700; }
   .prog-track{ height:5px; border-radius:5px; background:var(--surface2); overflow:hidden; }
   .prog-fill{ height:100%; border-radius:5px; background:var(--accent); width:0; transition:width .45s cubic-bezier(.4,0,.2,1), background .5s ease; }
@@ -62,17 +64,25 @@
   .mute.off{ color:var(--faint); }
 
   /* Screen */
-  #screen{ position:relative; z-index:1; flex:1; display:flex; flex-direction:column; padding:6px 20px 22px; }
-  .scroll{ flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  #screen{ position:relative; z-index:1; flex:1; min-height:0; display:flex; flex-direction:column; }
+  .scroll{ flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; padding:6px 20px 28px; }
+
+  /* Barre d'action fixée en bas, toujours à portée du pouce */
+  .bottom-bar{ flex:none; position:relative; z-index:3; padding:12px 20px calc(12px + env(safe-area-inset-bottom));
+    background:rgba(19,18,16,.82); -webkit-backdrop-filter:blur(20px) saturate(1.4); backdrop-filter:blur(20px) saturate(1.4);
+    border-top:1px solid var(--line); }
+  .bar-row{ display:flex; gap:10px; }
+  .bar-row .btn{ flex:1; width:auto; }
+  .bar-row .btn-soft{ flex:none; min-width:98px; padding:0 14px; min-height:62px; border-radius:16px; color:var(--mute); }
 
   .eyebrow{ font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); font-weight:700; }
   .eyebrow .dot{ color:var(--faint); margin:0 7px; }
   .eyebrow .muscle{ color:var(--mute); }
 
   /* HOME */
-  .hero{ padding:18px 0 8px; }
+  .hero{ padding:10px 0 4px; }
   .wordmark{ display:flex; align-items:baseline; gap:10px; }
-  .wordmark h1{ font-size:46px; font-weight:800; letter-spacing:-.01em; line-height:.95; }
+  .wordmark h1{ font-size:40px; font-weight:800; letter-spacing:-.01em; line-height:.95; }
   .beat{ width:11px; height:11px; border-radius:50%; background:var(--effort); transform:translateY(-2px); box-shadow:0 0 0 0 var(--effort); animation:beat 1.9s ease-in-out infinite; }
   @keyframes beat{ 0%,100%{ transform:translateY(-2px) scale(1); opacity:1 } 45%{ transform:translateY(-2px) scale(.55); opacity:.5 } }
   .tagline{ color:var(--mute); margin-top:10px; font-size:15px; }
@@ -93,9 +103,13 @@
   .resume-card .rc-lbl{ font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--effort); font-weight:700; }
   .resume-card .rc-ex{ font-weight:650; margin-top:3px; }
 
-  .home-actions{ margin-top:24px; }
-  .foot-actions{ display:flex; gap:12px; margin-top:14px; }
-  .foot-actions .btn-soft{ flex:1; }
+  /* Liste groupée façon Réglages iOS */
+  .group{ background:var(--surface); border:1px solid var(--line); border-radius:var(--r); overflow:hidden; }
+  .group-row{ display:flex; align-items:center; width:100%; min-height:52px; padding:0 16px; font-size:15.5px; font-weight:600; text-align:left; }
+  .group-row + .group-row{ border-top:1px solid var(--line); }
+  .group-row span{ margin-left:auto; color:var(--faint); font-size:20px; font-weight:400; }
+  .group-row:active{ background:var(--surface2); }
+  .group-row.danger{ color:var(--warn); }
 
   /* Buttons */
   .btn{ display:flex; align-items:center; justify-content:center; width:100%; min-height:62px; border-radius:16px;
@@ -105,7 +119,7 @@
   .btn-soft{ display:flex; align-items:center; justify-content:center; min-height:52px; border-radius:14px;
     background:var(--surface); color:var(--ink); font-weight:650; font-size:15px; border:1px solid var(--line); }
   .btn-soft:active{ background:var(--surface2); }
-  .btn-ghost{ display:block; width:100%; text-align:center; padding:14px; margin-top:10px; color:var(--faint); font-size:14px; font-weight:600; }
+  .btn-ghost{ display:block; width:100%; text-align:center; padding:12px; margin-top:4px; color:var(--faint); font-size:14px; font-weight:600; }
   .btn-ghost:active{ color:var(--mute); }
   .btn.danger{ background:transparent; border:1px solid var(--line); color:var(--warn); }
 
@@ -149,10 +163,30 @@
   .reminder{ margin-top:20px; font-size:12.5px; color:var(--faint); text-align:center; line-height:1.5; padding:0 6px; }
   .reminder b{ color:var(--mute); font-weight:650; }
 
-  .action-bar{ padding-top:18px; }
+  /* Fiche technique repliable */
+  details.tech{ margin-top:18px; display:block; }
+  details.tech > summary{ list-style:none; display:flex; align-items:center; min-height:48px; padding:0 14px; border-radius:14px;
+    background:var(--surface); border:1px solid var(--line); font-size:13px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; color:var(--mute); }
+  details.tech > summary::-webkit-details-marker{ display:none; }
+  details.tech > summary::after{ content:"›"; margin-left:auto; font-size:22px; color:var(--faint); transform:rotate(90deg); transition:transform .2s ease; letter-spacing:0; }
+  details.tech[open] > summary::after{ transform:rotate(-90deg); }
+  details.tech[open] > summary{ margin-bottom:16px; }
+  .tech-body{ display:flex; flex-direction:column; gap:16px; }
+
+  /* Tenue en cours : chrono plein écran */
+  body.holding #screen{ z-index:10; }
+  body.holding .bottom-bar{ position:fixed; inset:0; z-index:40; background:var(--bg); border:none;
+    display:flex; flex-direction:column; justify-content:center;
+    padding:calc(24px + env(safe-area-inset-top)) 24px calc(20px + env(safe-area-inset-bottom)); }
+  .hold-live{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; }
+  .hl-title{ font-size:26px; font-weight:800; text-align:center; }
+  .hl-lvl{ font-size:14px; color:var(--mute); text-align:center; margin-top:4px; }
+  .hold-live .ringwrap{ width:280px; height:280px; margin:28px 0; }
+  .hold-live .ring-time{ font-size:72px; }
+  .hl-main{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; }
+  .hold-live .btn-soft{ flex:none; width:100%; min-height:62px; border-radius:16px; font-size:17px; }
 
   /* Hold live */
-  .hold-live{ display:flex; flex-direction:column; align-items:center; padding:8px 0 4px; }
   .ringwrap{ position:relative; width:240px; height:240px; }
   .ring{ width:100%; height:100%; transform:rotate(0deg); }
   .ring-bg{ fill:none; stroke:var(--surface2); stroke-width:7; }
@@ -162,8 +196,10 @@
   .ring-sub{ font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); margin-top:2px; }
 
   /* RECOVERY */
-  .rec-top{ display:flex; flex-direction:column; align-items:center; padding:4px 0 6px; }
-  .rec-card{ margin-top:20px; padding:16px; border-radius:var(--r); background:var(--surface); border:1px solid var(--line); }
+  .rec-top{ display:flex; flex-direction:column; align-items:center; padding:2px 0 4px; }
+  .rec-top .ringwrap{ width:200px; height:200px; }
+  .rec-top .ring-time{ font-size:54px; }
+  .rec-card{ margin-top:14px; padding:16px; border-radius:var(--r); background:var(--surface); border:1px solid var(--line); }
   .rec-card h3{ font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); font-weight:700; margin-bottom:14px; }
   .field{ margin-bottom:14px; }
   .field:last-child{ margin-bottom:0; }
@@ -195,9 +231,6 @@
   .nextup .nu-ex{ font-weight:650; font-size:15px; margin-top:2px; }
   .nextup .nu-arrow{ margin-left:auto; color:var(--accent); font-size:20px; }
 
-  .rec-actions{ padding-top:18px; display:flex; flex-direction:column; gap:10px; }
-  .rec-actions .row{ display:flex; gap:10px; }
-  .rec-actions .row .btn-soft{ flex:1; }
 
   /* END */
   .end-hero{ padding:30px 0 10px; text-align:center; }
@@ -232,8 +265,8 @@
   .seg-gym{ margin-top:0; }
   .seg-gym button{ padding:8px; font-size:13px; }
   .gym-hint{ font-size:11.5px; color:var(--faint); margin:-6px 2px 12px; }
-  .export-box{ width:100%; min-height:200px; background:var(--bg); border:1px solid var(--line); border-radius:13px;
-    padding:14px; color:var(--ink); font-family:ui-monospace,"SF Mono",Menlo,monospace; font-size:12.5px; line-height:1.6;
+  .export-box{ width:100%; min-height:150px; background:var(--bg); border:1px solid var(--line); border-radius:13px;
+    padding:14px; color:var(--ink); font-family:ui-monospace,"SF Mono",Menlo,monospace; font-size:16px; line-height:1.5;
     resize:vertical; -webkit-user-select:text; user-select:text; white-space:pre; overflow:auto; }
   .sheet-actions{ display:flex; gap:10px; margin-top:14px; }
   .sheet-actions .btn{ min-height:54px; font-size:16px; }
@@ -262,8 +295,17 @@
   @media (max-width:360px){
     .wordmark h1{ font-size:40px; }
     .ex-title{ font-size:26px; }
-    .ringwrap{ width:210px; height:210px; }
-    .ring-time{ font-size:54px; }
+    .rec-top .ringwrap{ width:170px; height:170px; }
+    .rec-top .ring-time{ font-size:46px; }
+    .rec-top .ring-sub{ font-size:9.5px; letter-spacing:.1em; }
+    .hold-live .ringwrap{ width:240px; height:240px; }
+  }
+  @media (max-height:700px){
+    .rec-top .ringwrap{ width:160px; height:160px; }
+    .rec-top .ring-time{ font-size:44px; }
+    .rec-top .ring-sub{ font-size:9.5px; letter-spacing:.1em; }
+    .hold-live .ringwrap{ width:220px; height:220px; margin:18px 0; }
+    .hold-live .ring-time{ font-size:60px; }
   }
   @media (prefers-reduced-motion: reduce){
     *{ animation:none !important; transition:none !important; }
@@ -1051,6 +1093,7 @@ function getActive(){ return store.get(kActive(), null); }
 /* ============ NAVIGATION ============ */
 function setPhase(p){
   state.phase=p;
+  document.body.classList.remove("holding");
   document.body.dataset.phase=p;
 }
 function nextPointer(exI,setI){
@@ -1122,9 +1165,15 @@ function startHold(){
   // remplace la zone d'action par le chrono live
   const bar=q("#actionbar");
   bar.innerHTML =
-    '<div class="hold-live">'+ ringHTML("hold") +
-      '<button class="btn-soft" data-act="hold-stop" style="margin-top:18px;width:100%">J\'arrête</button>'+
+    '<div class="hold-live">'+
+      '<div class="hl-main">'+
+        '<div class="hl-title">'+ex.name+'</div>'+
+        (ex.levels ? '<div class="hl-lvl">'+levelName(ex)+'</div>' : '')+
+        ringHTML("hold")+
+      '</div>'+
+      '<button class="btn-soft" data-act="hold-stop">J\'arrête</button>'+
     '</div>';
+  document.body.classList.add("holding");
   q("#hold-sub").textContent="Tiens la position";
   startCountdown(ex.hold, {
     numEl:q("#hold-time"), ringEl:q("#hold-fg"),
@@ -1192,8 +1241,10 @@ function renderHome(){
         '<div class="rc-ex">'+String(ex.pos).padStart(2,"0")+'. '+ex.short+' · série '+(active.setIndex+1)+'</div>'+
       '</div>';
     actionBlock =
-      '<button class="btn" data-act="resume">Reprendre la séance</button>'+
-      '<button class="btn-ghost" data-act="ask-restart">Recommencer à zéro</button>';
+      '<div class="bar-row">'+
+        '<button class="btn-soft" data-act="ask-restart">Recommencer</button>'+
+        '<button class="btn" data-act="resume">Reprendre</button>'+
+      '</div>';
   } else {
     actionBlock = '<button class="btn" data-act="start">Commencer la séance</button>';
   }
@@ -1219,15 +1270,14 @@ function renderHome(){
       '</div>'+
       '<div class="list-head">La séance</div>'+
       rows+
-    '</div>'+
-    '<div class="home-actions">'+
-      actionBlock+
-      '<div class="foot-actions">'+
-        '<button class="btn-soft" data-act="export-home">Exporter cette séance</button>'+
-        '<button class="btn-soft" data-act="backup">Sauvegarder / restaurer</button>'+
-        '<button class="btn-soft danger" data-act="ask-erase">Effacer mes données</button>'+
+      '<div class="list-head">Mes données</div>'+
+      '<div class="group">'+
+        '<button class="group-row" data-act="export-home">Exporter cette séance<span>›</span></button>'+
+        '<button class="group-row" data-act="backup">Sauvegarder / restaurer<span>›</span></button>'+
+        '<button class="group-row danger" data-act="ask-erase">Effacer mes données</button>'+
       '</div>'+
-    '</div>';
+    '</div>'+
+    '<div class="bottom-bar">'+actionBlock+'</div>';
 }
 function volShort(e){
   if(e.type==="hold") return "tenue "+e.hold+" s";
@@ -1265,22 +1315,23 @@ function renderEffort(){
   }
   // technique
   const avoidItems = t.avoid.split(/;\s*/).filter(Boolean).map(s=>'<li>'+s.trim().replace(/\.$/,"")+'</li>').join("");
+  // ouverte à la 1re série, repliée ensuite : on la connaît déjà
   let tech =
-    '<div class="tech">'+
+    '<details class="tech"'+(state.setIndex===0?' open':'')+'><summary>Fiche technique</summary><div class="tech-body">'+
       tblock("Placement","",t.place)+
       tblock("Mouvement","",t.move)+
       tblock("Où le sentir","feel",t.feel)+
       '<div class="tblock"><div class="tlabel avoid"><span class="bar"></span>À éviter</div><ul class="avoid-list">'+avoidItems+'</ul></div>'+
       (t.note?'<div class="tnote"><b>↳</b> '+t.note+'</div>':"")+
-    '</div>';
+    '</div></details>';
   // barre d'action
   let actionInner;
   if(ex.type==="hold"){
-    actionInner = '<button class="btn" data-act="hold-start">Démarrer la tenue · '+mmss(ex.hold)+'</button>'+
-      '<button class="btn-ghost" data-act="skip">Passer cette série</button>';
+    actionInner = '<div class="bar-row"><button class="btn-soft" data-act="skip">Passer</button>'+
+      '<button class="btn" data-act="hold-start">Démarrer · '+mmss(ex.hold)+'</button></div>';
   } else {
-    actionInner = '<button class="btn" data-act="fait">Série faite</button>'+
-      '<button class="btn-ghost" data-act="skip">Passer cette série</button>';
+    actionInner = '<div class="bar-row"><button class="btn-soft" data-act="skip">Passer</button>'+
+      '<button class="btn" data-act="fait">Série faite</button></div>';
   }
 
   screenEl.innerHTML =
@@ -1293,7 +1344,7 @@ function renderEffort(){
       tech+
       '<div class="reminder"><b>Tempo</b> · descente en 2–3 s · ventre &amp; fessiers serrés · amplitude complète</div>'+
     '</div>'+
-    '<div class="action-bar" id="actionbar">'+actionInner+'</div>';
+    '<div class="bottom-bar" id="actionbar">'+actionInner+'</div>';
 }
 function tblock(label,cls,text){
   return '<div class="tblock"><div class="tlabel '+cls+'"><span class="bar"></span>'+label+'</div><p>'+text+'</p></div>';
@@ -1342,13 +1393,10 @@ function renderRecovery(){
       '<div class="nudge" id="nudge"></div>'+
       nextHtml+
     '</div>'+
-    '<div class="rec-actions">'+
-      '<div class="row">'+
-        '<button class="btn-soft" data-act="add15">+ 15 s</button>'+
-        '<button class="btn-soft" data-act="mute-row">'+(state.sound?"Couper le son":"Activer le son")+'</button>'+
-      '</div>'+
+    '<div class="bottom-bar"><div class="bar-row">'+
+      '<button class="btn-soft" data-act="add15">+ 15 s</button>'+
       '<button class="btn" data-act="finish-rest">Terminer le repos</button>'+
-    '</div>';
+    '</div></div>';
 
   q("#rec-sub").textContent="Récupération";
   // chrono de repos
@@ -1523,7 +1571,7 @@ function renderEnd(){
       '</div>'+
       '<div class="recap">'+rows+'</div>'+
     '</div>'+
-    '<div class="home-actions">'+
+    '<div class="bottom-bar">'+
       '<button class="btn" data-act="export-end">Copier la séance</button>'+
       '<button class="btn-ghost" data-act="go-home">Retour à l\'accueil</button>'+
     '</div>';
