@@ -180,6 +180,7 @@
   .tnote{ padding:12px 14px; border-radius:12px; background:var(--accent-soft); font-size:.882rem; line-height:1.45; }
   .tnote b{ display:block; color:var(--accent); font-size:.765rem; font-weight:600; margin-bottom:2px; }
   .reminder{ margin-top:18px; text-align:center; padding:0 12px; }
+  .warmup{ margin-top:8px; padding:0 4px; }
 
   /* ---------- Chrono (anneau) ---------- */
   .ringwrap{ position:relative; width:200px; height:200px; }
@@ -585,11 +586,11 @@ const EX_A = [
 
   { id:103, name:"Développé couché aux haltères", short:"Développé couché", muscle:"Poitrine · Triceps",
     type:"machine", sets:4, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:8, kgStep:2.5,
-    tech:{ place:"Allongé sur un banc plat, pieds à plat au sol, fesses collées au banc, un haltère dans chaque main au niveau de la poitrine, paumes vers les pieds, omoplates serrées et plaquées dans le banc.",
-      move:"Pousse les haltères vers le plafond jusqu'à tendre les bras, sans les cogner l'un contre l'autre, puis redescends lentement jusqu'au niveau de la poitrine, coudes à environ 45° du corps.",
-      feel:"Poitrine et arrière des bras.",
-      avoid:"Coudes grands ouverts à 90° du corps; décoller les omoplates du banc; descendre trop vite; décoller les fesses ou creuser le bas du dos pour finir la poussée",
-      note:"Un petit creux naturel sous le bas du dos est normal. S'il grandit sur les dernières répétitions, la charge est trop lourde : arrête la série là, sans compter cette répétition. Le poids saisi est celui d'UN haltère." } },
+    tech:{ place:"Allongé sur un banc plat, pieds à plat au sol, fesses collées au banc. Serre les omoplates et tire-les vers les fesses, puis garde-les plaquées dans le banc jusqu'à la dernière répétition. Un haltère dans chaque main au niveau du bas de la poitrine, paumes tournées un peu l'une vers l'autre (environ 45°).",
+      move:"Pousse les haltères au-dessus de la poitrine, coudes à environ 45° du corps et avant-bras verticaux. Arrête-toi en haut juste avant que les omoplates décollent du banc, sans tendre les bras à fond. Redescends en 2 à 3 s jusqu'au bas de la poitrine, pas plus bas.",
+      feel:"Poitrine, puis arrière des bras. Si ce sont surtout les épaules qui poussent, les omoplates ont lâché ou les coudes se sont ouverts.",
+      avoid:"Épaules qui montent vers le plafond en haut de la poussée; coudes qui s'ouvrent à 90° du corps en fin de série; haltères qui descendent vers le cou ou remontent au-dessus des yeux; décoller les fesses ou creuser le bas du dos pour finir la poussée",
+      note:"La série s'arrête dès que les épaules prennent le relais des pectoraux, ou que le creux du bas du dos grandit : cette répétition ne compte pas. Une douleur ou un pincement à l'avant de l'épaule, ce n'est pas de la fatigue : arrête l'exercice. Le poids saisi est celui d'UN haltère." } },
 
   { id:104, name:"Tractions assistées", short:"Tractions assistées", muscle:"Dos · Bras",
     gymDep:true, type:"reps", sets:4, target:"4–6 réps", lo:4, hi:6, rest:120, assistLevels:[0], startAssist:15, assistStep:2.5,
@@ -739,7 +740,7 @@ const EX_B = [
     ] },
 
   { id:204, name:"Tractions australiennes aux anneaux", short:"Tractions australiennes", muscle:"Milieu du dos",
-    type:"reps", sets:4, target:"8–12 réps", lo:8, hi:12, rest:90,
+    type:"reps", sets:4, target:"8–12 réps", lo:8, hi:12, rest:120,
     levels:["Anneaux hauts, corps très incliné","Anneaux à hauteur des hanches","Anneaux bas, corps proche de l'horizontale","Pieds surélevés sur un banc","Pause de 2 s en haut"], lvl0:1,
     techByLevel:[
       { place:"Anneaux réglés à hauteur de poitrine quand tu es debout, les deux sangles exactement à la même longueur. Attrape-les paumes face à face, avance les pieds pour incliner le corps, talons au sol, bras tendus, corps en ligne droite.",
@@ -1336,6 +1337,7 @@ function renderEffort(){
       '<div class="subtitle">'+ex.muscle+'</div>'+
       '<div class="set-line"><b>Série '+(state.setIndex+1)+' sur '+ex.sets+'</b><div class="dots" aria-hidden="true">'+dots+'</div></div>'+
       '<div class="targets">'+targets+'</div>'+
+      (ex.type==="machine" && state.setIndex===0 ? '<div class="footnote warmup">Avant cette série, échauffe-toi hors de l\'app : 1 ou 2 séries légères, vers la moitié de la charge. Ensuite, toutes les séries à la même charge.</div>' : '')+
       levelBlock+
       tech+
       '<div class="reminder footnote">Descente en 2 à 3 s, ventre et fessiers serrés, amplitude complète.</div>'+
@@ -1458,7 +1460,13 @@ function numHTML(id, val, step, suf){
 function isAssisted(ex){ return !!(ex.assistLevels && ex.assistLevels.indexOf(levelOf(ex))>=0); }
 /* Double progression : la charge (ou l'assistance) ne change que si, la dernière fois,
    TOUTES les séries prévues ont atteint le haut de fourchette. Toutes les séries reçoivent
-   la même charge : la plus lourde (ou l'assistance la plus faible) tenue dans la fourchette. */
+   la même charge : celle avec laquelle le plus de séries ont atteint le bas de fourchette
+   (à égalité, la plus lourde, ou l'assistance la plus faible). Une seule série lourde en fin
+   de pyramide ne fixe donc pas la charge de toutes les séries. */
+function mostUsed(values, better){
+  const n={}; values.forEach(v=>{ n[v]=(n[v]||0)+1; });
+  return values.reduce((best,v)=> (best==null || n[v]>n[best] || (n[v]===n[best] && better(v,best))) ? v : best, null);
+}
 function lastSessionSets(ex){
   const h=allHistory(), bound=gymBound(ex), g=curGym(), lvl=levelOf(ex);
   let fallback=null;
@@ -1479,7 +1487,7 @@ function suggestLoad(ex){
     const sets=done ? done.filter(r=>r.kg!=null) : [];
     if(!sets.length) return { kg:ex.startKg, bumped:false };
     const ok=sets.filter(r=>r.reps>=ex.lo);
-    const base=Math.max.apply(null,(ok.length?ok:sets).map(r=>r.kg));
+    const base=mostUsed((ok.length?ok:sets).map(r=>r.kg), (a,b)=>a>b);
     if(ex.kgStep && allTop) return { kg:base+ex.kgStep, bumped:true };
     return { kg:base, bumped:false };
   }
@@ -1487,7 +1495,7 @@ function suggestLoad(ex){
     const sets=done ? done.filter(r=>r.assist!=null) : [];
     if(!sets.length) return { assist:ex.startAssist, bumped:false };
     const ok=sets.filter(r=>r.reps>=ex.lo);
-    const base=Math.min.apply(null,(ok.length?ok:sets).map(r=>r.assist));
+    const base=mostUsed((ok.length?ok:sets).map(r=>r.assist), (a,b)=>a<b);
     if(allTop) return { assist:Math.max(0,base-ex.assistStep), bumped:true };
     return { assist:base, bumped:false };
   }
