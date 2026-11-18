@@ -23,13 +23,13 @@ Version du 18/11/2026. Ce document se lit sans la conversation qui l'a produit :
 |---|---|---|
 | Je lance une séance A ou B | Quoi faire avant ma 1re série | Démarrer sans réfléchir |
 | Avant un exercice chargé | Quelles séries de montée faire, à quelle charge | Arriver prêt à la charge du jour, sans me fatiguer |
-| Pendant les repos d'un exercice | Quelle préparation faire pour un exercice à venir | Ne pas arriver froid sur une articulation sensible |
+| Juste avant un exercice sensible | Quelle préparation faire | Ne pas arriver froid sur une articulation sensible |
 | Après la dernière série | Quels étirements faire, combien de temps | Ne pas les oublier |
 
 ## 3. Principes
 
 - **Pas de nouvel onglet.** Tout s'insère dans le déroulé existant de la séance : accueil, effort, repos, fin.
-- **Échauffement réparti** : un court bloc au début (rameur, dead bug), puis chaque préparation juste avant l'exercice qu'elle sert, le plus souvent pendant les repos de l'exercice précédent. Une articulation préparée se refroidit en 15 à 20 minutes environ : la préparer au début de séance ne sert à rien pour un exercice placé 30 minutes plus tard.
+- **Échauffement réparti** : un court bloc au début (rameur, dead bug), puis chaque préparation juste avant l'exercice qu'elle sert, à la 1re série de cet exercice. Une articulation préparée se refroidit en 15 à 20 minutes environ : la préparer au début de séance ne sert à rien pour un exercice placé 30 minutes plus tard.
 - **Séries de montée** : courtes (peu de répétitions), pour préparer sans fatiguer. Elles ne sont pas enregistrées. Ensuite, toutes les séries de travail se font à la même charge.
 - **Tout au poids du corps** pour l'échauffement, sauf le rameur et les séries de montée.
 - **Étirements après la séance seulement** : un étirement tenu longtemps avant l'effort fait perdre un peu de force.
@@ -89,20 +89,20 @@ Version du 18/11/2026. Ce document se lit sans la conversation qui l'a produit :
 - **À retirer** : le rappel générique « Avant cette série, échauffe-toi hors de l'app… » de l'écran d'effort, remplacé par cette section.
 - **Technique** : champ facultatif `ramp` sur les exercices concernés, liste d'éléments de la forme `{ pct, reps }`, `{ bodyweight:true, reps }` ou `{ assistPlus, reps }`, avec `perSide` hérité de l'exercice. Une fonction pure `rampSets(ex, base)` renvoie les lignes à afficher.
 
-### 4.3 Préparation pendant les repos (modifié)
+### 4.3 Préparation juste avant l'exercice (modifié le 18/11/2026)
 
-- **Usage** : pendant les repos d'un exercice, je veux savoir quelle préparation faire pour un exercice à venir.
-- **Quand** : sur **tous les écrans de repos** des exercices listés ci-dessous. L'utilisateur répartit les mouvements sur les repos de cet exercice.
-- **Contenu** : une section « Pendant tes repos, prépare : {exercice à venir} », une ligne par mouvement (nom et dose, avec une courte explication sous le nom), puis la note : « À répartir sur les repos de cet exercice. Si un repos devient trop court, ajoute 15 s. »
+- **Usage** : juste avant un exercice qui sollicite une articulation sensible, je veux savoir quelle préparation faire.
+- **Quand** : sur l'écran d'effort de la **1re série** de l'exercice préparé, avant ses séries de montée. Un temps dédié : les repos restent pour récupérer.
+- **Contenu** : une section « Préparation, avant cet exercice », une ligne par mouvement (nom et dose, avec une courte explication dessous), placée au-dessus de la section « Séries de montée ».
 - **Préparations** :
 
-| Séance | Pendant les repos de | Prépare | Mouvements |
+| Séance | Exercice préparé | Mouvements | Durée |
 |---|---|---|---|
-| A | Hip thrust (107) | Développé couché | Y-T-W au sol, 5 de chaque lettre |
-| A | Développé couché (103) | Tractions assistées | Tractions scapulaires × 8 |
-| A | Tractions assistées (104) | L-sit | Poignets 30 s ; dips scapulaires × 8 |
-| B | Leg curl assis (113) | Dips assistés | Y-T-W au sol, 5 de chaque lettre ; poignets 30 s ; dips scapulaires × 8 |
-| B | Dips assistés (202) | Développé militaire | Glissés au mur × 8 |
+| A | Développé couché (103) | Y-T-W au sol, 5 de chaque lettre | environ 1 min |
+| A | Tractions assistées (104) | Tractions scapulaires × 8 | environ 30 s |
+| A | L-sit (115) | Poignets 30 s ; dips scapulaires × 8 | environ 1 min |
+| B | Dips assistés (202) | Y-T-W au sol, 5 de chaque lettre ; poignets 30 s ; dips scapulaires × 8 | environ 2 min |
+| B | Développé militaire (209) | Glissés au mur × 8 | environ 30 s |
 
 - **Explications des mouvements** (texte affiché sous chaque nom) :
   - **Y-T-W au sol** : « Allongé sur le ventre, front au sol, pouces vers le plafond. Décolle les bras en Y, puis en T (bras écartés), puis en W (coudes pliés, ramenés vers les côtes), en serrant les omoplates à chaque fois. »
@@ -110,7 +110,7 @@ Version du 18/11/2026. Ce document se lit sans la conversation qui l'a produit :
   - **Dips scapulaires** : « En appui sur les barres de dips, bras tendus. Laisse descendre le corps en montant les épaules vers les oreilles, puis repousse les épaules vers le bas. »
   - **Poignets** : « Cercles de poignets dans les deux sens, puis à 4 pattes, bascule lentement le poids du corps d'avant en arrière sur les mains. »
   - **Glissés au mur** : « Dos, tête et fesses contre le mur, bras en W contre le mur. Fais glisser les bras vers le haut jusqu'au Y, sans décoller le bas du dos ni les bras du mur. »
-- **Technique** : champ facultatif `restPrep` sur l'exercice dont les repos affichent la préparation, de la forme `{ for: "<nom de l'exercice à venir>", items: [{ name, dose, how }] }`. Aucune donnée enregistrée.
+- **Technique** : champ facultatif `prep` sur l'exercice préparé, liste d'éléments `{ name, dose, how }` pris dans `PREP`. Aucune donnée enregistrée.
 
 ### 4.4 Écran Étirements (nouveau)
 
@@ -151,7 +151,7 @@ Version du 18/11/2026. Ce document se lit sans la conversation qui l'a produit :
 
 - **Séance** (élément de `TEMPO_S_HIST_<prog>`) : deux champs facultatifs nouveaux, `warmup` et `stretch`, valant `"done"` ou `"skipped"`.
 - **Séance en cours** (`TEMPO_S_ACTIVE_<prog>`) : un champ facultatif nouveau, `phase`, valant `"warmup"` ou `"stretch"`. Absent, la reprise fonctionne comme aujourd'hui.
-- **Exercices** (dans le code) : champs facultatifs `ramp` et `restPrep`, décrits en 4.2 et 4.3.
+- **Exercices** (dans le code) : champs facultatifs `ramp` et `prep`, décrits en 4.2 et 4.3.
 - **Programmes** (dans le code) : indicateur `warmup:true` sur A et B.
 - **Aucune migration** : tous les nouveaux champs sont facultatifs. Aucune clé de stockage n'est renommée. Une ancienne sauvegarde se restaure sans changement.
 
@@ -169,13 +169,13 @@ Version du 18/11/2026. Ce document se lit sans la conversation qui l'a produit :
 8. Séance Maison : « Commencer » → effort directement ; dernière série → fin directement ; aucun champ `warmup` ni `stretch`.
 9. Reprise : séance quittée en phase `warmup` → reprend sur l'écran Échauffement ; en phase `stretch` → reprend sur l'écran Étirements.
 10. Export : séance avec `warmup:"done"` et `stretch:"skipped"` → ligne « Échauffement : fait · Étirements : passés » ; séance sans ces champs → export identique à l'actuel.
-11. `restPrep` : chaque `for` désigne un exercice placé plus loin dans la même séance.
+11. Préparation : affichée à la 1re série de l'exercice préparé seulement, jamais sur les écrans de repos.
 12. Rendu sans erreur des nouveaux écrans (Échauffement, Étirements, chaque étape) dans le faux navigateur de `tools/check.js`.
 
 ## 7. Critères d'acceptation
 
 - Les 12 tests de la section 6 passent, ainsi que les vérifications existantes de `node tools/check.js`.
-- À 375 px et à 390 px de large, en thème sombre : aucun texte coupé, aucun débordement horizontal, aucune zone à toucher sous 44 px, sur les écrans Échauffement, Étirements, effort avec séries de montée et repos avec préparation.
+- À 375 px et à 390 px de large, en thème sombre : aucun texte coupé, aucun débordement horizontal, aucune zone à toucher sous 44 px, sur les écrans Échauffement, Étirements, effort avec préparation et séries de montée.
 - Les charges des séries de montée affichées correspondent aux règles de 4.2 pour la charge proposée du jour.
 - Une ancienne sauvegarde se restaure, et ses séances s'exportent comme avant.
 - La séance Maison se déroule exactement comme avant.
@@ -203,3 +203,4 @@ Version du 18/11/2026. Ce document se lit sans la conversation qui l'a produit :
 - 18/11/2026 : étirement des fléchisseurs de hanche en version active (bassin enroulé, hanches non avancées), 2 × 30 s par côté. Ischios 2 × 60 s.
 - 18/11/2026 : fichier unique `salle.html` conservé ; les nouvelles règles de calcul sont testées dans `tools/check.js`.
 - 18/11/2026 : séance Maison hors périmètre.
+- 18/11/2026 : la préparation ne se fait plus pendant les repos (pas le temps de la faire en récupérant) : elle a un temps dédié, juste avant l'exercice préparé, à sa 1re série.

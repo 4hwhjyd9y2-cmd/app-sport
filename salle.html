@@ -308,7 +308,7 @@
 "use strict";
 
 /* ============ ÉCHAUFFEMENT ET ÉTIREMENTS (séances A et B) ============ */
-/* Préparations faites pendant les repos d'un exercice, pour un exercice à venir (champ restPrep). */
+/* Préparations faites juste avant un exercice, à sa 1re série (champ prep). */
 const PREP = {
   ytw:      { name:"Y-T-W au sol", dose:"5 de chaque lettre",
               how:"Allongé sur le ventre, front au sol, pouces vers le plafond. Décolle les bras en Y, puis en T (bras écartés), puis en W (coudes pliés, ramenés vers les côtes), en serrant les omoplates à chaque fois." },
@@ -627,7 +627,6 @@ const EX_A = [
 
   { id:107, name:"Hip thrust (banc + haltère)", short:"Hip thrust", muscle:"Fessiers · Ischios",
     ramp:[{ pct:50, reps:8 }],
-    restPrep:{ for:"Développé couché", items:[PREP.ytw] },
     type:"machine", sets:3, target:"10–12 réps", lo:10, hi:12, rest:90, startKg:20, kgStep:2.5,
     tech:{ place:"Pas de machine pour cet exercice. Assis au sol, le haut du dos calé contre le bord d'un banc plat (juste sous les omoplates), pieds à plat au sol largeur des hanches, genoux pliés. Un haltère lourd tenu à deux mains, posé à plat sur le pli des hanches (une serviette pliée dessous protège les os du bassin).",
       move:"Pousse dans les talons et serre les fessiers pour monter le bassin jusqu'à aligner épaules, hanches et genoux. Marque 1 seconde en haut, puis redescends lentement.",
@@ -636,7 +635,7 @@ const EX_A = [
 
   { id:103, name:"Développé couché aux haltères", short:"Développé couché", muscle:"Poitrine · Triceps",
     ramp:[{ pct:50, reps:8 }, { pct:75, reps:4 }],
-    restPrep:{ for:"Tractions assistées", items:[PREP.scapPull] },
+    prep:[PREP.ytw],
     type:"machine", sets:4, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:8, kgStep:2.5,
     tech:{ place:"Allongé sur un banc plat, pieds à plat au sol, fesses collées au banc. Serre les omoplates et tire-les vers les fesses, puis garde-les plaquées dans le banc jusqu'à la dernière répétition. Un haltère dans chaque main au niveau du bas de la poitrine, paumes tournées un peu l'une vers l'autre (environ 45°).",
       move:"Pousse les haltères au-dessus de la poitrine, coudes à environ 45° du corps et avant-bras verticaux. Arrête-toi en haut juste avant que les omoplates décollent du banc, sans tendre les bras à fond. Redescends en 2 à 3 s jusqu'au bas de la poitrine, pas plus bas.",
@@ -646,7 +645,7 @@ const EX_A = [
 
   { id:104, name:"Tractions assistées", short:"Tractions assistées", muscle:"Dos · Bras",
     gymDep:true, ramp:[{ assistPlus:10, reps:4 }],
-    restPrep:{ for:"L-sit", items:[PREP.wrists, PREP.scapDip] },
+    prep:[PREP.scapPull],
     type:"reps", sets:4, target:"4–6 réps", lo:4, hi:6, rest:120, assistLevels:[0], startAssist:15, assistStep:2.5,
     levels:["Machine à tractions assistées","Élastique épais (assistance forte)","Élastique moyen","Élastique fin","Excentriques seules (descente en 5 s)","Tractions complètes"], lvl0:1,
     techByLevel:[
@@ -678,6 +677,7 @@ const EX_A = [
     ] },
 
   { id:115, name:"L-sit", short:"L-sit", muscle:"Compression · Triceps · Épaules",
+    prep:[PREP.wrists, PREP.scapDip],
     type:"hold", sets:3, target:"tenue 20 s", hold:20, rest:90,
     levels:["Fesses décollées, pieds au sol","Un pied levé en alternance","Tuck (deux genoux groupés)","Tuck + une jambe à moitié tendue en alternance","Tuck + une jambe tendue en alternance","L-sit complet"], lvl0:3,
     techByLevel:[
@@ -761,7 +761,6 @@ const EX_B = [
 
   { id:113, name:"Leg curl assis à la machine", short:"Leg curl assis", muscle:"Ischios",
     gymDep:true, ramp:[{ pct:50, reps:8 }],
-    restPrep:{ for:"Dips assistés", items:[PREP.ytw, PREP.wrists, PREP.scapDip] },
     type:"machine", sets:3, target:"10–12 réps", lo:10, hi:12, rest:90, startKg:20, kgStep:5,
     tech:{ place:"Assis sur la machine, dos bien calé contre le dossier, genoux alignés avec l'axe de rotation de la machine. Le rouleau du bas posé juste au-dessus des talons, le rouleau du haut bien serré sur les cuisses. Mains sur les poignées.",
       move:"Plie les genoux pour ramener les talons sous le siège, le plus loin possible. Marque 1 seconde, puis remonte lentement en 2 à 3 secondes jusqu'aux jambes presque tendues.",
@@ -771,7 +770,7 @@ const EX_B = [
 
   { id:202, name:"Dips assistés", short:"Dips assistés", muscle:"Poitrine · Triceps",
     gymDep:true, ramp:[{ assistPlus:10, reps:4 }],
-    restPrep:{ for:"Développé militaire", items:[PREP.wallSlide] },
+    prep:[PREP.ytw, PREP.wrists, PREP.scapDip],
     type:"pushup", sets:4, target:"6–10 réps", lo:6, hi:10, rest:120, assistLevels:[2], startAssist:25, assistStep:2.5,
     levels:["Pompes au sol, complètes","Pompes en déficit (mains sur haltères)","Dips à la machine assistée","Dips à l'élastique","Dips complets"], lvl0:2,
     techByLevel:[
@@ -826,7 +825,8 @@ const EX_B = [
     ] },
 
   { id:209, name:"Développé militaire à la machine", short:"Développé militaire", muscle:"Épaules · Triceps",
-    gymDep:true, type:"machine", sets:3, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:7.5, kgStep:2.5,
+    gymDep:true, prep:[PREP.wallSlide],
+    type:"machine", sets:3, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:7.5, kgStep:2.5,
     tech:{ place:"Assis sur la machine, dos bien calé contre le dossier, siège réglé pour que les poignées arrivent à hauteur des épaules. Mains sur les poignées, coudes sous les mains.",
       move:"Pousse les poignées vers le plafond jusqu'à presque tendre les bras, sans verrouiller les coudes, puis redescends lentement jusqu'à hauteur des épaules.",
       feel:"Le dessus et l'avant des épaules, et l'arrière des bras.",
@@ -1432,6 +1432,7 @@ function renderEffort(){
       '<div class="subtitle">'+ex.muscle+'</div>'+
       '<div class="set-line"><b>Série '+(state.setIndex+1)+' sur '+ex.sets+'</b><div class="dots" aria-hidden="true">'+dots+'</div></div>'+
       '<div class="targets">'+targets+'</div>'+
+      prepHtml(ex)+
       rampBlock+
       levelBlock+
       tech+
@@ -1481,7 +1482,6 @@ function renderRecovery(){
       inputBlock+
       lastHtml+
       '<div class="nudge" id="nudge"></div>'+
-      prepHtml(ex)+
       nextHtml+
     '</div>'+
     '<div class="bottom-bar"><div class="bar-row">'+
@@ -1505,16 +1505,15 @@ function renderRecovery(){
   updateNudge();
 }
 function prepHtml(ex){
-  if(!ex.restPrep) return "";
+  if(!ex.prep || state.setIndex!==0) return "";
   return '<div class="section">'+
-    '<div class="section-head">Pendant tes repos, prépare : '+ex.restPrep.for+'</div>'+
-    '<div class="group">'+ex.restPrep.items.map(it=>
+    '<div class="section-head">Préparation, avant cet exercice</div>'+
+    '<div class="group">'+ex.prep.map(it=>
       '<div class="row prep"><div class="row-main">'+
         '<div class="prep-line"><span class="row-title">'+it.name+'</span><span class="row-value">'+it.dose+'</span></div>'+
         '<div class="row-sub">'+it.how+'</div>'+
       '</div></div>').join("")+
     '</div>'+
-    '<div class="section-foot">À répartir sur les repos de cet exercice. Si un repos devient trop court, ajoute 15 s.</div>'+
   '</div>';
 }
 function ringHTML(prefix, secs){

@@ -35,7 +35,7 @@ try {
   api = new Function("document", "localStorage", "window", "navigator",
     "return (function(){" + src + "; return { PROGRAMS, setProgram, start, renderEffort, goRecovery, state, EX: () => EX," +
     " rampSets, sessionText, resume, warmupDone, stretchDone, skipSet, leaveSession, getActive, getHistory," +
-    " renderWarmup, renderStretch, stretchStart, stretchTransition, STRETCHES };})()"
+    " renderWarmup, renderStretch, stretchStart, stretchTransition, prepHtml, STRETCHES };})()"
   )(doc, ls, {}, {});
 } catch (e) { fail("exécution du script : " + e.message); process.exit(1); }
 
@@ -141,13 +141,14 @@ test("10 · ligne d'export", () => {
   const without = api.sessionText({ date: "2026-01-06T17:00:00.000Z", prog: "A", entries: {} }).split("\n");
   return same([withF[1], without.length], ["Échauffement : fait · Étirements : passés", 1]);
 });
-test("11 · chaque préparation vise un exercice plus loin", () => {
-  for (const p of api.PROGRAMS) p.ex.forEach((e, i) => {
-    if (!e.restPrep) return;
-    const j = p.ex.findIndex((x) => x.short === e.restPrep.for);
-    if (!(j > i)) throw new Error(p.id + "/" + e.id + " prépare « " + e.restPrep.for + " », introuvable plus loin");
-  });
-  return true;
+test("11 · préparation à la 1re série seulement, retirée des repos", () => {
+  api.setProgram("B"); api.start(true); api.warmupDone("done");
+  const ex = api.EX(), i = ex.findIndex((e) => e.id === 202);
+  const out = [];
+  for (const k of [0, 1]) { api.state.exIndex = i; api.state.setIndex = k; out.push(api.prepHtml(ex[i]) !== ""); }
+  const noRest = api.PROGRAMS.every((p) => p.ex.every((e) => !e.restPrep));
+  const items = api.PROGRAMS.every((p) => p.ex.every((e) => !e.prep || e.prep.every((it) => it && it.name && it.dose && it.how)));
+  return same([out, noRest, items], [[true, false], true, true]);
 });
 test("12b · texte de transition des étirements", () => {
   const S = api.STRETCHES, msgs = [];

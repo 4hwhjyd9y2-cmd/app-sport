@@ -50,7 +50,7 @@ Les deux apps cohabitent sur le même domaine sans se lire l'une l'autre. `index
 - Échauffement et étirements (séances A et B, programmes marqués `warmup:true` ; spécification complète dans `docs/echauffement/cahier-des-charges.md`) :
   - phase `warmup` après « Commencer » (rameur 4 min, dead bug), puis phase `stretch` après la dernière série (6 chronos enchaînés : ischios 2 × 60 s, fléchisseurs de hanche en version active 2 × 30 s par côté) avant « Séance terminée » ;
   - séance : champs facultatifs `warmup` et `stretch` (`"done"` | `"skipped"`), repris dans l'export ; séance en cours : champ facultatif `phase` (`"warmup"` | `"stretch"`) pour reprendre au bon écran ;
-  - exercice : `ramp` (séries de montée affichées à la 1re série : `{ pct, reps }`, `{ bodyweight:true, reps }`, `{ assistPlus, reps }`, arrondies au `kgStep`, à égalité vers le bas, au moins un palier, via `rampSets`) et `restPrep` (`{ for, items }`, préparation d'un exercice à venir affichée sur les écrans de repos ; `items` pris dans `PREP`) ;
+  - exercice : `ramp` (séries de montée affichées à la 1re série : `{ pct, reps }`, `{ bodyweight:true, reps }`, `{ assistPlus, reps }`, arrondies au `kgStep`, à égalité vers le bas, au moins un palier, via `rampSets`) et `prep` (préparation affichée à la 1re série de l'exercice, au-dessus des séries de montée ; éléments pris dans `PREP`). Rien pendant les repos : ils servent à récupérer ;
   - séance Maison : aucun échauffement ni étirement.
 - Tests : `node tools/check.js` vérifie aussi les règles de l'échauffement (séries de montée, déroulé, reprise, export).
 - Chrono global de séance, durée enregistrée dans `durationMs` et ajoutée à l'export.
