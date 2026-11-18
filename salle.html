@@ -32,7 +32,7 @@
     --ease-out:cubic-bezier(.23,1,.32,1);
     --ease-drawer:cubic-bezier(.32,.72,0,1);
   }
-  body[data-phase="recovery"], body[data-phase="end"]{ --accent:var(--rest); --accent-soft:var(--rest-soft); }
+  body[data-phase="recovery"], body[data-phase="end"], body[data-phase="stretch"]{ --accent:var(--rest); --accent-soft:var(--rest-soft); }
 
   *{ box-sizing:border-box; margin:0; padding:0; }
   html{
@@ -231,6 +231,18 @@
   .nudge{ margin-top:6px; text-align:center; font-size:.824rem; color:var(--rest); font-weight:500; padding:0 12px; }
   .nudge:empty{ display:none; }
 
+  /* ---------- Échauffement et étirements ---------- */
+  .row.prep, .row.st-step{ align-items:flex-start; }
+  .prep-line{ display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
+  .prep-line .row-value{ flex:none; }
+  .wu-how{ font-size:.941rem; color:var(--ink); line-height:1.45; }
+  .st-now{ padding:14px 16px 16px; text-align:center; }
+  .st-next{ font-size:.824rem; color:var(--accent); font-weight:600; margin-bottom:2px; }
+  .st-name{ font-size:1.176rem; font-weight:600; }
+  .st-how{ font-size:.882rem; color:var(--mute); line-height:1.45; margin-top:6px; text-align:left; }
+  .row.st-step.current .row-title{ color:var(--accent); font-weight:600; }
+  .row.st-step.done .row-title, .row.st-step.done .row-value{ color:var(--faint); }
+
   /* ---------- Fin ---------- */
   .recap .row-value{ max-width:55%; }
   .recap .row-value.empty{ color:var(--faint); }
@@ -294,6 +306,41 @@
 
 <script>
 "use strict";
+
+/* ============ ÉCHAUFFEMENT ET ÉTIREMENTS (séances A et B) ============ */
+/* Préparations faites pendant les repos d'un exercice, pour un exercice à venir (champ restPrep). */
+const PREP = {
+  ytw:      { name:"Y-T-W au sol", dose:"5 de chaque lettre",
+              how:"Allongé sur le ventre, front au sol, pouces vers le plafond. Décolle les bras en Y, puis en T (bras écartés), puis en W (coudes pliés, ramenés vers les côtes), en serrant les omoplates à chaque fois." },
+  scapPull: { name:"Tractions scapulaires", dose:"8",
+              how:"Suspendu à la barre, bras tendus. Sans plier les coudes, tire les épaules vers le bas, puis relâche-les doucement." },
+  scapDip:  { name:"Dips scapulaires", dose:"8",
+              how:"En appui sur les barres de dips, bras tendus. Laisse descendre le corps en montant les épaules vers les oreilles, puis repousse les épaules vers le bas." },
+  wrists:   { name:"Poignets", dose:"30 s",
+              how:"Cercles de poignets dans les deux sens, puis à 4 pattes, bascule lentement le poids du corps d'avant en arrière sur les mains." },
+  wallSlide:{ name:"Glissés au mur", dose:"8",
+              how:"Dos, tête et fesses contre le mur, bras en W contre le mur. Fais glisser les bras vers le haut jusqu'au Y, sans décoller le bas du dos ni les bras du mur." },
+};
+/* Échauffement de départ, affiché après « Commencer » (programmes marqués warmup:true). */
+const WARMUP = {
+  rower: [
+    { title:"De 0 à 2 min · environ 20 coups/min", how:"Facile : tu peux parler en phrases complètes." },
+    { title:"De 2 à 4 min · environ 24 coups/min", how:"Modéré : tu parles encore, en phrases courtes." },
+  ],
+  rowerNote:"Résistance 3 à 5. Jambes, puis dos, puis bras ; au retour, dans l'ordre inverse.",
+  deadBug:"Allongé sur le dos, bas du dos plaqué au sol, bras tendus vers le plafond, genoux pliés à 90° au-dessus des hanches. Tends lentement un bras et la jambe opposée sans que le bas du dos décolle, reviens, change de côté.",
+};
+/* Étirements de fin, enchaînés avec un chrono. */
+const STRETCH_HAM = "Assis, jambes tendues devant toi. Penche le buste vers les pieds en gardant le dos long, sans forcer.";
+const STRETCH_HIP = "Un genou au sol, buste droit. Serre le fessier du côté du genou au sol et enroule le bassin, pubis vers le nombril. N'avance pas les hanches : l'étirement vient seulement de l'enroulement.";
+const STRETCHES = [
+  { name:"Ischios", sec:60, how:STRETCH_HAM },
+  { name:"Ischios", sec:60, how:STRETCH_HAM },
+  { name:"Fléchisseurs de hanche", side:"gauche", sec:30, how:STRETCH_HIP },
+  { name:"Fléchisseurs de hanche", side:"droit", sec:30, how:STRETCH_HIP },
+  { name:"Fléchisseurs de hanche", side:"gauche", sec:30, how:STRETCH_HIP },
+  { name:"Fléchisseurs de hanche", side:"droit", sec:30, how:STRETCH_HIP },
+];
 
 /* ============ SÉANCE MAISON (reprise de l'app maison) ============ */
 const EX_MAISON = [
@@ -562,7 +609,8 @@ const EX_MAISON = [
 /* ============ SÉANCE A · MARDI ============ */
 const EX_A = [
   { id:101, name:"Presse à cuisses", short:"Presse à cuisses", muscle:"Cuisses · Fessiers",
-    gymDep:true, type:"machine", sets:4, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:40, kgStep:5,
+    gymDep:true, ramp:[{ pct:50, reps:8 }, { pct:75, reps:4 }],
+    type:"machine", sets:4, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:40, kgStep:5,
     levels:["Squat gobelet (haltère)","Presse à cuisses"], lvl0:1,
     techByLevel:[
       { place:"Debout, pieds largeur des épaules, un haltère tenu à la verticale contre la poitrine, les deux mains sous la tête de l'haltère. Coudes serrés vers l'intérieur.",
@@ -578,6 +626,8 @@ const EX_A = [
     ] },
 
   { id:107, name:"Hip thrust (banc + haltère)", short:"Hip thrust", muscle:"Fessiers · Ischios",
+    ramp:[{ pct:50, reps:8 }],
+    restPrep:{ for:"Développé couché", items:[PREP.ytw] },
     type:"machine", sets:3, target:"10–12 réps", lo:10, hi:12, rest:90, startKg:20, kgStep:2.5,
     tech:{ place:"Pas de machine pour cet exercice. Assis au sol, le haut du dos calé contre le bord d'un banc plat (juste sous les omoplates), pieds à plat au sol largeur des hanches, genoux pliés. Un haltère lourd tenu à deux mains, posé à plat sur le pli des hanches (une serviette pliée dessous protège les os du bassin).",
       move:"Pousse dans les talons et serre les fessiers pour monter le bassin jusqu'à aligner épaules, hanches et genoux. Marque 1 seconde en haut, puis redescends lentement.",
@@ -585,6 +635,8 @@ const EX_A = [
       avoid:"Cambrer le bas du dos pour monter plus haut (c'est la fesse qui monte le bassin, pas le dos); menton qui part en arrière; rebondir en bas" } },
 
   { id:103, name:"Développé couché aux haltères", short:"Développé couché", muscle:"Poitrine · Triceps",
+    ramp:[{ pct:50, reps:8 }, { pct:75, reps:4 }],
+    restPrep:{ for:"Tractions assistées", items:[PREP.scapPull] },
     type:"machine", sets:4, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:8, kgStep:2.5,
     tech:{ place:"Allongé sur un banc plat, pieds à plat au sol, fesses collées au banc. Serre les omoplates et tire-les vers les fesses, puis garde-les plaquées dans le banc jusqu'à la dernière répétition. Un haltère dans chaque main au niveau du bas de la poitrine, paumes tournées un peu l'une vers l'autre (environ 45°).",
       move:"Pousse les haltères au-dessus de la poitrine, coudes à environ 45° du corps et avant-bras verticaux. Arrête-toi en haut juste avant que les omoplates décollent du banc, sans tendre les bras à fond. Redescends en 2 à 3 s jusqu'au bas de la poitrine, pas plus bas.",
@@ -593,7 +645,9 @@ const EX_A = [
       note:"La série s'arrête dès que les épaules prennent le relais des pectoraux, ou que le creux du bas du dos grandit : cette répétition ne compte pas. Une douleur ou un pincement à l'avant de l'épaule, ce n'est pas de la fatigue : arrête l'exercice. Le poids saisi est celui d'UN haltère." } },
 
   { id:104, name:"Tractions assistées", short:"Tractions assistées", muscle:"Dos · Bras",
-    gymDep:true, type:"reps", sets:4, target:"4–6 réps", lo:4, hi:6, rest:120, assistLevels:[0], startAssist:15, assistStep:2.5,
+    gymDep:true, ramp:[{ assistPlus:10, reps:4 }],
+    restPrep:{ for:"L-sit", items:[PREP.wrists, PREP.scapDip] },
+    type:"reps", sets:4, target:"4–6 réps", lo:4, hi:6, rest:120, assistLevels:[0], startAssist:15, assistStep:2.5,
     levels:["Machine à tractions assistées","Élastique épais (assistance forte)","Élastique moyen","Élastique fin","Excentriques seules (descente en 5 s)","Tractions complètes"], lvl0:1,
     techByLevel:[
       { place:"Genoux ou pieds posés sur le coussin de la machine assistée, mains en pronation (paumes vers l'avant, dos des mains face à toi) un peu plus larges que les épaules, bras tendus en bas.",
@@ -697,6 +751,7 @@ const EX_A = [
 /* ============ SÉANCE B · JEUDI ============ */
 const EX_B = [
   { id:201, name:"Fentes bulgares aux haltères", short:"Fentes bulgares", muscle:"Cuisses · Fessiers",
+    ramp:[{ bodyweight:true, reps:6 }, { pct:60, reps:4 }],
     type:"machine", sets:3, target:"8–10 réps", lo:8, hi:10, perSide:true, sideWord:"jambe", rest:90, startKg:6, kgStep:2,
     tech:{ place:"Dos à un banc, dessus du pied arrière posé dessus, pied avant un bon pas devant, à plat. Un haltère dans chaque main, bras le long du corps, buste droit.",
       move:"Plie le genou avant pour descendre jusqu'à ce que la cuisse avant soit à l'horizontale, puis pousse dans le talon avant pour remonter. Tout le travail se fait sur la jambe avant.",
@@ -705,7 +760,9 @@ const EX_B = [
       note:"C'est ta fente de la maison, en version chargée. Le poids saisi est celui d'UN haltère, et les répétitions sont par jambe." } },
 
   { id:113, name:"Leg curl assis à la machine", short:"Leg curl assis", muscle:"Ischios",
-    gymDep:true, type:"machine", sets:3, target:"10–12 réps", lo:10, hi:12, rest:90, startKg:20, kgStep:5,
+    gymDep:true, ramp:[{ pct:50, reps:8 }],
+    restPrep:{ for:"Dips assistés", items:[PREP.ytw, PREP.wrists, PREP.scapDip] },
+    type:"machine", sets:3, target:"10–12 réps", lo:10, hi:12, rest:90, startKg:20, kgStep:5,
     tech:{ place:"Assis sur la machine, dos bien calé contre le dossier, genoux alignés avec l'axe de rotation de la machine. Le rouleau du bas posé juste au-dessus des talons, le rouleau du haut bien serré sur les cuisses. Mains sur les poignées.",
       move:"Plie les genoux pour ramener les talons sous le siège, le plus loin possible. Marque 1 seconde, puis remonte lentement en 2 à 3 secondes jusqu'aux jambes presque tendues.",
       feel:"L'arrière des cuisses, sur toute la longueur.",
@@ -713,7 +770,9 @@ const EX_B = [
       note:"Garde toujours la même machine : les charges ne se comparent pas d'une machine à l'autre." } },
 
   { id:202, name:"Dips assistés", short:"Dips assistés", muscle:"Poitrine · Triceps",
-    gymDep:true, type:"pushup", sets:4, target:"6–10 réps", lo:6, hi:10, rest:120, assistLevels:[2], startAssist:25, assistStep:2.5,
+    gymDep:true, ramp:[{ assistPlus:10, reps:4 }],
+    restPrep:{ for:"Développé militaire", items:[PREP.wallSlide] },
+    type:"pushup", sets:4, target:"6–10 réps", lo:6, hi:10, rest:120, assistLevels:[2], startAssist:25, assistStep:2.5,
     levels:["Pompes au sol, complètes","Pompes en déficit (mains sur haltères)","Dips à la machine assistée","Dips à l'élastique","Dips complets"], lvl0:2,
     techByLevel:[
       { place:"Mains un peu plus larges que les épaules, sous la poitrine. Corps tendu d'un seul bloc.",
@@ -825,8 +884,8 @@ const EX_B = [
 
 /* ============ PROGRAMMES ============ */
 const PROGRAMS = [
-  { id:"A", label:"Séance A", day:"Salle · mardi", ex:EX_A },
-  { id:"B", label:"Séance B", day:"Salle · jeudi", ex:EX_B },
+  { id:"A", label:"Séance A", day:"Salle · mardi", ex:EX_A, warmup:true },
+  { id:"B", label:"Séance B", day:"Salle · jeudi", ex:EX_B, warmup:true },
   { id:"M", label:"Maison",   day:"Full body",     ex:EX_MAISON },
 ];
 let EX = [];
@@ -1058,7 +1117,11 @@ function ensureEntry(){
     state.session.entries[ex.id] = { levelIndex: levelOf(ex), sets: Array(ex.sets).fill(null) };
   }
 }
-function saveActive(){ store.set(kActive(), { exIndex:state.exIndex, setIndex:state.setIndex, session:state.session }); }
+function saveActive(){
+  const a={ exIndex:state.exIndex, setIndex:state.setIndex, session:state.session };
+  if(state.phase==="warmup" || state.phase==="stretch") a.phase=state.phase; // reprise sur l'échauffement ou les étirements
+  store.set(kActive(), a);
+}
 function clearActive(){ store.del(kActive()); }
 function getActive(){ return store.get(kActive(), null); }
 
@@ -1078,6 +1141,7 @@ function nextPointer(exI,setI){
 function start(fresh){
   unlockAudio();
   state.session=newSession(); state.exIndex=0; state.setIndex=0;
+  if(curProg().warmup){ goWarmup(); return; }
   saveActive(); goEffort();
 }
 function resume(){
@@ -1085,11 +1149,23 @@ function resume(){
   const a=getActive(); if(!a){ goHome(); return; }
   state.session=a.session || newSession();
   state.exIndex=a.exIndex||0; state.setIndex=a.setIndex||0;
+  if(a.phase==="warmup"){ goWarmup(); return; }
+  if(a.phase==="stretch"){ goStretch(); return; }
   goEffort();
 }
 function goHome(){ stopCountdown(); releaseAwake(); setPhase("home"); renderTopbar(); renderHome(); }
 function goEffort(){ stopCountdown(); keepAwake(); state.holdResult=null; setPhase("effort"); ensureEntry(); saveActive(); renderTopbar(); renderEffort(); }
 function goRecovery(){ keepAwake(); setPhase("recovery"); renderTopbar(); renderRecovery(); }
+function goWarmup(){ stopCountdown(); keepAwake(); setPhase("warmup"); saveActive(); renderTopbar(); renderWarmup(); }
+function warmupDone(v){ state.session.warmup=v; state.exIndex=0; state.setIndex=0; goEffort(); }
+function goStretch(){
+  stopCountdown(); keepAwake(); setPhase("stretch");
+  state.stretchStep=0; state.stretchRunning=false;
+  saveActive(); renderTopbar(); renderStretch();
+}
+function stretchDone(v){ state.session.stretch=v; goEnd(); }
+/* Après la dernière série : étirements pour les séances qui en ont, sinon fin directe. */
+function finishSession(){ if(curProg().warmup) goStretch(); else goEnd(); }
 function goEnd(){
   stopCountdown(); releaseAwake();
   state.session.durationMs = Date.now()-sessionStart(state.session);
@@ -1111,8 +1187,10 @@ function leaveSession(){
   if(state.phase==="recovery"){
     commitInput();
     const nx=nextPointer(state.exIndex,state.setIndex);
-    if(!nx){ goEnd(); return; }
-    state.exIndex=nx.exIndex; state.setIndex=nx.setIndex;
+    if(!nx){
+      if(!curProg().warmup){ goEnd(); return; }
+      state.phase="stretch"; // la séance reprendra sur les étirements
+    } else { state.exIndex=nx.exIndex; state.setIndex=nx.setIndex; }
   }
   saveActive();
   goHome();
@@ -1122,14 +1200,14 @@ function skipSet(){
   state.session.entries[EX[state.exIndex].id].sets[state.setIndex] = { skipped:true };
   saveActive();
   const nx=nextPointer(state.exIndex,state.setIndex);
-  if(!nx){ goEnd(); return; }
+  if(!nx){ finishSession(); return; }
   state.exIndex=nx.exIndex; state.setIndex=nx.setIndex; goEffort();
 }
 function finishRest(){
   commitInput();
   stopCountdown();
   const nx=nextPointer(state.exIndex,state.setIndex);
-  if(!nx){ goEnd(); return; }
+  if(!nx){ finishSession(); return; }
   state.exIndex=nx.exIndex; state.setIndex=nx.setIndex; goEffort();
 }
 function commitInput(){
@@ -1188,14 +1266,16 @@ function renderTopbar(){
     return;
   }
   const ex=EX[state.exIndex];
-  const done=setsBefore(state.exIndex)+state.setIndex+1;
+  const extra = state.phase==="warmup" || state.phase==="stretch";
+  const done = state.phase==="warmup" ? 0 : state.phase==="stretch" ? TOTAL_SETS : setsBefore(state.exIndex)+state.setIndex+1;
   const pct=Math.round(done/TOTAL_SETS*100);
-  const title = state.phase==="recovery" ? "Récupération" : ("Exercice "+ex.pos+" sur "+EX.length);
+  const title = state.phase==="warmup" ? "Échauffement" : state.phase==="stretch" ? "Étirements"
+    : state.phase==="recovery" ? "Récupération" : ("Exercice "+ex.pos+" sur "+EX.length);
   topbar.innerHTML =
     '<div class="navbar">'+
       '<div class="nav-left"><button class="nav-back" data-act="leave">'+iconBack()+'Accueil</button></div>'+
       '<div class="nav-center"><div class="nav-title">'+title+'</div>'+
-        '<div class="nav-sub"><span id="elapsed">'+fmtClock(Date.now()-sessionStart(state.session))+'</span> · série '+done+' sur '+TOTAL_SETS+'</div></div>'+
+        '<div class="nav-sub"><span id="elapsed">'+fmtClock(Date.now()-sessionStart(state.session))+'</span>'+(extra?'':' · série '+done+' sur '+TOTAL_SETS)+'</div></div>'+
       '<div class="nav-right">'+muteBtn+'</div>'+
     '</div>'+
     '<div class="prog-track"><div class="prog-fill" style="width:'+pct+'%"></div></div>';
@@ -1296,6 +1376,21 @@ function renderEffort(){
   }
   let dots="";
   for(let i=0;i<ex.sets;i++){ dots+='<i class="'+(i<state.setIndex?"done":(i===state.setIndex?"active":""))+'"></i>'; }
+  // séries de montée, à la 1re série seulement
+  let rampBlock="";
+  const ramp = state.setIndex===0 ? rampSets(ex, sg) : [];
+  if(ramp.length){
+    const per = ex.perSide ? " par "+ex.sideWord : "";
+    const work = sg.kg!=null ? frNum(sg.kg)+" kg" : "une assistance de "+frNum(sg.assist)+" kg";
+    rampBlock =
+      '<div class="section">'+
+        '<div class="section-head">Séries de montée</div>'+
+        '<div class="group">'+ramp.map(r=>
+          '<div class="row"><div class="row-main"><div class="row-title">'+r.text+'</div></div><div class="row-value">× '+r.reps+per+'</div></div>').join("")+
+        '</div>'+
+        '<div class="section-foot">Hors appli, environ 1 min de repos entre elles. Ensuite, toutes tes séries à '+work+'.</div>'+
+      '</div>';
+  }
   // niveau
   let levelBlock="";
   if(ex.levels){
@@ -1337,7 +1432,7 @@ function renderEffort(){
       '<div class="subtitle">'+ex.muscle+'</div>'+
       '<div class="set-line"><b>Série '+(state.setIndex+1)+' sur '+ex.sets+'</b><div class="dots" aria-hidden="true">'+dots+'</div></div>'+
       '<div class="targets">'+targets+'</div>'+
-      (ex.type==="machine" && state.setIndex===0 ? '<div class="footnote warmup">Avant cette série, échauffe-toi hors de l\'app : 1 ou 2 séries légères, vers la moitié de la charge. Ensuite, toutes les séries à la même charge.</div>' : '')+
+      rampBlock+
       levelBlock+
       tech+
       '<div class="reminder footnote">Descente en 2 à 3 s, ventre et fessiers serrés, amplitude complète.</div>'+
@@ -1386,6 +1481,7 @@ function renderRecovery(){
       inputBlock+
       lastHtml+
       '<div class="nudge" id="nudge"></div>'+
+      prepHtml(ex)+
       nextHtml+
     '</div>'+
     '<div class="bottom-bar"><div class="bar-row">'+
@@ -1408,9 +1504,22 @@ function renderRecovery(){
   }
   updateNudge();
 }
-function ringHTML(prefix){
-  // prefix: "rec" ou "hold"
-  const target = prefix==="hold" ? EX[state.exIndex].hold : EX[state.exIndex].rest;
+function prepHtml(ex){
+  if(!ex.restPrep) return "";
+  return '<div class="section">'+
+    '<div class="section-head">Pendant tes repos, prépare : '+ex.restPrep.for+'</div>'+
+    '<div class="group">'+ex.restPrep.items.map(it=>
+      '<div class="row prep"><div class="row-main">'+
+        '<div class="prep-line"><span class="row-title">'+it.name+'</span><span class="row-value">'+it.dose+'</span></div>'+
+        '<div class="row-sub">'+it.how+'</div>'+
+      '</div></div>').join("")+
+    '</div>'+
+    '<div class="section-foot">À répartir sur les repos de cet exercice. Si un repos devient trop court, ajoute 15 s.</div>'+
+  '</div>';
+}
+function ringHTML(prefix, secs){
+  // prefix: "rec", "hold" ou "st" (étirements)
+  const target = secs!=null ? secs : (prefix==="hold" ? EX[state.exIndex].hold : EX[state.exIndex].rest);
   return '<div class="ringwrap">'+
     '<svg class="ring" viewBox="0 0 120 120">'+
       '<circle class="ring-bg" cx="60" cy="60" r="54"></circle>'+
@@ -1501,6 +1610,30 @@ function suggestLoad(ex){
   }
   return null;
 }
+/* Séries de montée : charge = pourcentage de la charge du jour, arrondie au palier de l'exercice
+   (au plus proche, vers le bas à égalité), au moins un palier. Assistance : charge du jour + assistPlus. */
+function roundToStep(v, step){
+  if(!(step>0)) return Math.round(v*100)/100;
+  const q=v/step, lo=Math.floor(q+1e-9), hi=Math.ceil(q-1e-9);
+  const n = (q-lo) <= (hi-q) ? lo : hi;
+  return Math.max(step, Math.round(n*step*100)/100);
+}
+function rampSets(ex, base){
+  if(!ex.ramp || !base) return [];
+  const out=[];
+  for(const r of ex.ramp){
+    if(r.assistPlus!=null){
+      if(!isAssisted(ex) || base.assist==null) return [];
+      out.push({ text:"Assistance "+frNum(base.assist+r.assistPlus)+" kg", reps:r.reps });
+    } else if(r.bodyweight){
+      out.push({ text:"Poids du corps", reps:r.reps });
+    } else {
+      if(base.kg==null) return [];
+      out.push({ kg:roundToStep(base.kg*r.pct/100, ex.kgStep), text:frNum(roundToStep(base.kg*r.pct/100, ex.kgStep))+" kg", reps:r.reps });
+    }
+  }
+  return out;
+}
 function prefill(ex){
   const L=(idx)=>lastTimeResult(ex.id, idx);
   const last=L(state.setIndex);
@@ -1544,6 +1677,78 @@ function updateNudge(){
   el.textContent=txt;
 }
 
+/* ============ RENDU : ÉCHAUFFEMENT ============ */
+function renderWarmup(){
+  screenEl.innerHTML =
+    '<div class="scroll anim-in">'+
+      '<h1 class="large-title">Échauffement</h1>'+
+      '<div class="subtitle">Environ 6 min avant ta 1re série.</div>'+
+      '<div class="section">'+
+        '<div class="section-head"><span>1. Rameur</span><span>4 min</span></div>'+
+        '<div class="group">'+WARMUP.rower.map(r=>
+          '<div class="row"><div class="row-main"><div class="row-title">'+r.title+'</div><div class="row-sub">'+r.how+'</div></div></div>').join("")+
+        '</div>'+
+        '<div class="section-foot">'+WARMUP.rowerNote+'</div>'+
+      '</div>'+
+      '<div class="section">'+
+        '<div class="section-head"><span>2. Dead bug</span><span>8 par côté, lentement</span></div>'+
+        '<div class="group"><div class="row"><div class="row-main"><div class="row-sub wu-how">'+WARMUP.deadBug+'</div></div></div></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="bottom-bar"><div class="bar-row">'+
+      '<button class="btn-soft" data-act="warmup-skip">Passer</button>'+
+      '<button class="btn" data-act="warmup-done">C\'est fait</button>'+
+    '</div></div>';
+}
+
+/* ============ RENDU : ÉTIREMENTS ============ */
+function stretchTransition(prev, st){
+  if(!prev || prev.name!==st.name) return "Étirement suivant";
+  return (st.side && prev.side!==st.side) ? "Change de côté" : "Encore une fois";
+}
+function stretchLabel(st){ return st.name+(st.side?", côté "+st.side:""); }
+function renderStretch(transition){
+  const i=state.stretchStep, st=STRETCHES[i];
+  const steps = STRETCHES.map((x,k)=>
+    '<div class="row st-step'+(k===i?' current':'')+(k<i?' done':'')+'">'+
+      '<div class="row-num">'+(k+1)+'</div>'+
+      '<div class="row-main"><div class="row-title">'+stretchLabel(x)+'</div></div>'+
+      '<div class="row-value">'+(k<i?'Fait':x.sec+' s')+'</div>'+
+    '</div>').join("");
+  const head = transition
+    ? '<div class="st-next">'+stretchTransition(STRETCHES[i-1], st)+'</div>'
+    : '';
+  screenEl.innerHTML =
+    '<div class="scroll anim-in">'+
+      '<h1 class="large-title">Étirements</h1>'+
+      '<div class="subtitle">Environ 4 min. Ta séance est enregistrée à la fin, ou si tu passes.</div>'+
+      '<div class="section"><div class="group"><div class="st-now">'+
+        head+
+        '<div class="st-name">'+stretchLabel(st)+'</div>'+
+        '<div class="rec-top">'+ringHTML("st", transition ? 5 : st.sec)+'</div>'+
+        '<div class="st-how">'+st.how+'</div>'+
+      '</div></div></div>'+
+      '<div class="section"><div class="section-head">Les 6 étapes</div><div class="group">'+steps+'</div></div>'+
+    '</div>'+
+    '<div class="bottom-bar">'+
+      (state.stretchRunning
+        ? '<button class="btn-soft" style="width:100%" data-act="stretch-skip">Passer les étirements</button>'
+        : '<div class="bar-row"><button class="btn-soft" data-act="stretch-skip">Passer</button><button class="btn" data-act="stretch-start">Démarrer</button></div>')+
+    '</div>';
+  q("#st-sub").textContent = transition ? "Prépare-toi" : (state.stretchRunning ? "Tiens" : "Prêt ?");
+}
+function stretchStart(){ unlockAudio(); state.stretchRunning=true; runStretchStep(); }
+function runStretchStep(){
+  const i=state.stretchStep, st=STRETCHES[i];
+  renderStretch(false);
+  startCountdown(st.sec, { numEl:q("#st-time"), ringEl:q("#st-fg"), onDone:()=>{
+    if(i+1>=STRETCHES.length){ stretchDone("done"); return; }
+    state.stretchStep=i+1;
+    renderStretch(true);
+    startCountdown(5, { numEl:q("#st-time"), ringEl:q("#st-fg"), onDone:runStretchStep });
+  }});
+}
+
 /* ============ RENDU : FIN ============ */
 function renderEnd(){
   const s=state.session;
@@ -1574,6 +1779,10 @@ function renderEnd(){
 /* ============ EXPORT ============ */
 function sessionText(s){
   const lines=["Séance "+(s.prog||progId)+" du "+frDate(s.date)+(s.gym ? " · "+gymName(s.gym) : "")+(s.durationMs ? " (durée "+fmtDuration(s.durationMs)+")" : "")];
+  const extra=[];
+  if(s.warmup) extra.push("Échauffement : "+(s.warmup==="done"?"fait":"passé"));
+  if(s.stretch) extra.push("Étirements : "+(s.stretch==="done"?"faits":"passés"));
+  if(extra.length) lines.push(extra.join(" · "));
   EX.forEach(ex=>{
     const e=s.entries[ex.id]; if(!e) return;
     const items=[];
@@ -1833,6 +2042,10 @@ document.addEventListener("click",(ev)=>{
     case "gym": setGym(btn.getAttribute("data-gym")); break;
     case "go-home": goHome(); break;
     case "leave": leaveSession(); break;
+    case "warmup-done": warmupDone("done"); break;
+    case "warmup-skip": warmupDone("skipped"); break;
+    case "stretch-start": stretchStart(); break;
+    case "stretch-skip": stretchDone("skipped"); break;
   }
 });
 
