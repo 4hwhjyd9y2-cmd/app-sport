@@ -243,6 +243,25 @@
   .row.st-step.current .row-title{ color:var(--accent); font-weight:600; }
   .row.st-step.done .row-title, .row.st-step.done .row-value{ color:var(--faint); }
 
+  /* ---------- Mouvements : dessins et cartes ---------- */
+  .move-card + .move-card{ margin-top:10px; }
+  .move-head{ display:flex; justify-content:space-between; align-items:baseline; gap:12px; padding:12px 16px 0; }
+  .move-head .row-value{ flex:none; }
+  .figs{ display:flex; justify-content:center; gap:4px; padding:8px 10px 2px; }
+  .fig-cell{ flex:1; margin:0; text-align:center; min-width:0; }
+  .fig-cell.solo{ flex:0 1 50%; }
+  .fig{ width:100%; height:auto; display:block; }
+  .fig-cell figcaption{ font-size:.706rem; color:var(--mute); line-height:1.25; margin-top:2px; }
+  .fig polyline, .fig line, .fig path{ fill:none; stroke-linecap:round; stroke-linejoin:round; }
+  .fig-ink polyline{ stroke:var(--ink); stroke-width:4; }
+  .fig-mute polyline{ stroke:#6E6358; stroke-width:4; }
+  .fig-prop polyline{ stroke:#7A6E62; stroke-width:3; }
+  .fig-head{ fill:var(--surface); stroke:var(--ink); stroke-width:3.5; }
+  .fig-zone{ fill:var(--accent); opacity:.35; }
+  .fig-wall{ fill:var(--surface2); }
+  .fig-arrow{ stroke:var(--accent); stroke-width:2.5; }
+  details.move-tech > summary{ font-size:.941rem; color:var(--accent); min-height:44px; }
+
   /* ---------- Fin ---------- */
   .recap .row-value{ max-width:55%; }
   .recap .row-value.empty{ color:var(--faint); }
@@ -308,18 +327,49 @@
 "use strict";
 
 /* ============ ÉCHAUFFEMENT ET ÉTIREMENTS (séances A et B) ============ */
-/* Préparations faites juste avant un exercice, à sa 1re série (champ prep). */
-const PREP = {
-  ytw:      { name:"Y-T-W au sol", dose:"5 de chaque lettre",
-              how:"Allongé sur le ventre, front au sol, pouces vers le plafond. Décolle les bras en Y, puis en T (bras écartés), puis en W (coudes pliés, ramenés vers les côtes), en serrant les omoplates à chaque fois." },
-  scapPull: { name:"Tractions scapulaires", dose:"8",
-              how:"Suspendu à la barre, bras tendus. Sans plier les coudes, tire les épaules vers le bas, puis relâche-les doucement." },
-  scapDip:  { name:"Dips scapulaires", dose:"8",
-              how:"En appui sur les barres de dips, bras tendus. Laisse descendre le corps en montant les épaules vers les oreilles, puis repousse les épaules vers le bas." },
-  wrists:   { name:"Poignets", dose:"30 s",
-              how:"Cercles de poignets dans les deux sens, puis à 4 pattes, bascule lentement le poids du corps d'avant en arrière sur les mains." },
+/* Mouvements d'échauffement et d'étirement : chacun a sa fiche (même format que les exercices)
+   et ses dessins (FIGS, même clé). Le champ prep d'un exercice liste des clés de MOVES. */
+const MOVES = {
+  deadBug:{ name:"Dead bug", dose:"8 par côté",
+    tech:{ place:"Allongé sur le dos, bas du dos plaqué au sol, bras tendus vers le plafond, genoux pliés à 90° au-dessus des hanches.",
+      move:"Tends lentement un bras vers l'arrière et la jambe opposée vers l'avant, sans que le bas du dos décolle. Reviens, puis change de côté.",
+      feel:"Le ventre, en profondeur, qui garde le dos plaqué au sol.",
+      avoid:"Bas du dos qui se creuse; aller vite; descendre la jambe plus bas que ce que ton dos supporte" } },
+  ytw:{ name:"Y-T-W au sol", dose:"5 de chaque lettre",
+    tech:{ place:"Allongé sur le ventre, front posé au sol, pouces vers le plafond.",
+      move:"Décolle les bras du sol en dessinant un Y (bras en diagonale au-dessus de la tête), puis repose. Puis un T (bras écartés sur les côtés), puis un W (coudes pliés, ramenés vers les côtes). Serre les omoplates à chaque montée.",
+      feel:"Entre les omoplates et à l'arrière des épaules.",
+      avoid:"Lever la tête; creuser le bas du dos pour monter plus haut; aller vite" } },
+  scapPull:{ name:"Tractions scapulaires", dose:"8",
+    tech:{ place:"Suspendu à la barre de traction, mains largeur d'épaules, bras tendus, épaules relâchées vers les oreilles.",
+      move:"Sans plier les coudes, tire les épaules vers le bas : ton corps monte de 2 à 3 cm. Tiens 1 s, puis relâche doucement.",
+      feel:"Sous les épaules et dans le haut du dos.",
+      avoid:"Plier les coudes (ce serait une traction); se balancer; relâcher d'un coup" } },
+  scapDip:{ name:"Dips scapulaires", dose:"8",
+    tech:{ place:"En appui sur les barres de dips, bras tendus, épaules relâchées : tu es tassé, épaules près des oreilles.",
+      move:"Sans plier les coudes, pousse les barres vers le bas : tes épaules descendent, ton corps monte et ton cou s'allonge. Tiens 1 s, puis laisse-toi tasser doucement.",
+      feel:"Sous les épaules et sur les côtés du dos.",
+      avoid:"Plier les coudes; te laisser tomber d'un coup en bas; douleur à l'avant de l'épaule (arrête)" } },
+  wrists:{ name:"Poignets", dose:"30 s",
+    tech:{ place:"D'abord debout, puis à 4 pattes : mains à plat sous les épaules, doigts vers l'avant, genoux sous les hanches.",
+      move:"Debout, dessine 10 ronds avec les mains dans un sens, puis 10 dans l'autre. Puis à 4 pattes, mains fixes : avance lentement les épaules devant les mains, puis recule les fesses vers les talons. 10 allers-retours.",
+      feel:"Un étirement doux à l'intérieur des poignets et des avant-bras.",
+      avoid:"Mains qui décollent du sol; forcer si ça fait mal" } },
   wallSlide:{ name:"Glissés au mur", dose:"8",
-              how:"Dos, tête et fesses contre le mur, bras en W contre le mur. Fais glisser les bras vers le haut jusqu'au Y, sans décoller le bas du dos ni les bras du mur." },
+    tech:{ place:"Debout, dos au mur, pieds à 20 cm du mur. Fesses, haut du dos et arrière de la tête contre le mur. Bras comme pour « haut les mains » : coudes pliés à angle droit à hauteur des épaules, dos des bras et des mains contre le mur.",
+      move:"Fais glisser les bras vers le haut le long du mur, presque jusqu'à les tendre, puis redescends à la position de départ, lentement.",
+      feel:"Entre les omoplates et à l'arrière des épaules.",
+      avoid:"Bas du dos qui décolle du mur; mains ou coudes qui quittent le mur (monte moins haut)" } },
+  hamstrings:{ name:"Ischios", dose:"60 s",
+    tech:{ place:"Assis au sol, jambes tendues et serrées devant toi, pointes de pieds vers le plafond.",
+      move:"Penche-toi en avant à partir des hanches, dos droit, comme pour poser le ventre sur les cuisses. Mains posées sur les jambes. Arrête-toi à une tension douce et tiens, en respirant.",
+      feel:"L'arrière des cuisses.",
+      avoid:"Arrondir le dos pour aller plus loin (si ça arrive tout de suite, plie un peu les genoux); donner des à-coups; forcer" } },
+  hipFlexor:{ name:"Fléchisseurs de hanche", dose:"30 s par côté",
+    tech:{ place:"Un genou au sol, sur ta veste ou ta serviette. L'autre pied à plat devant toi, genou de devant plié à angle droit au-dessus de la cheville. Buste droit, mains sur les hanches.",
+      move:"Serre fort la fesse du côté du genou au sol, puis fais remonter le bas du ventre vers le nombril : le bas du dos s'aplatit. Tiens, sans avancer les hanches.",
+      feel:"À l'avant de la hanche et en haut de la cuisse, du côté du genou au sol.",
+      avoid:"Avancer les hanches vers le pied de devant; creuser le bas du dos; pencher le buste" } },
 };
 /* Échauffement de départ, affiché après « Commencer » (programmes marqués warmup:true). */
 const WARMUP = {
@@ -328,19 +378,76 @@ const WARMUP = {
     { title:"De 2 à 4 min · environ 24 coups/min", how:"Modéré : tu parles encore, en phrases courtes." },
   ],
   rowerNote:"Résistance 3 à 5. Jambes, puis dos, puis bras ; au retour, dans l'ordre inverse.",
-  deadBug:"Allongé sur le dos, bas du dos plaqué au sol, bras tendus vers le plafond, genoux pliés à 90° au-dessus des hanches. Tends lentement un bras et la jambe opposée sans que le bas du dos décolle, reviens, change de côté.",
 };
 /* Étirements de fin, enchaînés avec un chrono. */
-const STRETCH_HAM = "Assis, jambes tendues devant toi. Penche le buste vers les pieds en gardant le dos long, sans forcer.";
-const STRETCH_HIP = "Un genou au sol, buste droit. Serre le fessier du côté du genou au sol et enroule le bassin, pubis vers le nombril. N'avance pas les hanches : l'étirement vient seulement de l'enroulement.";
 const STRETCHES = [
-  { name:"Ischios", sec:60, how:STRETCH_HAM },
-  { name:"Ischios", sec:60, how:STRETCH_HAM },
-  { name:"Fléchisseurs de hanche", side:"gauche", sec:30, how:STRETCH_HIP },
-  { name:"Fléchisseurs de hanche", side:"droit", sec:30, how:STRETCH_HIP },
-  { name:"Fléchisseurs de hanche", side:"gauche", sec:30, how:STRETCH_HIP },
-  { name:"Fléchisseurs de hanche", side:"droit", sec:30, how:STRETCH_HIP },
+  { move:"hamstrings", name:"Ischios", sec:60 },
+  { move:"hamstrings", name:"Ischios", sec:60 },
+  { move:"hipFlexor", name:"Fléchisseurs de hanche", side:"gauche", sec:30 },
+  { move:"hipFlexor", name:"Fléchisseurs de hanche", side:"droit", sec:30 },
+  { move:"hipFlexor", name:"Fléchisseurs de hanche", side:"gauche", sec:30 },
+  { move:"hipFlexor", name:"Fléchisseurs de hanche", side:"droit", sec:30 },
 ];
+
+/* ============ DESSINS DES MOUVEMENTS ============ */
+/* Bonhommes en traits, dans une case de 120 × 100 par position.
+   l : membres en encre, m : membres immobiles (gris), p : matériel (sol, barre, mur),
+   h : tête [x, y], d : zone où ça doit se sentir [x, y], a : flèche [x1, y1, x2, y2], t : légende. */
+const FIGS = {
+  deadBug:[
+    { t:"Départ", p:[[4,84,116,84]], h:[14,70], l:[[22,72,72,76],[30,73,32,40],[72,76,72,52,94,52]], m:[], d:[50,70] },
+    { t:"Bras et jambe opposés", p:[[4,84,116,84]], h:[14,70], l:[[22,72,72,76],[30,73,10,50],[72,76,96,66,116,70]], m:[[30,73,32,40],[72,76,72,52,94,52]], d:[50,70] },
+  ],
+  ytw:[
+    { t:"Y (vu de dessus)", h:[60,14], l:[[60,21,60,58],[60,25,36,4],[60,25,84,4],[60,58,54,94],[60,58,66,94]], d:[60,32] },
+    { t:"T", h:[60,14], l:[[60,21,60,58],[60,25,24,25],[60,25,96,25],[60,58,54,94],[60,58,66,94]], d:[60,32] },
+    { t:"W", h:[60,14], l:[[60,21,60,58],[60,25,40,38,36,18],[60,25,80,38,84,18],[60,58,54,94],[60,58,66,94]], d:[60,32] },
+  ],
+  scapPull:[
+    { t:"Épaules relâchées", p:[[20,8,100,8]], h:[60,38], l:[[42,8,46,40],[78,8,74,40],[46,40,74,40],[60,46,60,76],[60,76,56,98],[60,76,64,98]] },
+    { t:"Épaules tirées vers le bas", p:[[20,8,100,8]], h:[60,26], l:[[42,8,46,40],[78,8,74,40],[46,40,74,40],[60,34,60,40],[60,40,60,68],[60,68,56,90],[60,68,64,90]], d:[60,46], a:[100,70,100,52] },
+  ],
+  scapDip:[
+    { t:"Tassé", p:[[36,40,36,100],[84,40,84,100]], h:[60,20], l:[[36,40,42,22],[84,40,78,22],[42,22,78,22],[60,28,60,56],[60,56,54,84],[60,56,66,84]] },
+    { t:"Épaules poussées vers le bas", p:[[36,40,36,100],[84,40,84,100]], h:[60,8], l:[[36,40,42,22],[84,40,78,22],[42,22,78,22],[60,15,60,22],[60,22,60,48],[60,48,54,76],[60,48,66,76]], d:[60,30], a:[104,70,104,52] },
+  ],
+  wrists:[
+    { t:"Ronds avec les mains", p:[], l:[[60,96,60,56],[60,56,60,44]], h:null, circ:[60,46,16], d:[60,56] },
+    { t:"Épaules devant les mains", p:[[4,88,116,88]], h:[14,48], l:[[24,56,70,58],[24,56,32,88],[70,58,74,88,98,88]], m:[[32,56,32,88]], d:[32,84], a:[40,40,24,40] },
+    { t:"Fesses vers les talons", p:[[4,88,116,88]], h:[34,58], l:[[44,64,90,76],[44,64,32,88],[90,76,80,88,104,88]], d:[32,84], a:[70,52,90,58] },
+  ],
+  wallSlide:[
+    { t:"Bras en W", wall:true, h:[60,28], l:[[60,36,60,70],[44,40,76,40],[44,40,30,40,30,20],[76,40,90,40,90,20],[60,70,54,98],[60,70,66,98]], d:[60,46] },
+    { t:"Bras qui montent", wall:true, h:[60,28], l:[[60,36,60,70],[44,40,76,40],[44,40,36,22,40,4],[76,40,84,22,80,4],[60,70,54,98],[60,70,66,98]], d:[60,46], a:[104,40,104,14] },
+  ],
+  hamstrings:[
+    { t:"Assis", p:[[4,88,116,88]], h:[34,40], l:[[34,48,36,86],[36,86,104,86,104,76],[36,58,58,82]], d:[72,84] },
+    { t:"Penché, dos droit", p:[[4,88,116,88]], h:[78,52], l:[[70,57,36,86],[36,86,104,86,104,76],[62,62,86,82]], d:[72,84], a:[40,40,60,48] },
+  ],
+  hipFlexor:[
+    { t:"Genou au sol", p:[[4,92,116,92]], h:[46,16], l:[[46,24,46,58],[46,58,40,90,16,90],[46,58,78,62,80,90],[46,30,38,44,48,56]], d:[48,64], rot:[46,62] },
+  ],
+};
+function figSVG(f){
+  const pl=(pts)=>'<polyline points="'+pts.join(" ")+'"/>';
+  let s='<svg viewBox="0 0 120 100" class="fig" aria-hidden="true">';
+  if(f.wall) s+='<rect x="18" y="0" width="84" height="100" rx="4" class="fig-wall"/>';
+  s+='<g class="fig-prop">'+(f.p||[]).map(pl).join("")+'</g>';
+  s+='<g class="fig-mute">'+(f.m||[]).map(pl).join("")+'</g>';
+  if(f.d) s+='<circle cx="'+f.d[0]+'" cy="'+f.d[1]+'" r="7" class="fig-zone"/>';
+  s+='<g class="fig-ink">'+(f.l||[]).map(pl).join("")+'</g>';
+  if(f.h) s+='<circle cx="'+f.h[0]+'" cy="'+f.h[1]+'" r="7" class="fig-head"/>';
+  if(f.circ) s+='<path d="M'+(f.circ[0]+f.circ[2])+' '+f.circ[1]+' A'+f.circ[2]+' '+f.circ[2]+' 0 1 1 '+f.circ[0]+' '+(f.circ[1]-f.circ[2])+'" class="fig-arrow"/><polyline points="'+(f.circ[0]-4)+','+(f.circ[1]-f.circ[2]-4)+' '+f.circ[0]+','+(f.circ[1]-f.circ[2])+' '+(f.circ[0]-4)+','+(f.circ[1]-f.circ[2]+4)+'" class="fig-arrow"/>';
+  if(f.a){ const [x1,y1,x2,y2]=f.a, ang=Math.atan2(y2-y1,x2-x1), k=5;
+    const p1=[x2-k*Math.cos(ang-0.6), y2-k*Math.sin(ang-0.6)], p2=[x2-k*Math.cos(ang+0.6), y2-k*Math.sin(ang+0.6)];
+    s+='<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" class="fig-arrow"/><polyline points="'+p1.join(",")+' '+x2+','+y2+' '+p2.join(",")+'" class="fig-arrow"/>'; }
+  if(f.rot){ const [x,y]=f.rot; s+='<path d="M'+(x-12)+' '+(y-8)+' A13 13 0 0 0 '+(x+2)+' '+(y+12)+'" class="fig-arrow"/><polyline points="'+(x-3)+','+(y+14)+' '+(x+2)+','+(y+12)+' '+(x)+','+(y+7)+'" class="fig-arrow"/>'; }
+  return s+'</svg>';
+}
+function figsHTML(key){
+  const fs=FIGS[key]; if(!fs) return "";
+  return '<div class="figs">'+fs.map(f=>'<figure class="fig-cell'+(fs.length===1?' solo':'')+'">'+figSVG(f)+'<figcaption>'+f.t+'</figcaption></figure>').join("")+'</div>';
+}
 
 /* ============ SÉANCE MAISON (reprise de l'app maison) ============ */
 const EX_MAISON = [
@@ -634,7 +741,7 @@ const EX_A = [
 
   { id:103, name:"Développé couché aux haltères", short:"Développé couché", muscle:"Poitrine · Triceps",
     ramp:[{ pct:50, reps:8 }, { pct:75, reps:4 }],
-    prep:[PREP.ytw],
+    prep:["ytw"],
     type:"machine", sets:4, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:8, kgStep:2.5,
     tech:{ place:"Allongé sur un banc plat, pieds à plat au sol, fesses collées au banc. Serre les omoplates et tire-les vers les fesses, puis garde-les plaquées dans le banc jusqu'à la dernière répétition. Un haltère dans chaque main au niveau du bas de la poitrine, paumes tournées un peu l'une vers l'autre (environ 45°).",
       move:"Pousse les haltères au-dessus de la poitrine, coudes à environ 45° du corps et avant-bras verticaux. Arrête-toi en haut juste avant que les omoplates décollent du banc, sans tendre les bras à fond. Redescends en 2 à 3 s jusqu'au bas de la poitrine, pas plus bas.",
@@ -644,7 +751,7 @@ const EX_A = [
 
   { id:104, name:"Tractions assistées", short:"Tractions assistées", muscle:"Dos · Bras",
     gymDep:true, ramp:[{ assistPlus:10, reps:4 }],
-    prep:[PREP.scapPull],
+    prep:["scapPull"],
     type:"reps", sets:4, target:"4–6 réps", lo:4, hi:6, rest:120, assistLevels:[0], startAssist:15, assistStep:2.5,
     levels:["Machine à tractions assistées","Élastique épais (assistance forte)","Élastique moyen","Élastique fin","Excentriques seules (descente en 5 s)","Tractions complètes"], lvl0:1,
     techByLevel:[
@@ -676,7 +783,7 @@ const EX_A = [
     ] },
 
   { id:115, name:"L-sit", short:"L-sit", muscle:"Compression · Triceps · Épaules",
-    prep:[PREP.wrists, PREP.scapDip],
+    prep:["wrists", "scapDip"],
     type:"hold", sets:3, target:"tenue 25 s", hold:25, rest:90,
     levels:["Fesses décollées, pieds au sol","Un pied levé en alternance","Tuck (deux genoux groupés)","Tuck + une jambe à moitié tendue en alternance","Tuck + une jambe tendue en alternance","L-sit complet"], lvl0:3,
     techByLevel:[
@@ -769,7 +876,7 @@ const EX_B = [
 
   { id:202, name:"Dips assistés", short:"Dips assistés", muscle:"Poitrine · Triceps",
     gymDep:true, ramp:[{ assistPlus:10, reps:4 }],
-    prep:[PREP.ytw, PREP.wrists, PREP.scapDip],
+    prep:["ytw", "wrists", "scapDip"],
     type:"pushup", sets:4, target:"6–10 réps", lo:6, hi:10, rest:120, assistLevels:[2], startAssist:25, assistStep:2.5,
     levels:["Pompes au sol, complètes","Pompes en déficit (mains sur haltères)","Dips à la machine assistée","Dips à l'élastique","Dips complets"], lvl0:2,
     techByLevel:[
@@ -824,7 +931,7 @@ const EX_B = [
     ] },
 
   { id:209, name:"Développé militaire à la machine", short:"Développé militaire", muscle:"Épaules · Triceps",
-    gymDep:true, prep:[PREP.wallSlide],
+    gymDep:true, prep:["wallSlide"],
     type:"machine", sets:3, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:7.5, kgStep:2.5,
     tech:{ place:"Assis sur la machine, dos bien calé contre le dossier, siège réglé pour que les poignées arrivent à hauteur des épaules. Mains sur les poignées, coudes sous les mains.",
       move:"Pousse les poignées vers le plafond jusqu'à presque tendre les bras, sans verrouiller les coudes, puis redescends lentement jusqu'à hauteur des épaules.",
@@ -1405,17 +1512,12 @@ function renderEffort(){
       '</div>';
   }
   // fiche technique : ouverte à la 1re série, repliée ensuite
-  const avoidItems = t.avoid.split(/;\s*/).filter(Boolean).map(s=>'<li>'+s.trim().replace(/\.$/,"")+'</li>').join("");
   const tech =
     '<div class="section"><div class="group">'+
       '<details class="tech"'+(state.setIndex===0?' open':'')+'>'+
         '<summary>Fiche technique'+iconChev()+'</summary>'+
         '<div class="tech-body">'+
-          tblock("Placement","",t.place)+
-          tblock("Mouvement","",t.move)+
-          tblock("Où le sentir","feel",t.feel)+
-          '<div class="tb avoid"><h4>À éviter</h4><ul class="avoid-list">'+avoidItems+'</ul></div>'+
-          (t.note?'<div class="tnote"><b>À retenir</b>'+t.note+'</div>':"")+
+          techBody(t)+
         '</div>'+
       '</details>'+
     '</div></div>';
@@ -1438,6 +1540,25 @@ function renderEffort(){
       '<div class="reminder footnote">Descente en 2 à 3 s, ventre et fessiers serrés, amplitude complète.</div>'+
     '</div>'+
     '<div class="bottom-bar" id="actionbar">'+actionInner+'</div>';
+}
+function techBody(t){
+  const avoidItems = t.avoid.split(/;\s*/).filter(Boolean).map(s=>'<li>'+s.trim().replace(/\.$/,"")+'</li>').join("");
+  return tblock("Placement","",t.place)+
+    tblock("Mouvement","",t.move)+
+    tblock("Où le sentir","feel",t.feel)+
+    '<div class="tb avoid"><h4>À éviter</h4><ul class="avoid-list">'+avoidItems+'</ul></div>'+
+    (t.note?'<div class="tnote"><b>À retenir</b>'+t.note+'</div>':"");
+}
+/* Carte d'un mouvement : titre et dose, dessins toujours visibles, fiche dépliable. */
+function moveCard(key, opts){
+  const mv=MOVES[key]; opts=opts||{};
+  return '<div class="group move-card">'+
+    (opts.noTitle ? '' : '<div class="move-head"><span class="row-title">'+(opts.title||mv.name)+'</span><span class="row-value">'+(opts.dose||mv.dose)+'</span></div>')+
+    figsHTML(key)+
+    '<details class="tech move-tech"'+(opts.open?' open':'')+'><summary>Comment faire'+iconChev()+'</summary>'+
+      '<div class="tech-body">'+techBody(mv.tech)+'</div>'+
+    '</details>'+
+  '</div>';
 }
 function tblock(label,cls,text){
   return '<div class="tb '+cls+'"><h4>'+label+'</h4><p>'+text+'</p></div>';
@@ -1507,12 +1628,7 @@ function prepHtml(ex){
   if(!ex.prep || state.setIndex!==0) return "";
   return '<div class="section">'+
     '<div class="section-head">Préparation, avant cet exercice</div>'+
-    '<div class="group">'+ex.prep.map(it=>
-      '<div class="row prep"><div class="row-main">'+
-        '<div class="prep-line"><span class="row-title">'+it.name+'</span><span class="row-value">'+it.dose+'</span></div>'+
-        '<div class="row-sub">'+it.how+'</div>'+
-      '</div></div>').join("")+
-    '</div>'+
+    ex.prep.map(k=>moveCard(k)).join("")+
   '</div>';
 }
 function ringHTML(prefix, secs){
@@ -1690,7 +1806,7 @@ function renderWarmup(){
       '</div>'+
       '<div class="section">'+
         '<div class="section-head"><span>2. Dead bug</span><span>8 par côté, lentement</span></div>'+
-        '<div class="group"><div class="row"><div class="row-main"><div class="row-sub wu-how">'+WARMUP.deadBug+'</div></div></div></div>'+
+        moveCard("deadBug", { noTitle:true })+
       '</div>'+
     '</div>'+
     '<div class="bottom-bar"><div class="bar-row">'+
@@ -1724,8 +1840,8 @@ function renderStretch(transition){
         head+
         '<div class="st-name">'+stretchLabel(st)+'</div>'+
         '<div class="rec-top">'+ringHTML("st", transition ? 5 : st.sec)+'</div>'+
-        '<div class="st-how">'+st.how+'</div>'+
       '</div></div></div>'+
+      '<div class="section">'+moveCard(st.move, { noTitle:true })+'</div>'+
       '<div class="section"><div class="section-head">Les 6 étapes</div><div class="group">'+steps+'</div></div>'+
     '</div>'+
     '<div class="bottom-bar">'+

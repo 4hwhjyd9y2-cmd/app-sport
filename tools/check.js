@@ -35,7 +35,7 @@ try {
   api = new Function("document", "localStorage", "window", "navigator",
     "return (function(){" + src + "; return { PROGRAMS, setProgram, start, renderEffort, goRecovery, state, EX: () => EX," +
     " rampSets, sessionText, resume, warmupDone, stretchDone, skipSet, leaveSession, getActive, getHistory," +
-    " renderWarmup, renderStretch, stretchStart, stretchTransition, prepHtml, STRETCHES };})()"
+    " renderWarmup, renderStretch, stretchStart, stretchTransition, prepHtml, STRETCHES, MOVES, FIGS };})()"
   )(doc, ls, {}, {});
 } catch (e) { fail("exécution du script : " + e.message); process.exit(1); }
 
@@ -147,7 +147,10 @@ test("11 · préparation à la 1re série seulement, retirée des repos", () => 
   const out = [];
   for (const k of [0, 1]) { api.state.exIndex = i; api.state.setIndex = k; out.push(api.prepHtml(ex[i]) !== ""); }
   const noRest = api.PROGRAMS.every((p) => p.ex.every((e) => !e.restPrep));
-  const items = api.PROGRAMS.every((p) => p.ex.every((e) => !e.prep || e.prep.every((it) => it && it.name && it.dose && it.how)));
+  const M = api.MOVES, F = api.FIGS;
+  const keys = api.PROGRAMS.map((p) => p.ex.map((e) => e.prep || [])).flat(2).concat(api.STRETCHES.map((x) => x.move), ["deadBug"]);
+  const items = keys.every((k) => M[k] && M[k].name && M[k].dose && F[k] && F[k].length &&
+    ["place", "move", "feel", "avoid"].every((f) => M[k].tech[f]) && !JSON.stringify(M[k]).includes("—"));
   return same([out, noRest, items], [[true, false], true, true]);
 });
 test("12b · texte de transition des étirements", () => {
