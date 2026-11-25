@@ -626,7 +626,6 @@ const EX_A = [
     ] },
 
   { id:107, name:"Hip thrust (banc + haltère)", short:"Hip thrust", muscle:"Fessiers · Ischios",
-    ramp:[{ pct:50, reps:8 }],
     type:"machine", sets:3, target:"10–12 réps", lo:10, hi:12, rest:90, startKg:20, kgStep:2.5,
     tech:{ place:"Pas de machine pour cet exercice. Assis au sol, le haut du dos calé contre le bord d'un banc plat (juste sous les omoplates), pieds à plat au sol largeur des hanches, genoux pliés. Un haltère lourd tenu à deux mains, posé à plat sur le pli des hanches (une serviette pliée dessous protège les os du bassin).",
       move:"Pousse dans les talons et serre les fessiers pour monter le bassin jusqu'à aligner épaules, hanches et genoux. Marque 1 seconde en haut, puis redescends lentement.",
@@ -678,7 +677,7 @@ const EX_A = [
 
   { id:115, name:"L-sit", short:"L-sit", muscle:"Compression · Triceps · Épaules",
     prep:[PREP.wrists, PREP.scapDip],
-    type:"hold", sets:3, target:"tenue 20 s", hold:20, rest:90,
+    type:"hold", sets:3, target:"tenue 25 s", hold:25, rest:90,
     levels:["Fesses décollées, pieds au sol","Un pied levé en alternance","Tuck (deux genoux groupés)","Tuck + une jambe à moitié tendue en alternance","Tuck + une jambe tendue en alternance","L-sit complet"], lvl0:3,
     techByLevel:[
       { place:"Assis au sol entre deux haltères hexagonaux (ou deux parallettes), posés à côté des hanches. Mains sur les haltères, bras tendus, jambes tendues devant toi, talons au sol.",
@@ -694,12 +693,12 @@ const EX_A = [
         move:"Bras tendus, épaules poussées vers le bas et légèrement en avant des mains. Ramène les deux genoux plus haut que les hanches, cuisses contre le ventre, et enroule le bassin comme au hollow body : le bas du dos s'arrondit. Tiens la position.",
         feel:"Surtout l'arrière des bras et le bas des épaules : à ce niveau, ce sont eux qui lâchent en premier. Le ventre travaille en tenue, sans brûlure, c'est normal de peu le sentir. Si tu ne le sens pas du tout, tes genoux sont trop bas ou ton bassin n'est pas enroulé.",
         avoid:"Genoux sous le niveau des hanches; dos creux et bassin basculé en avant; épaules qui remontent; genoux qui redescendent au fil de la tenue; buste penché en arrière",
-        note:"Tu passes au niveau suivant quand tu tiens 3 × 20 s avec les genoux au-dessus des hanches du début à la fin." },
+        note:"Tu passes au niveau suivant quand tu tiens 3 × 25 s avec les genoux au-dessus des hanches du début à la fin." },
       { place:"Position tuck sur les barres de dips, bras tendus, épaules basses, bassin enroulé.",
         move:"Depuis le tuck, avance un pied devant toi jusqu'à ce que le genou soit plié à angle droit, la cuisse reste à hauteur des hanches. L'autre genou reste groupé contre la poitrine. Change de jambe à la moitié de la tenue.",
         feel:"Arrière des bras, bas des épaules, et le bas du ventre qui travaille plus fort du côté de la jambe avancée.",
         avoid:"Cuisse de la jambe avancée qui tombe sous les hanches; buste qui part en arrière pour compenser; épaules qui remontent",
-        note:"Niveau intermédiaire : il allonge le levier petit à petit avant la jambe complètement tendue. Quand 3 × 20 s passent, tends un peu plus le genou à chaque séance." },
+        note:"Niveau intermédiaire : il allonge le levier petit à petit avant la jambe complètement tendue. Tu peux aussi avancer les deux jambes en même temps, cuisses serrées à l'horizontale : ouvre un peu plus l'angle des genoux à chaque séance. Tu passes au niveau suivant quand tu tiens 3 × 25 s cuisses à l'horizontale." },
       { place:"Position tuck, bras tendus, épaules basses.",
         move:"Depuis le tuck, tends une jambe devant toi à l'horizontale, l'autre reste groupée. Change de jambe à la moitié de la tenue.",
         feel:"Bas du ventre et avant de la hanche de la jambe tendue.",
@@ -751,7 +750,7 @@ const EX_A = [
 /* ============ SÉANCE B · JEUDI ============ */
 const EX_B = [
   { id:201, name:"Fentes bulgares aux haltères", short:"Fentes bulgares", muscle:"Cuisses · Fessiers",
-    ramp:[{ bodyweight:true, reps:6 }, { pct:60, reps:4 }],
+    ramp:[{ bodyweight:true, reps:6 }],
     type:"machine", sets:3, target:"8–10 réps", lo:8, hi:10, perSide:true, sideWord:"jambe", rest:90, startKg:6, kgStep:2,
     tech:{ place:"Dos à un banc, dessus du pied arrière posé dessus, pied avant un bon pas devant, à plat. Un haltère dans chaque main, bras le long du corps, buste droit.",
       move:"Plie le genou avant pour descendre jusqu'à ce que la cuisse avant soit à l'horizontale, puis pousse dans le talon avant pour remonter. Tout le travail se fait sur la jambe avant.",
@@ -1705,7 +1704,7 @@ function stretchTransition(prev, st){
   if(!prev || prev.name!==st.name) return "Étirement suivant";
   return (st.side && prev.side!==st.side) ? "Change de côté" : "Encore une fois";
 }
-function stretchLabel(st){ return st.name+(st.side?", côté "+st.side:""); }
+function stretchLabel(st){ return st.name+(st.side?", genou "+st.side+" au sol":""); }
 function renderStretch(transition){
   const i=state.stretchStep, st=STRETCHES[i];
   const steps = STRETCHES.map((x,k)=>

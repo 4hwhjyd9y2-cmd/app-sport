@@ -72,10 +72,9 @@ Version du 18/11/2026. Ce document se lit sans la conversation qui l'a produit :
 | Séance | Exercice (id) | Séries de montée |
 |---|---|---|
 | A | Presse à cuisses (101) | 50 % × 8, puis 75 % × 4 |
-| A | Hip thrust (107) | 50 % × 8 |
 | A | Développé couché (103) | 50 % × 8, puis 75 % × 4 |
 | A | Tractions assistées (104) | assistance + 10 kg × 4 |
-| B | Fentes bulgares (201) | poids du corps × 6 par jambe, puis 60 % × 4 par jambe |
+| B | Fentes bulgares (201) | poids du corps × 6 par jambe |
 | B | Leg curl assis (113) | 50 % × 8 |
 | B | Dips assistés (202) | assistance + 10 kg × 4 |
 
@@ -125,10 +124,10 @@ Version du 18/11/2026. Ce document se lit sans la conversation qui l'a produit :
 - **Les 6 étapes, dans l'ordre** :
   1. Ischios, 60 s : « Assis, jambes tendues devant toi. Penche le buste vers les pieds en gardant le dos long, sans forcer. »
   2. Ischios, 60 s (même texte).
-  3. Fléchisseurs de hanche, côté gauche, 30 s.
-  4. Fléchisseurs de hanche, côté droit, 30 s.
-  5. Fléchisseurs de hanche, côté gauche, 30 s.
-  6. Fléchisseurs de hanche, côté droit, 30 s.
+  3. Fléchisseurs de hanche, genou gauche au sol, 30 s.
+  4. Fléchisseurs de hanche, genou droit au sol, 30 s.
+  5. Fléchisseurs de hanche, genou gauche au sol, 30 s.
+  6. Fléchisseurs de hanche, genou droit au sol, 30 s.
   - Explication des fléchisseurs (version active) : « Un genou au sol, buste droit. Serre le fessier du côté du genou au sol et enroule le bassin, pubis vers le nombril. N'avance pas les hanches : l'étirement vient seulement de l'enroulement. »
 - **Ce que je peux faire** :
   - « Démarrer » lance l'étape 1. À la fin de chaque chrono, un bip, puis 5 secondes de transition affichant l'étape suivante (« Change de côté » quand c'est le cas), puis le chrono suivant démarre seul ;
@@ -204,3 +203,4 @@ Version du 18/11/2026. Ce document se lit sans la conversation qui l'a produit :
 - 18/11/2026 : fichier unique `salle.html` conservé ; les nouvelles règles de calcul sont testées dans `tools/check.js`.
 - 18/11/2026 : séance Maison hors périmètre.
 - 18/11/2026 : la préparation ne se fait plus pendant les repos (pas le temps de la faire en récupérant) : elle a un temps dédié, juste avant l'exercice préparé, à sa 1re série.
+- 25/11/2026 : plus de série de montée au hip thrust (il suit la presse, hanches déjà chaudes) ; fentes bulgares réduites à une série au poids du corps ; étirements des fléchisseurs nommés par le genou au sol (« genou gauche au sol ») plutôt que par le côté.
