@@ -1,11 +1,11 @@
 # Cahier des charges · Échauffement et étirements des séances en salle
 
-Version du 18/11/2026. Ce document se lit sans la conversation qui l'a produit : tout ce qui est décidé est écrit ici.
+Version du 18/11/2026, mise à jour le 26/11/2026 (semaine en 3 séances : lundi, mardi, jeudi). Ce document se lit sans la conversation qui l'a produit : tout ce qui est décidé est écrit ici.
 
 ## 1. Contexte
 
 - **L'appli** : TEMPO, application web de musculation utilisée sur iPhone, ajoutée à l'écran d'accueil depuis Safari. Elle guide une séance série par série : écran d'effort, puis écran de repos où l'on saisit ses résultats.
-- **Dépôt et fichiers** : dépôt public `app-sport`, servi par GitHub Pages depuis la branche `main`. La fonction décrite ici concerne uniquement `salle.html` (séances A, B et Maison). `index.html` n'est pas concerné. Les règles du projet sont dans `CLAUDE.md`.
+- **Dépôt et fichiers** : dépôt public `app-sport`, servi par GitHub Pages depuis la branche `main`. La fonction décrite ici concerne uniquement `salle.html` (séances du lundi `C`, du mardi `A`, du jeudi `B`, et Maison). `index.html` n'est pas concerné. Les règles du projet sont dans `CLAUDE.md`.
 - **Données** : uniquement dans le `localStorage` du téléphone, clés `TEMPO_S_*`. Une sauvegarde (code JSON) permet de les copier et de les restaurer.
 - **Point de départ** : l'appli ne propose aucun échauffement. L'utilisateur ne s'échauffe pas et fait souvent une « pyramide » (une 1re série plus légère, comptée comme série de travail). Un simple rappel en bas de l'écran d'effort lui demande de s'échauffer hors de l'appli à la 1re série d'un exercice chargé.
 - **Contraintes permanentes** :
@@ -21,7 +21,7 @@ Version du 18/11/2026. Ce document se lit sans la conversation qui l'a produit :
 
 | Quand | Je veux savoir | Pour décider |
 |---|---|---|
-| Je lance une séance A ou B | Quoi faire avant ma 1re série | Démarrer sans réfléchir |
+| Je lance une séance en salle | Quoi faire avant ma 1re série | Démarrer sans réfléchir |
 | Avant un exercice chargé | Quelles séries de montée faire, à quelle charge | Arriver prêt à la charge du jour, sans me fatiguer |
 | Juste avant un exercice sensible | Quelle préparation faire | Ne pas arriver froid sur une articulation sensible |
 | Après la dernière série | Quels étirements faire, combien de temps | Ne pas les oublier |
@@ -40,8 +40,8 @@ Version du 18/11/2026. Ce document se lit sans la conversation qui l'a produit :
 
 ### 4.1 Écran Échauffement (nouveau)
 
-- **Usage** : je lance la séance A ou B et je veux savoir quoi faire avant la 1re série.
-- **Quand il s'affiche** : juste après « Commencer la séance », pour les séances A et B seulement. Il s'affiche aussi en reprenant une séance quittée sur cet écran.
+- **Usage** : je lance une séance en salle et je veux savoir quoi faire avant la 1re série.
+- **Quand il s'affiche** : juste après « Commencer la séance », pour les séances en salle (C, A et B) seulement. Il s'affiche aussi en reprenant une séance quittée sur cet écran.
 - **Contenu, de haut en bas** :
   - barre de navigation : « Accueil » à gauche, titre « Échauffement », bouton son ;
   - titre « Échauffement », sous-titre « Environ 6 min avant ta 1re série » ;
@@ -60,7 +60,7 @@ Version du 18/11/2026. Ce document se lit sans la conversation qui l'a produit :
   - nouvelle phase `warmup` ;
   - champ facultatif `warmup` de la séance : `"done"` ou `"skipped"` ;
   - champ facultatif `phase` de la séance en cours enregistrée (`TEMPO_S_ACTIVE_<prog>`) : `"warmup"` ou `"stretch"`. Sans ce champ, la reprise fonctionne comme aujourd'hui ;
-  - un indicateur `warmup:true` sur les programmes A et B dans `PROGRAMS`.
+  - un indicateur `warmup:true` sur les programmes C, A et B dans `PROGRAMS`.
 
 ### 4.2 Séries de montée sur l'écran d'effort (modifié)
 
@@ -71,12 +71,15 @@ Version du 18/11/2026. Ce document se lit sans la conversation qui l'a produit :
 
 | Séance | Exercice (id) | Séries de montée |
 |---|---|---|
-| A | Presse à cuisses (101) | 50 % × 8, puis 75 % × 4 |
-| A | Développé couché (103) | 50 % × 8, puis 75 % × 4 |
-| A | Tractions assistées (104) | assistance + 10 kg × 4 |
-| B | Fentes bulgares (201) | poids du corps × 6 par jambe |
-| B | Leg curl assis (113) | 50 % × 8 |
-| B | Dips assistés (202) | assistance + 10 kg × 4 |
+| Lundi (C) | Tractions assistées (104) | assistance + 10 kg × 4 |
+| Lundi (C) | Dips assistés (202) | assistance + 10 kg × 4 |
+| Lundi (C) | Développé couché (103) | 75 % × 4 |
+| Mardi (A) | Presse à cuisses (101) | 50 % × 8, puis 75 % × 4 |
+| Mardi (A) | Soulevé de terre roumain (116) | 50 % × 8 |
+| Jeudi (B) | Dips assistés (202) | assistance + 10 kg × 4 |
+| Jeudi (B) | Tractions assistées (104) | assistance + 10 kg × 4 |
+| Jeudi (B) | Fentes bulgares (201) | poids du corps × 6 par jambe |
+| Jeudi (B) | Leg curl assis (113) | 50 % × 8 |
 
 - **Règles de calcul** :
   - la base est la charge proposée par l'appli pour la séance (fonction `suggestLoad`), ou la charge de départ s'il n'y a pas d'historique ;
@@ -97,11 +100,9 @@ Version du 18/11/2026. Ce document se lit sans la conversation qui l'a produit :
 
 | Séance | Exercice préparé | Mouvements | Durée |
 |---|---|---|---|
-| A | Développé couché (103) | Y-T-W au sol, 5 de chaque lettre | environ 1 min |
-| A | Tractions assistées (104) | Tractions scapulaires × 8 | environ 30 s |
-| A | L-sit (115) | Poignets 30 s ; dips scapulaires × 8 | environ 1 min |
-| B | Dips assistés (202) | Y-T-W au sol, 5 de chaque lettre ; poignets 30 s ; dips scapulaires × 8 | environ 2 min |
-| B | Développé militaire (209) | Glissés au mur × 8 | environ 30 s |
+| Lundi et jeudi | Tractions assistées (104) | Tractions scapulaires × 8 | environ 30 s |
+| Lundi et jeudi | Dips assistés (202) | Y-T-W au sol, 5 de chaque lettre ; poignets 30 s ; dips scapulaires × 8 | environ 2 min |
+| Jeudi | Développé militaire (209) | Glissés au mur × 8 | environ 30 s |
 
 - **Explications des mouvements** (texte affiché sous chaque nom) :
   - **Y-T-W au sol** : « Allongé sur le ventre, front au sol, pouces vers le plafond. Décolle les bras en Y, puis en T (bras écartés), puis en W (coudes pliés, ramenés vers les côtes), en serrant les omoplates à chaque fois. »
@@ -114,7 +115,7 @@ Version du 18/11/2026. Ce document se lit sans la conversation qui l'a produit :
 ### 4.4 Écran Étirements (nouveau)
 
 - **Usage** : après la dernière série, je veux savoir quels étirements faire et combien de temps.
-- **Quand il s'affiche** : pour les séances A et B, à la place de l'écran « Séance terminée », après la dernière série (qu'elle soit faite ou passée). L'écran « Séance terminée » s'affiche ensuite. Il s'affiche aussi en reprenant une séance quittée sur cet écran.
+- **Quand il s'affiche** : pour les séances en salle (C, A et B), à la place de l'écran « Séance terminée », après la dernière série (qu'elle soit faite ou passée). L'écran « Séance terminée » s'affiche ensuite. Il s'affiche aussi en reprenant une séance quittée sur cet écran.
 - **Contenu, de haut en bas** :
   - barre de navigation : « Accueil », titre « Étirements », bouton son ;
   - titre « Étirements », sous-titre « Environ 4 min. Ta séance est enregistrée à la fin, ou si tu passes. » ;
@@ -151,7 +152,7 @@ Version du 18/11/2026. Ce document se lit sans la conversation qui l'a produit :
 - **Séance** (élément de `TEMPO_S_HIST_<prog>`) : deux champs facultatifs nouveaux, `warmup` et `stretch`, valant `"done"` ou `"skipped"`.
 - **Séance en cours** (`TEMPO_S_ACTIVE_<prog>`) : un champ facultatif nouveau, `phase`, valant `"warmup"` ou `"stretch"`. Absent, la reprise fonctionne comme aujourd'hui.
 - **Exercices** (dans le code) : champs facultatifs `ramp` et `prep`, décrits en 4.2 et 4.3.
-- **Programmes** (dans le code) : indicateur `warmup:true` sur A et B.
+- **Programmes** (dans le code) : indicateur `warmup:true` sur C, A et B.
 - **Aucune migration** : tous les nouveaux champs sont facultatifs. Aucune clé de stockage n'est renommée. Une ancienne sauvegarde se restaure sans changement.
 
 ## 6. Tests
@@ -206,3 +207,4 @@ Version du 18/11/2026. Ce document se lit sans la conversation qui l'a produit :
 - 25/11/2026 : plus de série de montée au hip thrust (il suit la presse, hanches déjà chaudes) ; fentes bulgares réduites à une série au poids du corps ; étirements des fléchisseurs nommés par le genou au sol (« genou gauche au sol ») plutôt que par le côté.
 - 25/11/2026 : chaque mouvement d'échauffement et d'étirement (dead bug, Y-T-W, tractions scapulaires, dips scapulaires, poignets, glissés au mur, ischios, fléchisseurs de hanche) a une fiche au même format que les exercices (placement, mouvement, où le sentir, à éviter) et des dessins de la position de départ et d'arrivée, toujours visibles ; la fiche se déplie avec « Comment faire ». Données : `MOVES` (fiches) et `FIGS` (dessins), même clé ; le champ `prep` d'un exercice liste des clés de `MOVES`.
 - 25/11/2026 : dessins retirés (bonhommes jugés trop sommaires, pas d'illustration réaliste possible) ; les fiches restent, ouvertes d'emblée à l'échauffement et aux étirements, à déplier dans les préparations. `FIGS` supprimé.
+- 26/11/2026 : semaine en 3 séances (lundi haut du corps, mardi jambes et abdos, jeudi corps entier). Les exercices partagés entre séances (tractions, dips, rowing aux anneaux, L-sit, suspension) gardent leur `ramp` et leur `prep`, qui s'affichent donc dans chaque séance où ils sont. Plus de préparation au L-sit : il suit les dips, qui préparent déjà poignets et épaules. Développé couché du lundi : une seule série de montée (75 % × 4), il suit les tractions et les dips ; Y-T-W gardé avant les dips. Soulevé de terre roumain : 50 % × 8.
