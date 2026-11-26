@@ -36,7 +36,7 @@ try {
     "return (function(){" + src + "; return { PROGRAMS, setProgram, start, renderEffort, goRecovery, state, EX: () => EX," +
     " rampSets, sessionText, resume, warmupDone, stretchDone, skipSet, leaveSession, getActive, getHistory," +
     " renderWarmup, renderStretch, stretchStart, stretchTransition, prepHtml, STRETCHES, MOVES," +
-    " suggestLoad, loadLevels, saveLevel, renderHome, goEffort, exAny: exById };})()"
+    " suggestLoad, loadLevels, saveLevel, renderHome, goEffort, hasPrep, renderPrep, exAny: exById };})()"
   )(doc, ls, {}, {});
 } catch (e) { fail("exécution du script : " + e.message); process.exit(1); }
 
@@ -74,6 +74,7 @@ for (const p of api.PROGRAMS) {
     const ex = api.EX();
     for (let i = 0; i < ex.length; i++) {
       api.state.exIndex = i; api.state.setIndex = 0;
+      if (api.hasPrep(ex[i])) api.renderPrep();
       api.renderEffort();
       if (ex[i].type !== "hold") api.goRecovery();
     }
@@ -108,12 +109,13 @@ test("7 · déroulé de la séance A", () => {
   const steps = [api.state.phase];
   api.warmupDone("done");
   steps.push(api.state.phase, api.state.exIndex, api.state.setIndex, api.state.session.warmup);
+  api.goEffort(); steps.push(api.state.phase);
   const ex = api.EX(); api.state.exIndex = ex.length - 1; api.state.setIndex = ex[ex.length - 1].sets - 1;
   api.skipSet(); steps.push(api.state.phase);
   api.stretchDone("skipped");
   const h = api.getHistory();
   steps.push(api.state.phase, h[h.length - 1].warmup, h[h.length - 1].stretch);
-  return same(steps, ["warmup", "effort", 0, 0, "done", "stretch", "end", "done", "skipped"]);
+  return same(steps, ["warmup", "prep", 0, 0, "done", "effort", "stretch", "end", "done", "skipped"]);
 });
 test("8 · séance Maison inchangée", () => {
   api.setProgram("M"); api.start(true);
@@ -142,17 +144,29 @@ test("10 · ligne d'export", () => {
   const without = api.sessionText({ date: "2026-01-06T17:00:00.000Z", prog: "A", entries: {} }).split("\n");
   return same([withF[1], without.length], ["Échauffement : fait · Étirements : passés", 1]);
 });
-test("11 · préparation à la 1re série seulement, retirée des repos", () => {
+test("11 · page Préparation avant la 1re série, rien sur l'écran d'effort ni pendant les repos", () => {
+  const pages = {};
+  for (const id of ["C", "A", "B"]) {
+    api.setProgram(id); api.start(true); api.warmupDone("done");
+    pages[id] = [];
+    while (api.state.phase === "prep" || api.state.phase === "effort") {
+      if (api.state.phase === "prep") { pages[id].push(api.EX()[api.state.exIndex].id); api.goEffort(); }
+      if (/Séries de montée|Préparation/.test(screen.innerHTML)) return "préparation sur l'écran d'effort de " + id;
+      api.skipSet();
+    }
+    api.stretchDone("skipped");
+  }
   api.setProgram("B"); api.start(true); api.warmupDone("done");
-  const ex = api.EX(), i = ex.findIndex((e) => e.id === 202);
-  const out = [];
-  for (const k of [0, 1]) { api.state.exIndex = i; api.state.setIndex = k; out.push(api.prepHtml(ex[i]) !== ""); }
+  const page = screen.innerHTML, out = [/1\. Préparation/.test(page) && /2\. Séries de montée/.test(page)];
+  api.leaveSession(); out.push(api.getActive().phase); api.resume(); out.push(api.state.phase);
+  api.goEffort(); api.skipSet(); api.skipSet(); api.goRecovery(); api.leaveSession();
+  out.push(api.getActive().exIndex, api.getActive().phase);
   const noRest = api.PROGRAMS.every((p) => p.ex.every((e) => !e.restPrep));
   const M = api.MOVES;
   const keys = api.PROGRAMS.map((p) => p.ex.map((e) => e.prep || [])).flat(2).concat(api.STRETCHES.map((x) => x.move), ["deadBug"]);
   const items = keys.every((k) => M[k] && M[k].name && M[k].dose &&
     ["place", "move", "feel", "avoid"].every((f) => M[k].tech[f]) && !JSON.stringify(M[k]).includes("—"));
-  return same([out, noRest, items], [[true, false], true, true]);
+  return same([pages, out, noRest, items], [{ C: [104, 202, 103], A: [101, 116], B: [202, 104, 201, 113, 209] }, [true, "prep", "prep", 1, "prep"], true, true]);
 });
 test("12b · texte de transition des étirements", () => {
   const S = api.STRETCHES, msgs = [];
@@ -251,7 +265,7 @@ test("19 · rappel du jeudi : séries marquées easy et message à l'écran", ()
   const dips = exById("B", 202), keep = dips.easyUntil, out = [];
   for (const until of ["2999-12-31", "2000-01-01"]) {
     dips.easyUntil = until;
-    fresh("B"); api.start(true); api.warmupDone("done");
+    fresh("B"); api.start(true); api.warmupDone("done"); api.goEffort();
     out.push(api.state.session.entries[202].easy === true, screen.innerHTML.includes("2 à 3 répétitions avant l'échec"));
   }
   dips.easyUntil = keep;
@@ -262,9 +276,11 @@ test("20 · messages de stagnation à l'écran", () => {
   reset();
   put("A", [1, 8, 15].map((d) => ({ date: day(d), prog: "A", gym: "1", entries: done(101, x(4, { reps: 9, kg: 100 })) })));
   fresh("A"); api.start(true); api.warmupDone("done");
+  const prep = screen.innerHTML.includes("toutes tes séries à 90 kg");
+  api.goEffort();
   const effort = screen.innerHTML.includes("−10 kg");
   api.goRecovery();
-  return same([effort, screen.innerHTML.includes("charge baissée pour repartir")], [true, true]);
+  return same([prep, effort, screen.innerHTML.includes("charge baissée pour repartir")], [true, true, true]);
 });
 test("21 · export d'une séance enregistrée avant la nouvelle semaine", () => {
   reset(); fresh("A");

@@ -1226,7 +1226,7 @@ function ensureEntry(){
 }
 function saveActive(){
   const a={ exIndex:state.exIndex, setIndex:state.setIndex, session:state.session };
-  if(state.phase==="warmup" || state.phase==="stretch") a.phase=state.phase; // reprise sur l'échauffement ou les étirements
+  if(state.phase==="warmup" || state.phase==="stretch" || state.phase==="prep") a.phase=state.phase; // reprise sur le bon écran
   store.set(kActive(), a);
 }
 function clearActive(){ store.del(kActive()); }
@@ -1249,7 +1249,7 @@ function start(fresh){
   unlockAudio();
   state.session=newSession(); state.exIndex=0; state.setIndex=0;
   if(curProg().warmup){ goWarmup(); return; }
-  saveActive(); goEffort();
+  goSet();
 }
 function resume(){
   unlockAudio();
@@ -1258,13 +1258,19 @@ function resume(){
   state.exIndex=Math.min(a.exIndex||0, EX.length-1); state.setIndex=Math.min(a.setIndex||0, EX[state.exIndex].sets-1);
   if(a.phase==="warmup"){ goWarmup(); return; }
   if(a.phase==="stretch"){ goStretch(); return; }
+  if(a.phase==="prep" && hasPrep(EX[state.exIndex])){ goPrep(); return; }
   goEffort();
 }
 function goHome(){ stopCountdown(); releaseAwake(); setPhase("home"); renderTopbar(); renderHome(); }
 function goEffort(){ stopCountdown(); keepAwake(); state.holdResult=null; setPhase("effort"); ensureEntry(); saveActive(); renderTopbar(); renderEffort(); }
 function goRecovery(){ keepAwake(); setPhase("recovery"); renderTopbar(); renderRecovery(); }
 function goWarmup(){ stopCountdown(); keepAwake(); setPhase("warmup"); saveActive(); renderTopbar(); renderWarmup(); }
-function warmupDone(v){ state.session.warmup=v; state.exIndex=0; state.setIndex=0; goEffort(); }
+function warmupDone(v){ state.session.warmup=v; state.exIndex=0; state.setIndex=0; goSet(); }
+/* Page Préparation : avant la 1re série d'un exercice qui a une préparation ou des séries de montée.
+   Rien n'y est enregistré ; « Aller à la 1re série » ouvre l'écran d'effort. */
+function hasPrep(ex){ return !!(ex && ((ex.prep && ex.prep.length) || rampSets(ex, suggestLoad(ex)).length)); }
+function goPrep(){ stopCountdown(); keepAwake(); state.holdResult=null; setPhase("prep"); saveActive(); renderTopbar(); renderPrep(); }
+function goSet(){ if(state.setIndex===0 && hasPrep(EX[state.exIndex])) goPrep(); else goEffort(); }
 function goStretch(){
   stopCountdown(); keepAwake(); setPhase("stretch");
   state.stretchStep=0; state.stretchRunning=false;
@@ -1297,7 +1303,10 @@ function leaveSession(){
     if(!nx){
       if(!curProg().warmup){ goEnd(); return; }
       state.phase="stretch"; // la séance reprendra sur les étirements
-    } else { state.exIndex=nx.exIndex; state.setIndex=nx.setIndex; }
+    } else {
+      state.exIndex=nx.exIndex; state.setIndex=nx.setIndex;
+      if(nx.setIndex===0 && hasPrep(EX[nx.exIndex])) state.phase="prep"; // la séance reprendra sur la préparation
+    }
   }
   saveActive();
   goHome();
@@ -1308,14 +1317,14 @@ function skipSet(){
   saveActive();
   const nx=nextPointer(state.exIndex,state.setIndex);
   if(!nx){ finishSession(); return; }
-  state.exIndex=nx.exIndex; state.setIndex=nx.setIndex; goEffort();
+  state.exIndex=nx.exIndex; state.setIndex=nx.setIndex; goSet();
 }
 function finishRest(){
   commitInput();
   stopCountdown();
   const nx=nextPointer(state.exIndex,state.setIndex);
   if(!nx){ finishSession(); return; }
-  state.exIndex=nx.exIndex; state.setIndex=nx.setIndex; goEffort();
+  state.exIndex=nx.exIndex; state.setIndex=nx.setIndex; goSet();
 }
 function commitInput(){
   const ex=EX[state.exIndex]; ensureEntry();
@@ -1373,10 +1382,10 @@ function renderTopbar(){
     return;
   }
   const ex=EX[state.exIndex];
-  const extra = state.phase==="warmup" || state.phase==="stretch";
-  const done = state.phase==="warmup" ? 0 : state.phase==="stretch" ? TOTAL_SETS : setsBefore(state.exIndex)+state.setIndex+1;
+  const extra = state.phase==="warmup" || state.phase==="stretch" || state.phase==="prep";
+  const done = state.phase==="warmup" ? 0 : state.phase==="stretch" ? TOTAL_SETS : state.phase==="prep" ? setsBefore(state.exIndex) : setsBefore(state.exIndex)+state.setIndex+1;
   const pct=Math.round(done/TOTAL_SETS*100);
-  const title = state.phase==="warmup" ? "Échauffement" : state.phase==="stretch" ? "Étirements"
+  const title = state.phase==="warmup" ? "Échauffement" : state.phase==="stretch" ? "Étirements" : state.phase==="prep" ? "Préparation"
     : state.phase==="recovery" ? "Récupération" : ("Exercice "+ex.pos+" sur "+EX.length);
   topbar.innerHTML =
     '<div class="navbar">'+
@@ -1483,21 +1492,6 @@ function renderEffort(){
   }
   let dots="";
   for(let i=0;i<ex.sets;i++){ dots+='<i class="'+(i<state.setIndex?"done":(i===state.setIndex?"active":""))+'"></i>'; }
-  // séries de montée, à la 1re série seulement
-  let rampBlock="";
-  const ramp = state.setIndex===0 ? rampSets(ex, sg) : [];
-  if(ramp.length){
-    const per = ex.perSide ? " par "+ex.sideWord : "";
-    const work = sg.kg!=null ? frNum(sg.kg)+" kg" : "une assistance de "+frNum(sg.assist)+" kg";
-    rampBlock =
-      '<div class="section">'+
-        '<div class="section-head">Séries de montée</div>'+
-        '<div class="group">'+ramp.map(r=>
-          '<div class="row"><div class="row-main"><div class="row-title">'+r.text+'</div></div><div class="row-value">× '+r.reps+per+'</div></div>').join("")+
-        '</div>'+
-        '<div class="section-foot">Hors appli, environ 1 min de repos entre elles. Ensuite, toutes tes séries à '+work+'.</div>'+
-      '</div>';
-  }
   // niveau
   let levelBlock="";
   if(ex.levels){
@@ -1535,8 +1529,6 @@ function renderEffort(){
       '<div class="set-line"><b>Série '+(state.setIndex+1)+' sur '+ex.sets+'</b><div class="dots" aria-hidden="true">'+dots+'</div></div>'+
       '<div class="targets">'+targets+'</div>'+
       (isEasy(ex) ? '<div class="effort-note"><b>Jusqu\'au '+easyDate(ex)+'</b> : arrête chaque série 2 à 3 répétitions avant l\'échec. Tes coudes s\'habituent aux dips et aux tractions deux fois par semaine.</div>' : '')+
-      prepHtml(ex)+
-      rampBlock+
       levelBlock+
       tech+
       '<div class="reminder footnote">Descente en 2 à 3 s, ventre et fessiers serrés, amplitude complète.</div>'+
@@ -1589,7 +1581,7 @@ function renderRecovery(){
   let nextLabel;
   if(nx){
     const nex=EX[nx.exIndex];
-    nextLabel = (nx.exIndex===state.exIndex) ? ("Série "+(nx.setIndex+1)+" · "+nex.short) : (nex.short+" · série 1");
+    nextLabel = (nx.exIndex===state.exIndex) ? ("Série "+(nx.setIndex+1)+" · "+nex.short) : (nex.short+(hasPrep(nex) ? " · préparation" : " · série 1"));
   } else {
     nextLabel = "Fin de séance";
   }
@@ -1627,11 +1619,38 @@ function renderRecovery(){
   updateNudge();
 }
 function prepHtml(ex){
-  if(!ex.prep || state.setIndex!==0) return "";
-  return '<div class="section">'+
-    '<div class="section-head">Préparation, avant cet exercice</div>'+
-    ex.prep.map(k=>moveCard(k)).join("")+
-  '</div>';
+  const sg=suggestLoad(ex), ramp=rampSets(ex, sg), moves=ex.prep || [];
+  const n=(moves.length && ramp.length), per=ex.perSide ? " par "+ex.sideWord : "";
+  let html="";
+  if(moves.length){
+    html += '<div class="section">'+
+      '<div class="section-head">'+(n?'1. ':'')+'Préparation</div>'+
+      moves.map(k=>moveCard(k)).join("")+
+    '</div>';
+  }
+  if(ramp.length){
+    const work = sg.kg!=null ? frNum(sg.kg)+" kg" : "une assistance de "+frNum(sg.assist)+" kg";
+    html += '<div class="section">'+
+      '<div class="section-head">'+(n?'2. ':'')+'Séries de montée</div>'+
+      '<div class="group">'+ramp.map(r=>
+        '<div class="row"><div class="row-main"><div class="row-title">'+r.text+'</div></div><div class="row-value">× '+r.reps+per+'</div></div>').join("")+
+      '</div>'+
+      '<div class="section-foot">Hors appli, environ 1 min de repos entre elles. Ensuite, toutes tes séries à '+work+'.</div>'+
+    '</div>';
+  }
+  return html;
+}
+function renderPrep(){
+  const ex=EX[state.exIndex];
+  screenEl.innerHTML =
+    '<div class="scroll anim-in">'+
+      '<h1 class="title1">'+ex.name+'</h1>'+
+      '<div class="subtitle">Avant ta 1re série</div>'+
+      prepHtml(ex)+
+    '</div>'+
+    '<div class="bottom-bar"><div class="bar-row">'+
+      '<button class="btn" data-act="prep-done">Aller à la 1re série</button>'+
+    '</div></div>';
 }
 function ringHTML(prefix, secs){
   // prefix: "rec", "hold" ou "st" (étirements)
@@ -2214,6 +2233,7 @@ document.addEventListener("click",(ev)=>{
     case "leave": leaveSession(); break;
     case "warmup-done": warmupDone("done"); break;
     case "warmup-skip": warmupDone("skipped"); break;
+    case "prep-done": goEffort(); break;
     case "stretch-start": stretchStart(); break;
     case "stretch-skip": stretchDone("skipped"); break;
   }

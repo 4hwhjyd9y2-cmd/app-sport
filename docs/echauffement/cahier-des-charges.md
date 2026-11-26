@@ -52,8 +52,8 @@ Version du 18/11/2026, mise à jour le 26/11/2026 (semaine en 3 séances : lundi
   - **2. Dead bug, 8 par côté, lentement** : « Allongé sur le dos, bas du dos plaqué au sol, bras tendus vers le plafond, genoux pliés à 90° au-dessus des hanches. Tends lentement un bras et la jambe opposée sans que le bas du dos décolle, reviens, change de côté. » ;
   - barre du bas : « Passer » (petit, à gauche) et « C'est fait » (principal).
 - **Ce que je peux faire** :
-  - « C'est fait » : enregistre l'échauffement comme fait et ouvre l'écran d'effort du 1er exercice ;
-  - « Passer » : enregistre l'échauffement comme passé et ouvre l'écran d'effort du 1er exercice ;
+  - « C'est fait » : enregistre l'échauffement comme fait et ouvre le 1er exercice (sa page Préparation s'il en a une, sinon son écran d'effort) ;
+  - « Passer » : enregistre l'échauffement comme passé et ouvre le 1er exercice de la même façon ;
   - « Accueil » : revient à l'accueil, la séance reste en cours et se reprend sur cet écran.
 - **Règles** : pas de chrono pour le rameur, son propre écran affiche le temps. Le chrono global de séance démarre dès cet écran, comme aujourd'hui au lancement.
 - **Technique** :
@@ -62,11 +62,11 @@ Version du 18/11/2026, mise à jour le 26/11/2026 (semaine en 3 séances : lundi
   - champ facultatif `phase` de la séance en cours enregistrée (`TEMPO_S_ACTIVE_<prog>`) : `"warmup"` ou `"stretch"`. Sans ce champ, la reprise fonctionne comme aujourd'hui ;
   - un indicateur `warmup:true` sur les programmes C, A et B dans `PROGRAMS`.
 
-### 4.2 Séries de montée sur l'écran d'effort (modifié)
+### 4.2 Séries de montée, sur la page Préparation (modifié le 26/11/2026)
 
 - **Usage** : avant un exercice chargé, je veux savoir quelles séries de montée faire et à quelle charge.
-- **Quand** : sur l'écran d'effort de la **1re série** des exercices listés ci-dessous, et seulement eux.
-- **Contenu** : une section « Séries de montée », placée juste sous le bloc des repères (réps, charge, repos), avec une ligne par série de montée, puis une note : « Hors appli, environ 1 min de repos entre elles. Ensuite, toutes tes séries à {charge du jour}. »
+- **Quand** : sur la page Préparation, juste avant l'écran d'effort de la **1re série** des exercices listés ci-dessous, et seulement eux (voir 4.3 pour la page).
+- **Contenu** : une section « Séries de montée » (« 2. Séries de montée » si la page a aussi une préparation), avec une ligne par série de montée, puis une note : « Hors appli, environ 1 min de repos entre elles. Ensuite, toutes tes séries à {charge du jour}. »
 - **Exercices concernés et séries de montée** :
 
 | Séance | Exercice (id) | Séries de montée |
@@ -94,8 +94,9 @@ Version du 18/11/2026, mise à jour le 26/11/2026 (semaine en 3 séances : lundi
 ### 4.3 Préparation juste avant l'exercice (modifié le 18/11/2026)
 
 - **Usage** : juste avant un exercice qui sollicite une articulation sensible, je veux savoir quelle préparation faire.
-- **Quand** : sur l'écran d'effort de la **1re série** de l'exercice préparé, avant ses séries de montée. Un temps dédié : les repos restent pour récupérer.
-- **Contenu** : une section « Préparation, avant cet exercice », une ligne par mouvement (nom et dose, avec une courte explication dessous), placée au-dessus de la section « Séries de montée ».
+- **Quand** : sur une **page Préparation à part**, ouverte en arrivant sur un exercice qui a une préparation ou des séries de montée, avant l'écran d'effort de sa 1re série. Un temps dédié : les repos restent pour récupérer.
+- **Page Préparation** : barre du haut « Préparation » (chrono de séance, pas de numéro de série) ; titre : nom de l'exercice, sous-titre « Avant ta 1re série » ; section « 1. Préparation » (une carte par mouvement : nom, dose, « Comment faire » à déplier), puis section « 2. Séries de montée » (sans numéros si une seule des deux existe) ; un seul bouton, « Aller à la 1re série », qui ouvre l'écran d'effort. Rien n'est enregistré. « Accueil » : la séance reprend sur cette page. L'écran de repos qui précède annonce « {exercice} · préparation » dans « À suivre ».
+- **Écran d'effort** : plus ni préparation ni séries de montée, seulement les repères, le niveau et la fiche technique.
 - **Préparations** :
 
 | Séance | Exercice préparé | Mouvements | Durée |
@@ -169,7 +170,7 @@ Version du 18/11/2026, mise à jour le 26/11/2026 (semaine en 3 séances : lundi
 8. Séance Maison : « Commencer » → effort directement ; dernière série → fin directement ; aucun champ `warmup` ni `stretch`.
 9. Reprise : séance quittée en phase `warmup` → reprend sur l'écran Échauffement ; en phase `stretch` → reprend sur l'écran Étirements.
 10. Export : séance avec `warmup:"done"` et `stretch:"skipped"` → ligne « Échauffement : fait · Étirements : passés » ; séance sans ces champs → export identique à l'actuel.
-11. Préparation : affichée à la 1re série de l'exercice préparé seulement, jamais sur les écrans de repos.
+11. Préparation : sur sa propre page, avant la 1re série de l'exercice seulement ; jamais sur l'écran d'effort ni sur les écrans de repos ; reprise sur cette page après « Accueil ».
 12. Rendu sans erreur des nouveaux écrans (Échauffement, Étirements, chaque étape) dans le faux navigateur de `tools/check.js`.
 
 ## 7. Critères d'acceptation
@@ -208,3 +209,4 @@ Version du 18/11/2026, mise à jour le 26/11/2026 (semaine en 3 séances : lundi
 - 25/11/2026 : chaque mouvement d'échauffement et d'étirement (dead bug, Y-T-W, tractions scapulaires, dips scapulaires, poignets, glissés au mur, ischios, fléchisseurs de hanche) a une fiche au même format que les exercices (placement, mouvement, où le sentir, à éviter) et des dessins de la position de départ et d'arrivée, toujours visibles ; la fiche se déplie avec « Comment faire ». Données : `MOVES` (fiches) et `FIGS` (dessins), même clé ; le champ `prep` d'un exercice liste des clés de `MOVES`.
 - 25/11/2026 : dessins retirés (bonhommes jugés trop sommaires, pas d'illustration réaliste possible) ; les fiches restent, ouvertes d'emblée à l'échauffement et aux étirements, à déplier dans les préparations. `FIGS` supprimé.
 - 26/11/2026 : semaine en 3 séances (lundi haut du corps, mardi jambes et abdos, jeudi corps entier). Les exercices partagés entre séances (tractions, dips, rowing aux anneaux, L-sit, suspension) gardent leur `ramp` et leur `prep`, qui s'affichent donc dans chaque séance où ils sont. Plus de préparation au L-sit : il suit les dips, qui préparent déjà poignets et épaules. Développé couché du lundi : une seule série de montée (75 % × 4), il suit les tractions et les dips ; Y-T-W gardé avant les dips. Soulevé de terre roumain : 50 % × 8.
+- 26/11/2026 : préparation et séries de montée sur une page à part (« Préparation »), avant l'écran d'effort de la 1re série, à la demande de l'utilisateur : l'écran d'exercice ne montre plus que la série à faire.
