@@ -228,6 +228,8 @@
   .lasttime{ margin-top:10px; text-align:center; font-size:.824rem; color:var(--mute); padding:0 12px; }
   .lasttime b{ color:var(--ink); font-weight:600; }
   .lasttime.up{ color:var(--rest); }
+  .effort-note{ margin-top:10px; font-size:.824rem; color:var(--mute); line-height:1.4; padding:0 2px; }
+  .effort-note b{ color:var(--ink); font-weight:600; }
   .nudge{ margin-top:6px; text-align:center; font-size:.824rem; color:var(--rest); font-weight:500; padding:0 12px; }
   .nudge:empty{ display:none; }
 
@@ -313,7 +315,7 @@
 <script>
 "use strict";
 
-/* ============ ÉCHAUFFEMENT ET ÉTIREMENTS (séances A et B) ============ */
+/* ============ ÉCHAUFFEMENT ET ÉTIREMENTS (séances en salle) ============ */
 /* Mouvements d'échauffement et d'étirement : chacun a sa fiche (même format que les exercices)
    Le champ prep d'un exercice liste des clés de MOVES. */
 const MOVES = {
@@ -640,44 +642,15 @@ const EX_MAISON = [
     ] },
 ];
 
-/* ============ SÉANCE A · MARDI ============ */
-const EX_A = [
-  { id:101, name:"Presse à cuisses", short:"Presse à cuisses", muscle:"Cuisses · Fessiers",
-    gymDep:true, ramp:[{ pct:50, reps:8 }, { pct:75, reps:4 }],
-    type:"machine", sets:4, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:40, kgStep:5,
-    levels:["Squat gobelet (haltère)","Presse à cuisses"], lvl0:1,
-    techByLevel:[
-      { place:"Debout, pieds largeur des épaules, un haltère tenu à la verticale contre la poitrine, les deux mains sous la tête de l'haltère. Coudes serrés vers l'intérieur.",
-        move:"Descends en poussant les fesses vers l'arrière et en pliant les genoux, jusqu'à ce que les cuisses arrivent à l'horizontale. Buste droit, talons au sol. Pousse dans les talons pour remonter.",
-        feel:"Avant des cuisses et fessiers.",
-        avoid:"Talons qui décollent; buste qui bascule en avant; genoux qui rentrent vers l'intérieur; arrondir le bas du dos en bas",
-        note:"Choisis gobelet OU presse et garde le même pendant plusieurs semaines : c'est ce qui rend ta progression comparable d'une séance à l'autre." },
-      { place:"Assis dans la presse, dos et bassin bien calés contre le dossier, pieds à plat sur la plateforme, largeur des épaules, à mi-hauteur.",
-        move:"Descends en pliant les genoux jusqu'à environ 90°, sans que le bas du dos décolle du dossier, puis pousse dans les talons sans verrouiller les genoux d'un coup en haut.",
-        feel:"Avant des cuisses et fessiers.",
-        avoid:"Descendre si bas que le bassin s'enroule et décolle du dossier; verrouiller les genoux violemment en haut; talons qui décollent de la plateforme",
-        note:"Choisis gobelet OU presse et garde le même pendant plusieurs semaines : c'est ce qui rend ta progression comparable d'une séance à l'autre." }
-    ] },
+/* ============ EXERCICES COMMUNS À PLUSIEURS SÉANCES ============ */
+/* Même id dans chaque séance : historique, charge proposée et niveau sont partagés.
+   Chaque séance en prend une copie (like), avec ses propres réglages (séries, rappel). */
+const like = (base, over)=> Object.assign({}, base, over || {});
+/* Jusqu'à cette date incluse, le jeudi, dips et tractions se font 2 à 3 répétitions avant
+   l'échec : les coudes s'habituent à les faire deux fois par semaine (depuis le 30/11/2026). */
+const EASY_UNTIL = "2026-12-17";
 
-  { id:107, name:"Hip thrust (banc + barre)", short:"Hip thrust", muscle:"Fessiers · Ischios",
-    type:"machine", sets:3, target:"10–12 réps", lo:10, hi:12, rest:90, startKg:20, kgStep:2.5,
-    tech:{ place:"Assis au sol, le haut du dos calé contre le bord d'un banc plat (juste sous les omoplates). Fais rouler la barre chargée par-dessus les jambes jusqu'au pli des hanches, avec une mousse ou une serviette pliée autour de la barre pour protéger le bassin. Pieds à plat au sol largeur des hanches, genoux pliés, mains sur la barre de chaque côté pour la tenir en place.",
-      move:"Pousse dans les talons et serre les fessiers pour monter le bassin jusqu'à aligner épaules, hanches et genoux. Marque 1 seconde en haut, puis redescends lentement.",
-      feel:"Les fessiers, franchement. C'est ton pont de la maison, en version chargée. Si tu sens surtout l'arrière des cuisses, rapproche un peu les pieds des fesses.",
-      avoid:"Cambrer le bas du dos pour monter plus haut (c'est la fesse qui monte le bassin, pas le dos); menton qui part en arrière; rebondir en bas; barre qui roule vers le ventre",
-      note:"Le poids saisi est le poids total : barre comprise, plus les disques." } },
-
-  { id:103, name:"Développé couché aux haltères", short:"Développé couché", muscle:"Poitrine · Triceps",
-    ramp:[{ pct:50, reps:8 }, { pct:75, reps:4 }],
-    prep:["ytw"],
-    type:"machine", sets:4, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:8, kgStep:2.5,
-    tech:{ place:"Allongé sur un banc plat, pieds à plat au sol, fesses collées au banc. Serre les omoplates et tire-les vers les fesses, puis garde-les plaquées dans le banc jusqu'à la dernière répétition. Un haltère dans chaque main au niveau du bas de la poitrine, paumes tournées un peu l'une vers l'autre (environ 45°).",
-      move:"Pousse les haltères au-dessus de la poitrine, coudes à environ 45° du corps et avant-bras verticaux. Arrête-toi en haut juste avant que les omoplates décollent du banc, sans tendre les bras à fond. Redescends en 2 à 3 s jusqu'au bas de la poitrine, pas plus bas.",
-      feel:"Poitrine, puis arrière des bras. Si ce sont surtout les épaules qui poussent, les omoplates ont lâché ou les coudes se sont ouverts.",
-      avoid:"Épaules qui montent vers le plafond en haut de la poussée; coudes qui s'ouvrent à 90° du corps en fin de série; haltères qui descendent vers le cou ou remontent au-dessus des yeux; décoller les fesses ou creuser le bas du dos pour finir la poussée",
-      note:"La série s'arrête dès que les épaules prennent le relais des pectoraux, ou que le creux du bas du dos grandit : cette répétition ne compte pas. Une douleur ou un pincement à l'avant de l'épaule, ce n'est pas de la fatigue : arrête l'exercice. Le poids saisi est celui d'UN haltère." } },
-
-  { id:104, name:"Tractions assistées", short:"Tractions assistées", muscle:"Dos · Bras",
+const TRACTIONS = { id:104, name:"Tractions assistées", short:"Tractions assistées", muscle:"Dos · Bras",
     gymDep:true, ramp:[{ assistPlus:10, reps:4 }],
     prep:["scapPull"],
     type:"reps", sets:4, target:"4–6 réps", lo:4, hi:6, rest:120, assistLevels:[0], startAssist:15, assistStep:2.5,
@@ -708,10 +681,65 @@ const EX_A = [
         move:"Baisse les épaules, tire jusqu'à passer le menton au-dessus de la barre, puis redescends lentement jusqu'aux bras tendus.",
         feel:"Côtés du dos et avant des bras.",
         avoid:"Se balancer pour s'aider; demi-amplitude; lâcher la descente d'un coup" }
-    ] },
+    ] };
 
-  { id:115, name:"L-sit", short:"L-sit", muscle:"Compression · Triceps · Épaules",
-    prep:["wrists", "scapDip"],
+const DIPS = { id:202, name:"Dips assistés", short:"Dips assistés", muscle:"Poitrine · Triceps",
+    gymDep:true, ramp:[{ assistPlus:10, reps:4 }],
+    prep:["ytw", "wrists", "scapDip"],
+    type:"pushup", sets:4, target:"6–10 réps", lo:6, hi:10, rest:120, assistLevels:[2], startAssist:25, assistStep:2.5,
+    levels:["Pompes au sol, complètes","Pompes en déficit (mains sur haltères)","Dips à la machine assistée","Dips à l'élastique","Dips complets"], lvl0:2,
+    techByLevel:[
+      { place:"Mains un peu plus larges que les épaules, sous la poitrine. Corps tendu d'un seul bloc.",
+        move:"Descends lentement, coudes légèrement vers l'arrière, jusqu'à frôler le sol, puis pousse pour remonter. Quand tu ne remontes plus proprement, finis la série en descentes lentes.",
+        feel:"Poitrine et arrière des bras.",
+        avoid:"Bassin qui tombe ou qui pointe en l'air; coudes grands ouverts; demi-amplitude" },
+      { place:"Une main sur chaque haltère hexagonal posé au sol, sous la poitrine, poignées parallèles. Corps tendu d'un seul bloc.",
+        move:"Descends lentement jusqu'à ce que la poitrine passe sous le niveau des mains, c'est ça le déficit, puis pousse pour remonter.",
+        feel:"Poitrine, plus étirée en bas qu'en pompe classique, et arrière des bras.",
+        avoid:"Haltères qui roulent (prends des hexagonaux); bassin qui tombe; couper l'amplitude basse, qui est justement l'intérêt du déficit",
+        note:"C'est la suite logique de tes pompes à la maison : même mouvement, amplitude augmentée, sans plafond de charge." },
+      { place:"Genoux ou pieds sur le coussin de la machine à dips assistés, mains sur les poignées, bras tendus, buste légèrement penché en avant.",
+        move:"Descends en pliant les coudes jusqu'à ce que les épaules arrivent au niveau des coudes, environ 90°, puis pousse pour remonter sans verrouiller violemment.",
+        feel:"Poitrine et arrière des bras.",
+        avoid:"Descendre au point de sentir tirer l'avant de l'épaule; hausser les épaules vers les oreilles; rebondir en bas" },
+      { place:"Élastique tendu entre les deux barres parallèles, genoux posés dessus. Mains sur les barres, bras tendus, corps gainé.",
+        move:"Descends en pliant les coudes jusqu'à environ 90°, puis pousse pour remonter en contrôlant.",
+        feel:"Poitrine et arrière des bras, avec une aide dégressive de l'élastique.",
+        avoid:"Se balancer sur l'élastique; descendre trop bas; hausser les épaules" },
+      { place:"Suspendu aux barres parallèles, bras tendus, corps gainé, jambes légèrement croisées.",
+        move:"Descends en pliant les coudes jusqu'à environ 90°, buste légèrement penché en avant, puis pousse pour remonter.",
+        feel:"Poitrine et arrière des bras.",
+        avoid:"Descendre au-delà de 90° si tu sens tirer l'avant de l'épaule; se balancer; hausser les épaules" }
+    ] };
+
+const ROWING = { id:204, name:"Tractions australiennes aux anneaux", short:"Tractions australiennes", muscle:"Milieu du dos",
+    type:"reps", sets:4, target:"8–12 réps", lo:8, hi:12, rest:120,
+    levels:["Anneaux hauts, corps très incliné","Anneaux à hauteur des hanches","Anneaux bas, corps proche de l'horizontale","Pieds surélevés sur un banc","Pause de 2 s en haut"], lvl0:1,
+    techByLevel:[
+      { place:"Anneaux réglés à hauteur de poitrine quand tu es debout, les deux sangles exactement à la même longueur. Attrape-les paumes face à face, avance les pieds pour incliner le corps, talons au sol, bras tendus, corps en ligne droite.",
+        move:"Serre d'abord les omoplates, puis tire les anneaux vers le bas de la poitrine, coudes près du corps. Redescends lentement jusqu'aux bras tendus.",
+        feel:"Milieu du dos, entre les omoplates.",
+        avoid:"Bassin qui tombe; tirer seulement avec les bras; anneaux qui s'écartent; demi-amplitude" },
+      { place:"Anneaux à hauteur des hanches, sangles à la même longueur. Corps sous les anneaux, paumes face à face, talons au sol, bras tendus, corps en ligne droite des talons à la tête : fessiers et ventre serrés.",
+        move:"Serre d'abord les omoplates, puis tire jusqu'à amener les anneaux au bas de la poitrine, coudes près du corps à environ 45°. Redescends lentement jusqu'aux bras tendus, sans laisser les épaules remonter vers les oreilles.",
+        feel:"Milieu du dos, entre les omoplates, et avant des bras.",
+        avoid:"Bassin qui tombe ou dos qui se creuse (serre fessiers et ventre comme au hollow body); anneaux qui s'écartent ou partent en avant; menton tendu vers les anneaux; demi-amplitude",
+        note:"Les anneaux bougent : c'est plus dur qu'à la barre, et les épaules travaillent plus pour stabiliser. Pour comparer d'une séance à l'autre, repère où tu poses les talons (un carreau, une ligne au sol), surtout si tu changes de salle." },
+      { place:"Anneaux réglés bas. Corps allongé sous les anneaux, presque horizontal, talons au sol, corps gainé d'un bloc.",
+        move:"Serre les omoplates, puis tire jusqu'à amener les anneaux contre le bas de la poitrine. Redescends lentement jusqu'aux bras tendus.",
+        feel:"Milieu du dos, plus intensément à cause de l'angle proche de l'horizontale.",
+        avoid:"Bassin qui tombe; se cambrer pour arriver plus haut; anneaux qui s'écartent; demi-amplitude" },
+      { place:"Anneaux bas, talons posés sur un banc pour que le corps soit horizontal. Paumes face à face, bras tendus.",
+        move:"Serre les omoplates, tire les anneaux jusqu'au bas de la poitrine, puis redescends lentement.",
+        feel:"Milieu du dos, avec un gainage plus fort pour tenir le corps aligné.",
+        avoid:"Bassin qui tombe; banc instable; demi-amplitude" },
+      { place:"Même installation que les anneaux bas ou pieds surélevés, corps gainé d'un bloc.",
+        move:"Tire les anneaux contre le bas de la poitrine, tiens 2 secondes en serrant les omoplates, puis redescends lentement.",
+        feel:"Milieu du dos, avec une contraction très marquée pendant la pause.",
+        avoid:"Relâcher pendant la pause; anneaux qui s'écartent pendant la tenue; bassin qui tombe" }
+    ] };
+
+const LSIT = { id:115, name:"L-sit", short:"L-sit", muscle:"Compression · Triceps · Épaules",
     type:"hold", sets:3, target:"tenue 25 s", hold:25, rest:90,
     levels:["Fesses décollées, pieds au sol","Un pied levé en alternance","Tuck (deux genoux groupés)","Tuck + une jambe à moitié tendue en alternance","Tuck + une jambe tendue en alternance","L-sit complet"], lvl0:3,
     techByLevel:[
@@ -742,6 +770,98 @@ const EX_A = [
         move:"Les deux jambes tendues et serrées, à l'horizontale devant toi. Pointes de pieds tendues, tiens la position.",
         feel:"Tout le ventre, l'avant des hanches, l'arrière des bras.",
         avoid:"Genoux qui se plient; jambes qui tombent sous l'horizontale; épaules qui remontent" }
+    ] };
+
+const SUSPENSION = { id:112, name:"Suspension à la barre", short:"Suspension à la barre", muscle:"Prise · Avant-bras · Épaules",
+    type:"hold", sets:2, target:"tenue 40 s", hold:40, rest:60,
+    tech:{ place:"Suspendu à la barre de traction, mains en pronation (paumes vers l'avant) largeur d'épaules, pouces enroulés autour de la barre, bras tendus, pieds dans le vide.",
+      move:"Engage les épaules : tire-les un peu vers le bas, sans plier les coudes, et garde-les engagées toute la tenue. C'est la position de départ des relevés suspendus. Tiens aussi longtemps que possible, puis arrête le chrono quand tu lâches.",
+      feel:"Les mains et les avant-bras surtout, plus le bas des épaules et le haut du dos qui tiennent la position.",
+      avoid:"Épaules complètement relâchées dans les oreilles; se balancer; bloquer la respiration",
+      note:"Les relevés suspendus reviendront quand tu tiendras 40 s sur les deux séries à chaque séance, et 3 × 12 jambes tendues à la chaise sans creuser le dos." } };
+
+/* ============ LUNDI · HAUT DU CORPS (programme C) ============ */
+const EX_C = [
+  like(TRACTIONS),
+  like(DIPS),
+
+  { id:103, name:"Développé couché aux haltères", short:"Développé couché", muscle:"Poitrine · Triceps",
+    ramp:[{ pct:75, reps:4 }],
+    type:"machine", sets:3, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:8, kgStep:2.5,
+    tech:{ place:"Allongé sur un banc plat, pieds à plat au sol, fesses collées au banc. Serre les omoplates et tire-les vers les fesses, puis garde-les plaquées dans le banc jusqu'à la dernière répétition. Un haltère dans chaque main au niveau du bas de la poitrine, paumes tournées un peu l'une vers l'autre (environ 45°).",
+      move:"Pousse les haltères au-dessus de la poitrine, coudes à environ 45° du corps et avant-bras verticaux. Arrête-toi en haut juste avant que les omoplates décollent du banc, sans tendre les bras à fond. Redescends en 2 à 3 s jusqu'au bas de la poitrine, pas plus bas.",
+      feel:"Poitrine, puis arrière des bras. Si ce sont surtout les épaules qui poussent, les omoplates ont lâché ou les coudes se sont ouverts.",
+      avoid:"Épaules qui montent vers le plafond en haut de la poussée; coudes qui s'ouvrent à 90° du corps en fin de série; haltères qui descendent vers le cou ou remontent au-dessus des yeux; décoller les fesses ou creuser le bas du dos pour finir la poussée",
+      note:"La série s'arrête dès que les épaules prennent le relais des pectoraux, ou que le creux du bas du dos grandit : cette répétition ne compte pas. Une douleur ou un pincement à l'avant de l'épaule, ce n'est pas de la fatigue : arrête l'exercice. Le poids saisi est celui d'UN haltère." } },
+
+  like(ROWING, { sets:3 }),
+
+  { id:301, name:"Élévations latérales aux haltères", short:"Élévations latérales", muscle:"Épaules (côtés)",
+    type:"machine", sets:3, target:"12–15 réps", lo:12, hi:15, rest:60, startKg:4, kgStep:1,
+    tech:{ place:"Debout, pieds largeur des hanches, un haltère léger dans chaque main le long du corps. Buste très légèrement penché en avant, coudes un peu pliés, épaules basses.",
+      move:"Écarte les bras sur les côtés jusqu'à hauteur des épaules, en menant le mouvement avec les coudes. Marque un court arrêt en haut, puis redescends lentement en 2 à 3 s, sans laisser tomber les haltères.",
+      feel:"Le côté des épaules. Si tu sens surtout le haut des trapèzes, près du cou, tes épaules montent vers les oreilles : baisse-les et allège.",
+      avoid:"Hausser les épaules vers les oreilles; balancer le buste pour lancer les haltères; monter les mains plus haut que les épaules; poignets plus hauts que les coudes",
+      note:"C'est un petit muscle : charge légère et mouvement propre, la brûlure arrive vite. Le poids saisi est celui d'UN haltère." } },
+
+  like(LSIT),
+  like(SUSPENSION),
+];
+
+/* ============ MARDI · JAMBES ET ABDOS (programme A) ============ */
+const EX_A = [
+  { id:101, name:"Presse à cuisses", short:"Presse à cuisses", muscle:"Cuisses · Fessiers",
+    gymDep:true, ramp:[{ pct:50, reps:8 }, { pct:75, reps:4 }],
+    type:"machine", sets:4, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:40, kgStep:5,
+    levels:["Squat gobelet (haltère)","Presse à cuisses"], lvl0:1,
+    techByLevel:[
+      { place:"Debout, pieds largeur des épaules, un haltère tenu à la verticale contre la poitrine, les deux mains sous la tête de l'haltère. Coudes serrés vers l'intérieur.",
+        move:"Descends en poussant les fesses vers l'arrière et en pliant les genoux, jusqu'à ce que les cuisses arrivent à l'horizontale. Buste droit, talons au sol. Pousse dans les talons pour remonter.",
+        feel:"Avant des cuisses et fessiers.",
+        avoid:"Talons qui décollent; buste qui bascule en avant; genoux qui rentrent vers l'intérieur; arrondir le bas du dos en bas",
+        note:"Choisis gobelet OU presse et garde le même pendant plusieurs semaines : c'est ce qui rend ta progression comparable d'une séance à l'autre." },
+      { place:"Assis dans la presse, dos et bassin bien calés contre le dossier, pieds à plat sur la plateforme, largeur des épaules, à mi-hauteur.",
+        move:"Descends en pliant les genoux jusqu'à environ 90°, sans que le bas du dos décolle du dossier, puis pousse dans les talons sans verrouiller les genoux d'un coup en haut.",
+        feel:"Avant des cuisses et fessiers.",
+        avoid:"Descendre si bas que le bassin s'enroule et décolle du dossier; verrouiller les genoux violemment en haut; talons qui décollent de la plateforme",
+        note:"Choisis gobelet OU presse et garde le même pendant plusieurs semaines : c'est ce qui rend ta progression comparable d'une séance à l'autre." }
+    ] },
+
+  { id:116, name:"Soulevé de terre roumain aux haltères", short:"Soulevé de terre roumain", muscle:"Ischios · Fessiers",
+    ramp:[{ pct:50, reps:8 }],
+    type:"machine", sets:3, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:10, kgStep:2,
+    tech:{ place:"Debout, pieds largeur des hanches, un haltère dans chaque main devant les cuisses, paumes vers toi. Genoux légèrement pliés, et ils le restent toute la série. Omoplates serrées, ventre gainé.",
+      move:"Pousse les fesses vers l'arrière en gardant le dos plat : le buste se penche et les haltères glissent le long des cuisses, puis des tibias. Descends jusqu'à sentir l'arrière des cuisses tirer fort, souvent vers le milieu des tibias, puis remonte en poussant les hanches vers l'avant et en serrant les fesses.",
+      feel:"L'arrière des cuisses, qui s'étire à la descente, puis les fesses en remontant. Pas le bas du dos.",
+      avoid:"Arrondir le dos pour descendre plus bas; plier les genoux comme pour un squat; haltères qui s'éloignent des jambes; creuser le bas du dos ou pencher le buste en arrière en haut (finis debout, fesses serrées)",
+      note:"Descends seulement tant que ton dos reste plat : l'amplitude viendra avec la souplesse des ischios. Si tu sens le bas du dos plutôt que l'arrière des cuisses, allège. Le poids saisi est celui d'UN haltère." } },
+
+  { id:107, name:"Hip thrust (banc + barre)", short:"Hip thrust", muscle:"Fessiers · Ischios",
+    type:"machine", sets:3, target:"10–12 réps", lo:10, hi:12, rest:90, startKg:20, kgStep:2.5,
+    tech:{ place:"Assis au sol, le haut du dos calé contre le bord d'un banc plat (juste sous les omoplates). Fais rouler la barre chargée par-dessus les jambes jusqu'au pli des hanches, avec une mousse ou une serviette pliée autour de la barre pour protéger le bassin. Pieds à plat au sol largeur des hanches, genoux pliés, mains sur la barre de chaque côté pour la tenir en place.",
+      move:"Pousse dans les talons et serre les fessiers pour monter le bassin jusqu'à aligner épaules, hanches et genoux. Marque 1 seconde en haut, puis redescends lentement.",
+      feel:"Les fessiers, franchement. C'est ton pont de la maison, en version chargée. Si tu sens surtout l'arrière des cuisses, rapproche un peu les pieds des fesses.",
+      avoid:"Cambrer le bas du dos pour monter plus haut (c'est la fesse qui monte le bassin, pas le dos); menton qui part en arrière; rebondir en bas; barre qui roule vers le ventre",
+      note:"Le poids saisi est le poids total : barre comprise, plus les disques." } },
+
+  { id:208, name:"Mollets debout", short:"Mollets debout", muscle:"Mollets",
+    gymDep:true, type:"machine", sets:4, target:"15–20 réps", lo:15, hi:20, rest:45, kgStep:5, startKg:50,
+    levels:["À la presse à cuisses (pointes sur le bord de la plateforme)","À la machine mollets debout","Une jambe, un haltère à la main"], lvl0:0,
+    techByLevel:[
+      { place:"Assis dans la presse à cuisses, charge légère, seules les pointes de pieds posées sur le bas de la plateforme, talons dans le vide. Genoux presque tendus mais pas verrouillés.",
+        move:"Pousse la plateforme en tendant les chevilles au maximum, marque 1 seconde en haut, puis laisse les talons redescendre lentement jusqu'à sentir l'étirement.",
+        feel:"Les mollets, avec un étirement net en bas.",
+        avoid:"Plier les genoux pour pousser avec les cuisses; rebondir sans marquer la pause; charge trop lourde qui coupe l'amplitude" },
+      { place:"Debout à la machine mollets, épaules sous les coussins, pointes de pieds sur le repose-pied, talons dans le vide, jambes tendues sans verrouiller.",
+        move:"Monte au maximum sur les pointes, marque 1 seconde en haut, puis descends lentement jusqu'à ce que les talons passent sous le niveau du repose-pied.",
+        feel:"Les mollets, sur toute l'amplitude.",
+        avoid:"Rebondir en bas au lieu de contrôler; plier les genoux; amplitude incomplète en haut",
+        note:"C'est ton exercice de la maison, avec de la charge : tu peux enfin continuer à progresser au-delà du poids du corps." },
+      { place:"Debout sur une jambe, pointe du pied sur le bord d'une marche ou d'un step, talon dans le vide. Un haltère dans la main du même côté, l'autre main sur un appui pour l'équilibre.",
+        move:"Monte au maximum sur la pointe, pause 1 seconde en haut, puis laisse le talon redescendre lentement sous le niveau de la marche.",
+        feel:"Le mollet de la jambe qui travaille, avec un étirement profond en bas.",
+        avoid:"Descendre le talon trop vite; perdre l'équilibre; amplitude incomplète en haut",
+        note:"Le poids saisi est celui de l'haltère, et les répétitions sont par jambe." }
     ] },
 
   { id:111, name:"Relevés de jambes à la chaise romaine", short:"Relevés de jambes (chaise)", muscle:"Bas-abdos · Compression",
@@ -773,100 +893,6 @@ const EX_A = [
         avoid:"Haltère trop lourd qui t'oblige à balancer; plier les genoux; laisser retomber les jambes" }
     ] },
 
-  { id:112, name:"Suspension à la barre", short:"Suspension à la barre", muscle:"Prise · Avant-bras · Épaules",
-    type:"hold", sets:2, target:"tenue 40 s", hold:40, rest:60,
-    tech:{ place:"Suspendu à la barre de traction, mains en pronation (paumes vers l'avant) largeur d'épaules, pouces enroulés autour de la barre, bras tendus, pieds dans le vide.",
-      move:"Engage les épaules : tire-les un peu vers le bas, sans plier les coudes, et garde-les engagées toute la tenue. C'est la position de départ des relevés suspendus. Tiens aussi longtemps que possible, puis arrête le chrono quand tu lâches.",
-      feel:"Les mains et les avant-bras surtout, plus le bas des épaules et le haut du dos qui tiennent la position.",
-      avoid:"Épaules complètement relâchées dans les oreilles; se balancer; bloquer la respiration",
-      note:"Les relevés suspendus reviendront quand tu tiendras 40 s sur les deux séries à chaque séance, et 3 × 12 jambes tendues à la chaise sans creuser le dos." } },
-];
-
-/* ============ SÉANCE B · JEUDI ============ */
-const EX_B = [
-  { id:201, name:"Fentes bulgares aux haltères", short:"Fentes bulgares", muscle:"Cuisses · Fessiers",
-    ramp:[{ bodyweight:true, reps:6 }],
-    type:"machine", sets:3, target:"8–10 réps", lo:8, hi:10, perSide:true, sideWord:"jambe", rest:90, startKg:6, kgStep:2,
-    tech:{ place:"Dos à un banc, dessus du pied arrière posé dessus, pied avant un bon pas devant, à plat. Un haltère dans chaque main, bras le long du corps, buste droit.",
-      move:"Plie le genou avant pour descendre jusqu'à ce que la cuisse avant soit à l'horizontale, puis pousse dans le talon avant pour remonter. Tout le travail se fait sur la jambe avant.",
-      feel:"Avant de la cuisse et fessier de la jambe avant.",
-      avoid:"Genou avant qui rentre vers l'intérieur; buste trop penché en avant; prendre appui sur le pied arrière; haltères trop lourds qui déséquilibrent",
-      note:"C'est ta fente de la maison, en version chargée. Le poids saisi est celui d'UN haltère, et les répétitions sont par jambe." } },
-
-  { id:113, name:"Leg curl assis à la machine", short:"Leg curl assis", muscle:"Ischios",
-    gymDep:true, ramp:[{ pct:50, reps:8 }],
-    type:"machine", sets:3, target:"10–12 réps", lo:10, hi:12, rest:90, startKg:20, kgStep:5,
-    tech:{ place:"Assis sur la machine, dos bien calé contre le dossier, genoux alignés avec l'axe de rotation de la machine. Le rouleau du bas posé juste au-dessus des talons, le rouleau du haut bien serré sur les cuisses. Mains sur les poignées.",
-      move:"Plie les genoux pour ramener les talons sous le siège, le plus loin possible. Marque 1 seconde, puis remonte lentement en 2 à 3 secondes jusqu'aux jambes presque tendues.",
-      feel:"L'arrière des cuisses, sur toute la longueur.",
-      avoid:"Décoller les fesses du siège; remonter d'un coup en laissant tomber la charge; s'arrêter à mi-course",
-      note:"Garde toujours la même machine : les charges ne se comparent pas d'une machine à l'autre." } },
-
-  { id:202, name:"Dips assistés", short:"Dips assistés", muscle:"Poitrine · Triceps",
-    gymDep:true, ramp:[{ assistPlus:10, reps:4 }],
-    prep:["ytw", "wrists", "scapDip"],
-    type:"pushup", sets:4, target:"6–10 réps", lo:6, hi:10, rest:120, assistLevels:[2], startAssist:25, assistStep:2.5,
-    levels:["Pompes au sol, complètes","Pompes en déficit (mains sur haltères)","Dips à la machine assistée","Dips à l'élastique","Dips complets"], lvl0:2,
-    techByLevel:[
-      { place:"Mains un peu plus larges que les épaules, sous la poitrine. Corps tendu d'un seul bloc.",
-        move:"Descends lentement, coudes légèrement vers l'arrière, jusqu'à frôler le sol, puis pousse pour remonter. Quand tu ne remontes plus proprement, finis la série en descentes lentes.",
-        feel:"Poitrine et arrière des bras.",
-        avoid:"Bassin qui tombe ou qui pointe en l'air; coudes grands ouverts; demi-amplitude" },
-      { place:"Une main sur chaque haltère hexagonal posé au sol, sous la poitrine, poignées parallèles. Corps tendu d'un seul bloc.",
-        move:"Descends lentement jusqu'à ce que la poitrine passe sous le niveau des mains, c'est ça le déficit, puis pousse pour remonter.",
-        feel:"Poitrine, plus étirée en bas qu'en pompe classique, et arrière des bras.",
-        avoid:"Haltères qui roulent (prends des hexagonaux); bassin qui tombe; couper l'amplitude basse, qui est justement l'intérêt du déficit",
-        note:"C'est la suite logique de tes pompes à la maison : même mouvement, amplitude augmentée, sans plafond de charge." },
-      { place:"Genoux ou pieds sur le coussin de la machine à dips assistés, mains sur les poignées, bras tendus, buste légèrement penché en avant.",
-        move:"Descends en pliant les coudes jusqu'à ce que les épaules arrivent au niveau des coudes, environ 90°, puis pousse pour remonter sans verrouiller violemment.",
-        feel:"Poitrine et arrière des bras.",
-        avoid:"Descendre au point de sentir tirer l'avant de l'épaule; hausser les épaules vers les oreilles; rebondir en bas" },
-      { place:"Élastique tendu entre les deux barres parallèles, genoux posés dessus. Mains sur les barres, bras tendus, corps gainé.",
-        move:"Descends en pliant les coudes jusqu'à environ 90°, puis pousse pour remonter en contrôlant.",
-        feel:"Poitrine et arrière des bras, avec une aide dégressive de l'élastique.",
-        avoid:"Se balancer sur l'élastique; descendre trop bas; hausser les épaules" },
-      { place:"Suspendu aux barres parallèles, bras tendus, corps gainé, jambes légèrement croisées.",
-        move:"Descends en pliant les coudes jusqu'à environ 90°, buste légèrement penché en avant, puis pousse pour remonter.",
-        feel:"Poitrine et arrière des bras.",
-        avoid:"Descendre au-delà de 90° si tu sens tirer l'avant de l'épaule; se balancer; hausser les épaules" }
-    ] },
-
-  { id:204, name:"Tractions australiennes aux anneaux", short:"Tractions australiennes", muscle:"Milieu du dos",
-    type:"reps", sets:4, target:"8–12 réps", lo:8, hi:12, rest:120,
-    levels:["Anneaux hauts, corps très incliné","Anneaux à hauteur des hanches","Anneaux bas, corps proche de l'horizontale","Pieds surélevés sur un banc","Pause de 2 s en haut"], lvl0:1,
-    techByLevel:[
-      { place:"Anneaux réglés à hauteur de poitrine quand tu es debout, les deux sangles exactement à la même longueur. Attrape-les paumes face à face, avance les pieds pour incliner le corps, talons au sol, bras tendus, corps en ligne droite.",
-        move:"Serre d'abord les omoplates, puis tire les anneaux vers le bas de la poitrine, coudes près du corps. Redescends lentement jusqu'aux bras tendus.",
-        feel:"Milieu du dos, entre les omoplates.",
-        avoid:"Bassin qui tombe; tirer seulement avec les bras; anneaux qui s'écartent; demi-amplitude" },
-      { place:"Anneaux à hauteur des hanches, sangles à la même longueur. Corps sous les anneaux, paumes face à face, talons au sol, bras tendus, corps en ligne droite des talons à la tête : fessiers et ventre serrés.",
-        move:"Serre d'abord les omoplates, puis tire jusqu'à amener les anneaux au bas de la poitrine, coudes près du corps à environ 45°. Redescends lentement jusqu'aux bras tendus, sans laisser les épaules remonter vers les oreilles.",
-        feel:"Milieu du dos, entre les omoplates, et avant des bras.",
-        avoid:"Bassin qui tombe ou dos qui se creuse (serre fessiers et ventre comme au hollow body); anneaux qui s'écartent ou partent en avant; menton tendu vers les anneaux; demi-amplitude",
-        note:"Les anneaux bougent : c'est plus dur qu'à la barre, et les épaules travaillent plus pour stabiliser. Pour comparer d'une séance à l'autre, repère où tu poses les talons (un carreau, une ligne au sol), surtout si tu changes de salle." },
-      { place:"Anneaux réglés bas. Corps allongé sous les anneaux, presque horizontal, talons au sol, corps gainé d'un bloc.",
-        move:"Serre les omoplates, puis tire jusqu'à amener les anneaux contre le bas de la poitrine. Redescends lentement jusqu'aux bras tendus.",
-        feel:"Milieu du dos, plus intensément à cause de l'angle proche de l'horizontale.",
-        avoid:"Bassin qui tombe; se cambrer pour arriver plus haut; anneaux qui s'écartent; demi-amplitude" },
-      { place:"Anneaux bas, talons posés sur un banc pour que le corps soit horizontal. Paumes face à face, bras tendus.",
-        move:"Serre les omoplates, tire les anneaux jusqu'au bas de la poitrine, puis redescends lentement.",
-        feel:"Milieu du dos, avec un gainage plus fort pour tenir le corps aligné.",
-        avoid:"Bassin qui tombe; banc instable; demi-amplitude" },
-      { place:"Même installation que les anneaux bas ou pieds surélevés, corps gainé d'un bloc.",
-        move:"Tire les anneaux contre le bas de la poitrine, tiens 2 secondes en serrant les omoplates, puis redescends lentement.",
-        feel:"Milieu du dos, avec une contraction très marquée pendant la pause.",
-        avoid:"Relâcher pendant la pause; anneaux qui s'écartent pendant la tenue; bassin qui tombe" }
-    ] },
-
-  { id:209, name:"Développé militaire à la machine", short:"Développé militaire", muscle:"Épaules · Triceps",
-    gymDep:true, prep:["wallSlide"],
-    type:"machine", sets:3, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:7.5, kgStep:2.5,
-    tech:{ place:"Assis sur la machine, dos bien calé contre le dossier, siège réglé pour que les poignées arrivent à hauteur des épaules. Mains sur les poignées, coudes sous les mains.",
-      move:"Pousse les poignées vers le plafond jusqu'à presque tendre les bras, sans verrouiller les coudes, puis redescends lentement jusqu'à hauteur des épaules.",
-      feel:"Le dessus et l'avant des épaules, et l'arrière des bras.",
-      avoid:"Décoller le dos du dossier pour pousser plus fort; verrouiller les coudes violemment en haut; laisser retomber la charge à la descente",
-      note:"Garde toujours la même machine : les charges affichées ne se comparent pas d'une machine à l'autre, ni avec des haltères." } },
-
   { id:205, name:"Hollow body", short:"Hollow body", muscle:"Gainage profond",
     type:"hold", sets:3, target:"tenue 25 s", hold:25, rest:60,
     levels:["Genoux pliés, bras le long du corps","Genoux pliés, bras au-dessus de la tête","Une jambe tendue","Jambes tendues, bras le long du corps","Jambes tendues, bras au-dessus de la tête"], lvl0:0,
@@ -894,34 +920,63 @@ const EX_B = [
         feel:"Tout le ventre, au maximum d'intensité pour cet exercice.",
         avoid:"Bas du dos qui décolle; casser la position pour tenir plus longtemps; bloquer la respiration" }
     ] },
+];
 
-  { id:208, name:"Mollets debout", short:"Mollets debout", muscle:"Mollets",
-    gymDep:true, type:"machine", sets:4, target:"15–20 réps", lo:15, hi:20, rest:45, kgStep:5, startKg:50,
-    levels:["À la presse à cuisses (pointes sur le bord de la plateforme)","À la machine mollets debout","Une jambe, un haltère à la main"], lvl0:0,
-    techByLevel:[
-      { place:"Assis dans la presse à cuisses, charge légère, seules les pointes de pieds posées sur le bas de la plateforme, talons dans le vide. Genoux presque tendus mais pas verrouillés.",
-        move:"Pousse la plateforme en tendant les chevilles au maximum, marque 1 seconde en haut, puis laisse les talons redescendre lentement jusqu'à sentir l'étirement.",
-        feel:"Les mollets, avec un étirement net en bas.",
-        avoid:"Plier les genoux pour pousser avec les cuisses; rebondir sans marquer la pause; charge trop lourde qui coupe l'amplitude" },
-      { place:"Debout à la machine mollets, épaules sous les coussins, pointes de pieds sur le repose-pied, talons dans le vide, jambes tendues sans verrouiller.",
-        move:"Monte au maximum sur les pointes, marque 1 seconde en haut, puis descends lentement jusqu'à ce que les talons passent sous le niveau du repose-pied.",
-        feel:"Les mollets, sur toute l'amplitude.",
-        avoid:"Rebondir en bas au lieu de contrôler; plier les genoux; amplitude incomplète en haut",
-        note:"C'est ton exercice de la maison, avec de la charge : tu peux enfin continuer à progresser au-delà du poids du corps." },
-      { place:"Debout sur une jambe, pointe du pied sur le bord d'une marche ou d'un step, talon dans le vide. Un haltère dans la main du même côté, l'autre main sur un appui pour l'équilibre.",
-        move:"Monte au maximum sur la pointe, pause 1 seconde en haut, puis laisse le talon redescendre lentement sous le niveau de la marche.",
-        feel:"Le mollet de la jambe qui travaille, avec un étirement profond en bas.",
-        avoid:"Descendre le talon trop vite; perdre l'équilibre; amplitude incomplète en haut",
-        note:"Le poids saisi est celui de l'haltère, et les répétitions sont par jambe." }
-    ] },
+/* ============ JEUDI · CORPS ENTIER (programme B) ============ */
+const EX_B = [
+  like(DIPS, { sets:3, easyUntil:EASY_UNTIL }),
+  like(TRACTIONS, { sets:3, easyUntil:EASY_UNTIL }),
+
+  { id:201, name:"Fentes bulgares aux haltères", short:"Fentes bulgares", muscle:"Cuisses · Fessiers",
+    ramp:[{ bodyweight:true, reps:6 }],
+    type:"machine", sets:3, target:"8–10 réps", lo:8, hi:10, perSide:true, sideWord:"jambe", rest:90, startKg:6, kgStep:2,
+    tech:{ place:"Dos à un banc, dessus du pied arrière posé dessus, pied avant un bon pas devant, à plat. Un haltère dans chaque main, bras le long du corps, buste droit.",
+      move:"Plie le genou avant pour descendre jusqu'à ce que la cuisse avant soit à l'horizontale, puis pousse dans le talon avant pour remonter. Tout le travail se fait sur la jambe avant.",
+      feel:"Avant de la cuisse et fessier de la jambe avant.",
+      avoid:"Genou avant qui rentre vers l'intérieur; buste trop penché en avant; prendre appui sur le pied arrière; haltères trop lourds qui déséquilibrent",
+      note:"C'est ta fente de la maison, en version chargée. Le poids saisi est celui d'UN haltère, et les répétitions sont par jambe." } },
+
+  { id:113, name:"Leg curl assis à la machine", short:"Leg curl assis", muscle:"Ischios",
+    gymDep:true, ramp:[{ pct:50, reps:8 }],
+    type:"machine", sets:3, target:"10–12 réps", lo:10, hi:12, rest:90, startKg:20, kgStep:5,
+    tech:{ place:"Assis sur la machine, dos bien calé contre le dossier, genoux alignés avec l'axe de rotation de la machine. Le rouleau du bas posé juste au-dessus des talons, le rouleau du haut bien serré sur les cuisses. Mains sur les poignées.",
+      move:"Plie les genoux pour ramener les talons sous le siège, le plus loin possible. Marque 1 seconde, puis remonte lentement en 2 à 3 secondes jusqu'aux jambes presque tendues.",
+      feel:"L'arrière des cuisses, sur toute la longueur.",
+      avoid:"Décoller les fesses du siège; remonter d'un coup en laissant tomber la charge; s'arrêter à mi-course",
+      note:"Garde toujours la même machine : les charges ne se comparent pas d'une machine à l'autre." } },
+
+  like(ROWING, { sets:3 }),
+
+  { id:209, name:"Développé militaire à la machine", short:"Développé militaire", muscle:"Épaules · Triceps",
+    gymDep:true, prep:["wallSlide"],
+    type:"machine", sets:3, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:7.5, kgStep:2.5,
+    tech:{ place:"Assis sur la machine, dos bien calé contre le dossier, siège réglé pour que les poignées arrivent à hauteur des épaules. Mains sur les poignées, coudes sous les mains.",
+      move:"Pousse les poignées vers le plafond jusqu'à presque tendre les bras, sans verrouiller les coudes, puis redescends lentement jusqu'à hauteur des épaules.",
+      feel:"Le dessus et l'avant des épaules, et l'arrière des bras.",
+      avoid:"Décoller le dos du dossier pour pousser plus fort; verrouiller les coudes violemment en haut; laisser retomber la charge à la descente",
+      note:"Garde toujours la même machine : les charges affichées ne se comparent pas d'une machine à l'autre, ni avec des haltères." } },
+
+  like(LSIT),
+  like(SUSPENSION),
 ];
 
 /* ============ PROGRAMMES ============ */
+/* Les id A et B sont gardés : ils nomment les clés de stockage (historique, niveaux, séance en cours).
+   Avant le 30/11/2026, A et B étaient deux séances corps entier (mardi et jeudi). */
 const PROGRAMS = [
-  { id:"A", label:"Séance A", day:"Salle · mardi", ex:EX_A, warmup:true },
-  { id:"B", label:"Séance B", day:"Salle · jeudi", ex:EX_B, warmup:true },
-  { id:"M", label:"Maison",   day:"Full body",     ex:EX_MAISON },
+  { id:"C", label:"Lundi",  name:"Séance du lundi", day:"Haut du corps",   ex:EX_C, warmup:true },
+  { id:"A", label:"Mardi",  name:"Séance du mardi", day:"Jambes et abdos", ex:EX_A, warmup:true },
+  { id:"B", label:"Jeudi",  name:"Séance du jeudi", day:"Corps entier",    ex:EX_B, warmup:true },
+  { id:"M", label:"Maison", name:"Séance maison",   day:"Full body",       ex:EX_MAISON },
 ];
+/* Ordre des exercices des séances A et B avant le 30/11/2026, pour l'export de ces séances. */
+const OLD_ORDER = { A:[101,107,103,104,115,111,112], B:[201,113,202,204,209,205,208] };
+/* Fiche d'un exercice par id, toutes séances confondues (export des anciennes séances). */
+function exById(id){
+  const cur=EX.find(e=>e.id===id); if(cur) return cur;
+  for(const p of PROGRAMS){ const e=p.ex.find(x=>x.id===id); if(e) return e; }
+  return null;
+}
 let EX = [];
 let TOTAL_SETS = 0;
 const RING_C = 2 * Math.PI * 54;
@@ -937,7 +992,7 @@ function kLevels(){ return "TEMPO_S_LEVELS_"+progId; }
 function kHist(){ return "TEMPO_S_HIST_"+progId; }
 function kActive(){ return "TEMPO_S_ACTIVE_"+progId; }
 
-/* ============ SÉANCE ACTIVE (A ou B) ============ */
+/* ============ SÉANCE ACTIVE ============ */
 let progId = store.get("TEMPO_S_PROG", "A");
 function curProg(){ return PROGRAMS.find(p=>p.id===progId) || PROGRAMS[0]; }
 function applyProgram(){
@@ -965,11 +1020,28 @@ const state = {
   cd:null, holdResult:null, holdStart:0,
 };
 
+/* Niveaux : enregistrés par séance (TEMPO_S_LEVELS_<prog>), mais un exercice présent dans
+   plusieurs séances garde le même niveau partout. Sans niveau dans la séance affichée, on prend
+   celui d'une autre séance (exercice déplacé ou partagé), sinon le niveau de départ. */
 function loadLevels(){
-  const saved = store.get(kLevels(), {});
+  const saved = store.get(kLevels(), {}) || {};
+  const others = PROGRAMS.filter(p=>p.id!==progId).map(p=>store.get("TEMPO_S_LEVELS_"+p.id, {}) || {});
   const out = {};
-  EX.forEach(e=>{ if(e.levels){ out[e.id] = (saved && saved[e.id]!=null) ? saved[e.id] : e.lvl0; } });
+  EX.forEach(e=>{
+    if(!e.levels) return;
+    let v = saved[e.id];
+    if(v==null){ const o=others.find(m=>m[e.id]!=null); if(o) v=o[e.id]; }
+    out[e.id] = (v!=null && v>=0 && v<e.levels.length) ? v : e.lvl0;
+  });
   return out;
+}
+function saveLevel(id, i){
+  state.levels[id]=i; store.set(kLevels(), state.levels);
+  PROGRAMS.forEach(p=>{
+    if(p.id===progId || !p.ex.some(e=>e.id===id)) return;
+    const k="TEMPO_S_LEVELS_"+p.id, m=store.get(k, {}) || {};
+    m[id]=i; store.set(k, m);
+  });
 }
 function levelOf(ex){ return ex.levels ? (state.levels[ex.id]!=null ? state.levels[ex.id] : ex.lvl0) : null; }
 function levelName(ex){ return ex.levels ? ex.levels[levelOf(ex)] : null; }
@@ -1149,6 +1221,7 @@ function ensureEntry(){
   const ex=EX[state.exIndex];
   if(!state.session.entries[ex.id]){
     state.session.entries[ex.id] = { levelIndex: levelOf(ex), sets: Array(ex.sets).fill(null) };
+    if(isEasy(ex)) state.session.entries[ex.id].easy = true;
   }
 }
 function saveActive(){
@@ -1182,7 +1255,7 @@ function resume(){
   unlockAudio();
   const a=getActive(); if(!a){ goHome(); return; }
   state.session=a.session || newSession();
-  state.exIndex=a.exIndex||0; state.setIndex=a.setIndex||0;
+  state.exIndex=Math.min(a.exIndex||0, EX.length-1); state.setIndex=Math.min(a.setIndex||0, EX[state.exIndex].sets-1);
   if(a.phase==="warmup"){ goWarmup(); return; }
   if(a.phase==="stretch"){ goStretch(); return; }
   goEffort();
@@ -1337,7 +1410,7 @@ function renderHome(){
   });
   let resumeBlock="", actionBlock;
   if(active){
-    const ex=EX[active.exIndex];
+    const ex=EX[Math.min(active.exIndex||0, EX.length-1)];
     resumeBlock =
       '<div class="section"><div class="group">'+
         '<button class="row resume" data-act="resume"><div class="row-main">'+
@@ -1363,7 +1436,7 @@ function renderHome(){
     '</div>';
   screenEl.innerHTML =
     '<div class="scroll anim-in">'+
-      '<h1 class="large-title">'+prog.label+'</h1>'+
+      '<h1 class="large-title">'+prog.name+'</h1>'+
       '<div class="subtitle">'+prog.day+' · '+EX.length+' exercices · environ '+est+' min</div>'+
       '<div class="seg" role="tablist">'+
         PROGRAMS.map(p=>'<button role="tab" aria-selected="'+(p.id===progId)+'" class="'+(p.id===progId?"on":"")+'" data-act="prog" data-prog="'+p.id+'">'+p.label+'</button>').join("")+
@@ -1404,8 +1477,8 @@ function renderEffort(){
   } else {
     const range = ex.target.replace(" réps","").replace("réps","").trim();
     targets = target(ex.perSide ? "Réps par "+ex.sideWord : "Réps", range);
-    if(sg && sg.kg!=null) targets += target("Charge", frNum(sg.kg)+'<small>kg</small>', "accent", sg.bumped ? "+"+frNum(ex.kgStep)+" kg" : "");
-    if(sg && sg.assist!=null) targets += target("Assistance", frNum(sg.assist)+'<small>kg</small>', "accent", sg.bumped ? "−"+frNum(ex.assistStep)+" kg" : "");
+    if(sg && sg.kg!=null) targets += target("Charge", frNum(sg.kg)+'<small>kg</small>', "accent", sg.bumped ? "+"+frNum(ex.kgStep)+" kg" : (sg.reset ? "−"+frNum(sg.delta)+" kg" : ""));
+    if(sg && sg.assist!=null) targets += target("Assistance", frNum(sg.assist)+'<small>kg</small>', "accent", sg.bumped ? "−"+frNum(ex.assistStep)+" kg" : (sg.reset ? "+"+frNum(sg.delta)+" kg" : ""));
     targets += target("Repos", mmss(ex.rest));
   }
   let dots="";
@@ -1461,6 +1534,7 @@ function renderEffort(){
       '<div class="subtitle">'+ex.muscle+'</div>'+
       '<div class="set-line"><b>Série '+(state.setIndex+1)+' sur '+ex.sets+'</b><div class="dots" aria-hidden="true">'+dots+'</div></div>'+
       '<div class="targets">'+targets+'</div>'+
+      (isEasy(ex) ? '<div class="effort-note"><b>Jusqu\'au '+easyDate(ex)+'</b> : arrête chaque série 2 à 3 répétitions avant l\'échec. Tes coudes s\'habituent aux dips et aux tractions deux fois par semaine.</div>' : '')+
       prepHtml(ex)+
       rampBlock+
       levelBlock+
@@ -1506,7 +1580,8 @@ function renderRecovery(){
   // dernière fois
   const last=lastTimeResult(ex.id, state.setIndex);
   const sgr=suggestLoad(ex);
-  const bumpTxt = (sgr && sgr.bumped) ? '<div class="lasttime up">Toutes tes séries ont atteint le haut de fourchette la dernière fois : '+(sgr.kg!=null?'charge montée':'assistance baissée')+'.</div>' : '';
+  const bumpTxt = (sgr && sgr.bumped) ? '<div class="lasttime up">Toutes tes séries ont atteint le haut de fourchette la dernière fois : '+(sgr.kg!=null?'charge montée':'assistance baissée')+'.</div>'
+    : (sgr && sgr.reset) ? '<div class="lasttime">3 séances de suite à cette charge sans gagner de répétition : '+(sgr.kg!=null?'charge baissée':'assistance remontée')+' pour repartir.</div>' : '';
   const lastHtml = last ? '<div class="lasttime">Dernière fois : <b>'+fmtResult(ex,last)+'</b></div>'+bumpTxt
                         : '<div class="lasttime">Première fois sur cette série</div>';
   // à suivre
@@ -1608,46 +1683,92 @@ function numHTML(id, val, step, suf){
   '</div>';
 }
 function isAssisted(ex){ return !!(ex.assistLevels && ex.assistLevels.indexOf(levelOf(ex))>=0); }
-/* Double progression : la charge (ou l'assistance) ne change que si, la dernière fois,
-   TOUTES les séries prévues ont atteint le haut de fourchette. Toutes les séries reçoivent
-   la même charge : celle avec laquelle le plus de séries ont atteint le bas de fourchette
-   (à égalité, la plus lourde, ou l'assistance la plus faible). Une seule série lourde en fin
-   de pyramide ne fixe donc pas la charge de toutes les séries. */
+/* Valeur la plus fréquente ; à égalité, la meilleure selon better. Toutes les séries reçoivent
+   la même charge : une seule série lourde en fin de pyramide ne fixe donc pas la charge du jour. */
 function mostUsed(values, better){
   const n={}; values.forEach(v=>{ n[v]=(n[v]||0)+1; });
   return values.reduce((best,v)=> (best==null || n[v]>n[best] || (n[v]===n[best] && better(v,best))) ? v : best, null);
 }
-function lastSessionSets(ex){
+/* Rappel du jeudi (easyUntil) : jusqu'à cette date incluse, séries 2 à 3 répétitions avant l'échec.
+   Ces séances sont marquées easy et ne servent ni à monter la charge ni à repérer une stagnation. */
+function todayIso(){ const d=new Date(), p=(x)=>String(x).padStart(2,"0"); return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); }
+function isEasy(ex){ return !!(ex && ex.easyUntil && todayIso()<=ex.easyUntil); }
+function easyDate(ex){
+  const m=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+  const d=String(ex.easyUntil).split("-").map(Number);
+  return d[2]+" "+m[d[1]-1];
+}
+/* Séances passées de cet exercice, de la plus récente à la plus ancienne : séries faites au niveau
+   actuel, nombre de séries prévues ce jour-là, salle (fallback : séance sans salle, d'avant ce choix). */
+function pastEntries(ex){
   const h=allHistory(), bound=gymBound(ex), g=curGym(), lvl=levelOf(ex);
-  let fallback=null;
+  const out=[];
   for(let i=h.length-1;i>=0;i--){
     const e=h[i].entries && h[i].entries[ex.id];
     if(!e || !e.sets) continue;
     const done=e.sets.filter(r=> r && !r.skipped && !(ex.levels && r.lvl!=null && r.lvl!==lvl));
     if(!done.length) continue;
-    if(!bound || h[i].gym===g) return done;
-    if(!h[i].gym && !fallback) fallback=done;
+    const fallback = bound && h[i].gym!==g;
+    if(fallback && h[i].gym) continue;
+    out.push({ done, planned:e.sets.length, easy:!!e.easy, fallback });
   }
-  return fallback;
+  return out;
 }
+/* Dernière séance qui compte pour la progression : même salle d'abord, séance normale avant une séance easy. */
+function lastSessionSets(ex){
+  const p=pastEntries(ex);
+  return p.find(x=>!x.fallback && !x.easy) || p.find(x=>!x.fallback) || p.find(x=>!x.easy) || p[0] || null;
+}
+/* Charge de travail d'une séance : celle avec laquelle le plus de séries ont atteint le bas de
+   fourchette (à égalité, la plus lourde, ou l'assistance la plus faible), et la moyenne de
+   répétitions des séries faites à cette charge. */
+function loadKey(ex){ return ex.type==="machine" ? "kg" : (isAssisted(ex) ? "assist" : null); }
+function workLoad(ex, done){
+  const key=loadKey(ex); if(!key) return null;
+  const sets=done.filter(r=>r[key]!=null);
+  if(!sets.length) return null;
+  const ok=sets.filter(r=>r.reps>=ex.lo);
+  const base=mostUsed((ok.length?ok:sets).map(r=>r[key]), key==="kg" ? (a,b)=>a>b : (a,b)=>a<b);
+  const at=sets.filter(r=>r[key]===base);
+  return { base, mean: at.reduce((t,r)=>t+r.reps,0)/at.length };
+}
+/* Stagnation : les 3 dernières séances (hors séances easy) à la même charge, sans qu'aucune des
+   deux plus récentes ne fasse plus de répétitions en moyenne que la première. Renvoie cette charge. */
+function stallBase(ex){
+  const list=pastEntries(ex).filter(x=>!x.easy);
+  const pref=list.filter(x=>!x.fallback);
+  const three=(pref.length>=3 ? pref : list).slice(0,3);
+  if(three.length<3) return null;
+  const w=three.map(x=>workLoad(ex, x.done)).reverse();
+  if(w.some(x=>!x)) return null;
+  if(!(w[0].base===w[1].base && w[1].base===w[2].base)) return null;
+  if(Math.max(w[1].mean, w[2].mean) > w[0].mean) return null;
+  return w[2].base;
+}
+/* Double progression : la charge (ou l'assistance) ne change que si, la dernière fois, TOUTES
+   les séries prévues ce jour-là ont atteint le haut de fourchette. En cas de stagnation (3 séances
+   sans progrès), elle redescend d'environ 10 % (au moins un palier), ou l'assistance remonte d'un
+   palier, pour repartir. */
 function suggestLoad(ex){
-  const done=lastSessionSets(ex);
-  const allTop = !!done && done.length>=ex.sets && done.every(r=>r.reps>=ex.hi);
+  const last=lastSessionSets(ex);
+  const done=last ? last.done : null;
+  const allTop = !!done && done.length>=last.planned && done.every(r=>r.reps>=ex.hi);
   if(ex.type==="machine"){
-    const sets=done ? done.filter(r=>r.kg!=null) : [];
-    if(!sets.length) return { kg:ex.startKg, bumped:false };
-    const ok=sets.filter(r=>r.reps>=ex.lo);
-    const base=mostUsed((ok.length?ok:sets).map(r=>r.kg), (a,b)=>a>b);
-    if(ex.kgStep && allTop) return { kg:base+ex.kgStep, bumped:true };
-    return { kg:base, bumped:false };
+    const w=done ? workLoad(ex, done) : null;
+    if(!w) return { kg:ex.startKg, bumped:false };
+    if(ex.kgStep && allTop) return { kg:w.base+ex.kgStep, bumped:true };
+    if(ex.kgStep && stallBase(ex)===w.base){
+      const d=roundToStep(w.base*0.10, ex.kgStep), kg=Math.round((w.base-d)*100)/100;
+      if(kg>0) return { kg, bumped:false, reset:true, delta:d };
+    }
+    return { kg:w.base, bumped:false };
   }
   if(isAssisted(ex)){
-    const sets=done ? done.filter(r=>r.assist!=null) : [];
-    if(!sets.length) return { assist:ex.startAssist, bumped:false };
-    const ok=sets.filter(r=>r.reps>=ex.lo);
-    const base=mostUsed((ok.length?ok:sets).map(r=>r.assist), (a,b)=>a<b);
-    if(allTop) return { assist:Math.max(0,base-ex.assistStep), bumped:true };
-    return { assist:base, bumped:false };
+    const w=done ? workLoad(ex, done) : null;
+    if(!w) return { assist:ex.startAssist, bumped:false };
+    if(allTop) return { assist:Math.max(0,w.base-ex.assistStep), bumped:true };
+    if(stallBase(ex)===w.base) return { assist:w.base+ex.assistStep, bumped:false, reset:true, delta:ex.assistStep };
+    return { assist:w.base, bumped:false };
   }
   return null;
 }
@@ -1809,7 +1930,7 @@ function renderEnd(){
   screenEl.innerHTML =
     '<div class="scroll anim-in">'+
       '<h1 class="large-title">Beau travail</h1>'+
-      '<div class="subtitle">'+curProg().label+' terminée'+(s.durationMs ? ' en '+fmtDuration(s.durationMs) : '')+'. Tes résultats sont enregistrés.</div>'+
+      '<div class="subtitle">'+curProg().name+' terminée'+(s.durationMs ? ' en '+fmtDuration(s.durationMs) : '')+'. Tes résultats sont enregistrés.</div>'+
       '<div class="section"><div class="section-head">Récap</div><div class="group recap">'+rows+'</div></div>'+
     '</div>'+
     '<div class="bottom-bar">'+
@@ -1819,20 +1940,28 @@ function renderEnd(){
 }
 /* ============ EXPORT ============ */
 function sessionText(s){
-  const lines=["Séance "+(s.prog||progId)+" du "+frDate(s.date)+(s.gym ? " · "+gymName(s.gym) : "")+(s.durationMs ? " (durée "+fmtDuration(s.durationMs)+")" : "")];
+  const P=PROGRAMS.find(p=>p.id===(s.prog||progId));
+  const lines=[(P ? P.name : "Séance "+s.prog)+" · "+frDate(s.date)+(s.gym ? " · "+gymName(s.gym) : "")+(s.durationMs ? " (durée "+fmtDuration(s.durationMs)+")" : "")];
   const extra=[];
   if(s.warmup) extra.push("Échauffement : "+(s.warmup==="done"?"fait":"passé"));
   if(s.stretch) extra.push("Étirements : "+(s.stretch==="done"?"faits":"passés"));
   if(extra.length) lines.push(extra.join(" · "));
-  EX.forEach(ex=>{
-    const e=s.entries[ex.id]; if(!e) return;
+  /* Exercices dans l'ordre de la séance ; une séance enregistrée avant le 30/11/2026 (corps entier)
+     garde son ancien ordre. Les clés numériques d'un objet sont triées, d'où cette liste. */
+  const P_EX=(P ? P.ex : EX).map(e=>e.id), keys=Object.keys(s.entries).map(Number);
+  const order=keys.every(id=>P_EX.indexOf(id)>=0) ? P_EX : (OLD_ORDER[s.prog] || P_EX);
+  const ids=order.filter(id=>s.entries[id]);
+  keys.forEach(id=>{ if(ids.indexOf(id)<0) ids.push(id); });
+  let n=0;
+  ids.forEach(id=>{
+    const ex=exById(id), e=s.entries[id]; if(!ex || !e || !e.sets) return;
     const items=[];
     e.sets.forEach(r=>{
       if(!r || r.skipped) return;
       items.push({ text: fmtResult(ex,r), lvl: ex.levels ? r.lvl : null });
     });
     if(!items.length) return;
-    let label=ex.pos+". "+ex.short;
+    let label=(++n)+". "+ex.short;
     let resultStr;
     if(ex.levels){
       // regroupe les séries consécutives faites au même niveau
@@ -1934,7 +2063,7 @@ function openBackup(){
     '<div class="sheet-scrim" data-act="sheet-close"></div>'+
     '<div class="sheet-panel"><div class="sheet-grip"></div>'+
       '<h3>Sauvegarder mes données</h3>'+
-      '<p class="sheet-hint" style="margin:0 0 10px">Historique, niveaux et séance en cours des trois séances. Copie ce code et garde-le dans tes notes.</p>'+
+      '<p class="sheet-hint" style="margin:0 0 10px">Historique, niveaux et séance en cours de toutes les séances. Copie ce code et garde-le dans tes notes.</p>'+
       '<textarea class="export-box" id="export-box" readonly>'+escapeHtml(backupCode())+'</textarea>'+
       '<div class="sheet-actions"><button class="btn" data-act="exp-copy">Copier la sauvegarde</button></div>'+
       '<h3 style="margin-top:22px">Restaurer</h3>'+
@@ -1999,7 +2128,7 @@ function askErase(){
     '<div class="sheet-scrim" data-act="sheet-close"></div>'+
     '<div class="sheet-panel confirm"><div class="sheet-grip"></div>'+
       '<h3>Effacer les données de cette séance ?</h3>'+
-      '<p>Historique et niveaux de la séance affichée seulement. La seconde séance reste intacte. Action irréversible.</p>'+
+      '<p>Historique et niveaux de la séance affichée seulement. Les autres séances restent intactes. Action irréversible.</p>'+
       '<div class="sheet-actions">'+
         '<button class="btn-soft" data-act="sheet-close">Annuler</button>'+
         '<button class="btn-soft danger" data-act="do-erase">Tout effacer</button>'+
@@ -2009,7 +2138,7 @@ function askErase(){
 }
 function eraseAll(){
   store.del(kHist()); store.del(kLevels()); store.del(kActive());
-  /* n'efface que la séance affichée : l'autre séance et l'app maison sont intactes */
+  /* n'efface que la séance affichée : les autres séances et l'app maison sont intactes */
   state.levels=loadLevels();
   closeSheet(); goHome(); toast("Données effacées");
 }
@@ -2018,7 +2147,7 @@ function eraseAll(){
 function changeLevel(dir){
   const ex=EX[state.exIndex]; if(!ex.levels) return;
   let i=levelOf(ex)+dir; i=Math.max(0,Math.min(ex.levels.length-1,i));
-  state.levels[ex.id]=i; store.set(kLevels(), state.levels);
+  saveLevel(ex.id, i);
   ensureEntry(); state.session.entries[ex.id].levelIndex=i; saveActive();
   renderEffort();
 }
