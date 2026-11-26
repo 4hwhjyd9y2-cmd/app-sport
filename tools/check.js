@@ -298,6 +298,22 @@ test("22 · séance en cours enregistrée par l'ancienne version", () => {
   return same([api.state.exIndex, api.state.setIndex], [5, 2]);
 });
 
+test("23 · aperçu « À suivre » sur l'écran de repos", () => {
+  reset();
+  put("A", [{ date: day(1), prog: "A", gym: "1", entries: done(101, x(4, { reps: 9, kg: 100 })) }]);
+  fresh("B"); api.start(true); api.warmupDone("done"); api.goEffort();
+  const text = () => screen.innerHTML.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+  const out = [];
+  api.goRecovery(); out.push(/Série 2 sur 3 Dips assistés 6–10 réps assistance 25 kg \+15 s/.test(text()));
+  api.state.setIndex = 2; api.goRecovery();
+  out.push(/Exercice 2 sur 8 · préparation d'abord Tractions assistées/.test(text()), /Avant : tractions scapulaires\./.test(text()));
+  const ex = api.EX(); api.state.exIndex = ex.length - 1; api.state.setIndex = ex[ex.length - 1].sets - 1; api.goRecovery();
+  out.push(/Fin de séance Étirements/.test(text()));
+  fresh("A"); api.start(true); api.warmupDone("done"); api.goEffort(); api.state.setIndex = 3; api.goRecovery();
+  out.push(/Soulevé de terre roumain .* 8–10 réps 10 kg Avant : séries de montée\./.test(text()));
+  return same(out, [true, true, true, true, true]);
+});
+
 if (errors) { console.error("\n" + errors + " erreur(s)."); process.exit(1); }
 console.log("OK  " + tests + " tests (échauffement, étirements, semaine en 3 séances)");
 for (const p of api.PROGRAMS) {
