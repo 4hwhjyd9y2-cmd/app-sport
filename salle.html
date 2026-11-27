@@ -101,6 +101,12 @@
   .large-title{ font-size:min(2rem, 44px); font-weight:700; letter-spacing:-.02em; line-height:1.1; margin-top:6px; }
   .title1{ font-size:min(1.647rem, 38px); font-weight:700; letter-spacing:-.015em; line-height:1.15; margin-top:8px; }
   .subtitle{ font-size:.882rem; color:var(--mute); margin-top:4px; }
+  .pair-note{ display:inline-flex; align-items:center; gap:8px; margin-top:12px; padding:8px 14px; border-radius:999px; font-size:.882rem;
+    background:var(--glass); box-shadow:var(--glass-edge); -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px); }
+  .pair-note svg{ width:18px; height:18px; flex:none; color:var(--c0); }
+  .row-pair{ display:flex; align-items:center; gap:5px; margin-top:2px; font-size:.824rem; color:var(--accent); }
+  .row-pair svg{ width:15px; height:15px; flex:none; }
+  .prep-ex{ font-size:min(1.235rem, 26px); font-weight:700; margin-top:22px; }
   .footnote{ font-size:.765rem; color:var(--faint); line-height:1.4; }
 
   /* ---------- Listes groupées iOS ---------- */
@@ -822,10 +828,10 @@ const SUSPENSION = { id:112, name:"Suspension à la barre", short:"Suspension à
 
 /* ============ LUNDI · HAUT DU CORPS (programme C) ============ */
 const EX_C = [
-  like(TRACTIONS),
+  like(TRACTIONS, { pair:60 }),
   like(DIPS),
 
-  { id:103, name:"Développé couché aux haltères", short:"Développé couché", muscle:"Poitrine · Triceps",
+  { id:103, name:"Développé couché aux haltères", short:"Développé couché", muscle:"Poitrine · Triceps", pair:60,
     ramp:[{ pct:75, reps:4 }],
     type:"machine", sets:3, target:"8–10 réps", lo:8, hi:10, rest:120, startKg:8, kgStep:2.5,
     tech:{ place:"Allongé sur un banc plat, pieds à plat au sol, fesses collées au banc. Serre les omoplates et tire-les vers les fesses, puis garde-les plaquées dans le banc jusqu'à la dernière répétition. Un haltère dans chaque main au niveau du bas de la poitrine, paumes tournées un peu l'une vers l'autre (environ 45°).",
@@ -836,7 +842,7 @@ const EX_C = [
 
   like(ROWING, { sets:3 }),
 
-  { id:301, name:"Élévations latérales aux haltères", short:"Élévations latérales", muscle:"Épaules (côtés)",
+  { id:301, name:"Élévations latérales aux haltères", short:"Élévations latérales", muscle:"Épaules (côtés)", pair:45,
     type:"machine", sets:3, target:"12–15 réps", lo:12, hi:15, rest:60, startKg:4, kgStep:1,
     tech:{ place:"Debout, pieds largeur des hanches, un haltère léger dans chaque main le long du corps. Buste très légèrement penché en avant, coudes un peu pliés, épaules basses.",
       move:"Écarte les bras sur les côtés jusqu'à hauteur des épaules, en menant le mouvement avec les coudes. Marque un court arrêt en haut, puis redescends lentement en 2 à 3 s, sans laisser tomber les haltères.",
@@ -844,8 +850,8 @@ const EX_C = [
       avoid:"Hausser les épaules vers les oreilles; balancer le buste pour lancer les haltères; monter les mains plus haut que les épaules; poignets plus hauts que les coudes",
       note:"C'est un petit muscle : charge légère et mouvement propre, la brûlure arrive vite. Le poids saisi est celui d'UN haltère." } },
 
-  like(LSIT),
   like(SUSPENSION),
+  like(LSIT),
 ];
 
 /* ============ MARDI · JAMBES ET ABDOS (programme A) ============ */
@@ -876,7 +882,7 @@ const EX_A = [
       avoid:"Arrondir le dos pour descendre plus bas; plier les genoux comme pour un squat; haltères qui s'éloignent des jambes; creuser le bas du dos ou pencher le buste en arrière en haut (finis debout, fesses serrées)",
       note:"Descends seulement tant que ton dos reste plat : l'amplitude viendra avec la souplesse des ischios. Si tu sens le bas du dos plutôt que l'arrière des cuisses, allège. Le poids saisi est celui d'UN haltère." } },
 
-  { id:107, name:"Hip thrust (banc + barre)", short:"Hip thrust", muscle:"Fessiers · Ischios",
+  { id:107, name:"Hip thrust (banc + barre)", short:"Hip thrust", muscle:"Fessiers · Ischios", pair:45,
     type:"machine", sets:3, target:"10–12 réps", lo:10, hi:12, rest:90, startKg:20, kgStep:2.5,
     tech:{ place:"Assis au sol, le haut du dos calé contre le bord d'un banc plat (juste sous les omoplates). Fais rouler la barre chargée par-dessus les jambes jusqu'au pli des hanches, avec une mousse ou une serviette pliée autour de la barre pour protéger le bassin. Pieds à plat au sol largeur des hanches, genoux pliés, mains sur la barre de chaque côté pour la tenir en place.",
       move:"Pousse dans les talons et serre les fessiers pour monter le bassin jusqu'à aligner épaules, hanches et genoux. Marque 1 seconde en haut, puis redescends lentement.",
@@ -964,10 +970,10 @@ const EX_A = [
 
 /* ============ JEUDI · CORPS ENTIER (programme B) ============ */
 const EX_B = [
-  like(DIPS, { sets:3, easyUntil:EASY_UNTIL }),
+  like(DIPS, { sets:3, easyUntil:EASY_UNTIL, pair:60 }),
   like(TRACTIONS, { sets:3, easyUntil:EASY_UNTIL }),
 
-  { id:201, name:"Fentes bulgares aux haltères", short:"Fentes bulgares", muscle:"Cuisses · Fessiers",
+  { id:201, name:"Fentes bulgares aux haltères", short:"Fentes bulgares", muscle:"Cuisses · Fessiers", pair:60,
     ramp:[{ bodyweight:true, reps:6 }],
     type:"machine", sets:3, target:"8–10 réps", lo:8, hi:10, perSide:true, sideWord:"jambe", rest:90, startKg:6, kgStep:2,
     tech:{ place:"Dos à un banc, dessus du pied arrière posé dessus, pied avant un bon pas devant, à plat. Un haltère dans chaque main, bras le long du corps, buste droit.",
@@ -985,7 +991,7 @@ const EX_B = [
       avoid:"Décoller les fesses du siège; remonter d'un coup en laissant tomber la charge; s'arrêter à mi-course",
       note:"Garde toujours la même machine : les charges ne se comparent pas d'une machine à l'autre." } },
 
-  like(ROWING, { sets:3 }),
+  like(ROWING, { sets:3, pair:60 }),
 
   { id:209, name:"Développé militaire à la machine", short:"Développé militaire", muscle:"Épaules · Triceps",
     gymDep:true, prep:["wallSlide"],
@@ -1019,6 +1025,7 @@ function exById(id){
 }
 let EX = [];
 let TOTAL_SETS = 0;
+let ORDER = [];
 const RING_C = 2 * Math.PI * 54;
 /* ============ STOCKAGE LOCAL (robuste) ============ */
 const store = {
@@ -1039,6 +1046,31 @@ function applyProgram(){
   EX = curProg().ex;
   EX.forEach((e,i)=>{ e.pos=i+1; });
   TOTAL_SETS = EX.reduce((s,e)=>s+e.sets,0);
+  ORDER = buildOrder(EX);
+}
+/* Séries alternées : un exercice marqué pair:<secondes> s'enchaîne avec le suivant, une série de chaque
+   à tour de rôle, avec ce repos entre les deux. Si l'un a plus de séries, il finit seul avec son propre repos. */
+function buildOrder(list){
+  const o=[];
+  for(let i=0;i<list.length;i++){
+    const a=list[i], b=a.pair ? list[i+1] : null;
+    if(b){
+      for(let k=0;k<Math.max(a.sets,b.sets);k++){
+        if(k<a.sets) o.push({ exIndex:i, setIndex:k });
+        if(k<b.sets) o.push({ exIndex:i+1, setIndex:k });
+      }
+      i++;
+    } else for(let k=0;k<a.sets;k++) o.push({ exIndex:i, setIndex:k });
+  }
+  return o;
+}
+function partnerOf(exI){ return EX[exI] && EX[exI].pair ? exI+1 : (exI>0 && EX[exI-1].pair ? exI-1 : -1); }
+function orderPos(exI,setI){ return ORDER.findIndex(p=>p.exIndex===exI && p.setIndex===setI); }
+/* Repos après une série : celui de la paire quand on passe à l'autre exercice, sinon celui de l'exercice. */
+function restAfter(exI,setI){
+  const nx=nextPointer(exI,setI), pt=partnerOf(exI);
+  if(nx && pt>=0 && nx.exIndex===pt) return EX[Math.min(exI,pt)].pair;
+  return EX[exI].rest;
 }
 applyProgram();
 function setProgram(id){
@@ -1279,10 +1311,9 @@ function setPhase(p){
   document.body.dataset.phase=p;
 }
 function nextPointer(exI,setI){
-  const ex=EX[exI];
-  if(setI+1 < ex.sets) return { exIndex:exI, setIndex:setI+1 };
-  if(exI+1 < EX.length) return { exIndex:exI+1, setIndex:0 };
-  return null;
+  const i=orderPos(exI,setI);
+  const nx = i>=0 ? ORDER[i+1] : null;
+  return nx ? { exIndex:nx.exIndex, setIndex:nx.setIndex } : null;
 }
 
 function start(fresh){
@@ -1298,7 +1329,7 @@ function resume(){
   state.exIndex=Math.min(a.exIndex||0, EX.length-1); state.setIndex=Math.min(a.setIndex||0, EX[state.exIndex].sets-1);
   if(a.phase==="warmup"){ goWarmup(); return; }
   if(a.phase==="stretch"){ goStretch(); return; }
-  if(a.phase==="prep" && hasPrep(EX[state.exIndex])){ goPrep(); return; }
+  if(a.phase==="prep" && prepAt(state.exIndex,state.setIndex)){ goPrep(); return; }
   goEffort();
 }
 function goHome(){ stopCountdown(); releaseAwake(); setPhase("home"); renderTopbar(); renderHome(); }
@@ -1310,7 +1341,12 @@ function warmupDone(v){ state.session.warmup=v; state.exIndex=0; state.setIndex=
    Rien n'y est enregistré ; « Aller à la 1re série » ouvre l'écran d'effort. */
 function hasPrep(ex){ return !!(ex && ((ex.prep && ex.prep.length) || rampSets(ex, suggestLoad(ex)).length)); }
 function goPrep(){ stopCountdown(); keepAwake(); state.holdResult=null; setPhase("prep"); saveActive(); renderTopbar(); renderPrep(); }
-function goSet(){ if(state.setIndex===0 && hasPrep(EX[state.exIndex])) goPrep(); else goEffort(); }
+/* Une paire a une seule page de préparation, avant la 1re série de son 1er exercice. */
+function prepAt(exI,setI){
+  if(setI!==0 || (exI>0 && EX[exI-1].pair)) return false;
+  return hasPrep(EX[exI]) || !!(EX[exI].pair && hasPrep(EX[exI+1]));
+}
+function goSet(){ if(prepAt(state.exIndex,state.setIndex)) goPrep(); else goEffort(); }
 function goStretch(){
   stopCountdown(); keepAwake(); setPhase("stretch");
   state.stretchStep=0; state.stretchRunning=false;
@@ -1345,7 +1381,7 @@ function leaveSession(){
       state.phase="stretch"; // la séance reprendra sur les étirements
     } else {
       state.exIndex=nx.exIndex; state.setIndex=nx.setIndex;
-      if(nx.setIndex===0 && hasPrep(EX[nx.exIndex])) state.phase="prep"; // la séance reprendra sur la préparation
+      if(prepAt(nx.exIndex,nx.setIndex)) state.phase="prep"; // la séance reprendra sur la préparation
     }
   }
   saveActive();
@@ -1425,7 +1461,7 @@ function renderTopbar(){
   }
   const ex=EX[state.exIndex];
   const extra = state.phase==="warmup" || state.phase==="stretch" || state.phase==="prep";
-  const done = state.phase==="warmup" ? 0 : state.phase==="stretch" ? TOTAL_SETS : state.phase==="prep" ? setsBefore(state.exIndex) : setsBefore(state.exIndex)+state.setIndex+1;
+  const done = state.phase==="warmup" ? 0 : state.phase==="stretch" ? TOTAL_SETS : state.phase==="prep" ? orderPos(state.exIndex,0) : orderPos(state.exIndex,state.setIndex)+1;
   const pct=Math.round(done/TOTAL_SETS*100);
   const title = state.phase==="warmup" ? "Échauffement" : state.phase==="stretch" ? "Étirements" : state.phase==="prep" ? "Préparation"
     : state.phase==="recovery" ? "Récupération" : ("Exercice "+ex.pos+" sur "+EX.length);
@@ -1442,20 +1478,37 @@ function iconBack(){ return '<svg viewBox="0 0 13 22" fill="none" stroke="curren
 function iconChev(){ return '<svg class="chev" viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m1 1 6 6-6 6"/></svg>'; }
 function iconMinus(){ return '<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M3 9h12"/></svg>'; }
 function iconPlus(){ return '<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M3 9h12M9 3v12"/></svg>'; }
-function setsBefore(exI){ let s=0; for(let i=0;i<exI;i++) s+=EX[i].sets; return s; }
+/* Durée estimée (min), proche du réel : échauffement et étirements (10 min), 40 s par série (tenue + 15 s),
+   le repos qui suit (+15 s pour passer d'un poste à l'autre dans une paire), 2 min 30 par nouveau poste,
+   45 s par mouvement de préparation et 1 min 40 par série de montée. */
+function estimateMin(){
+  let t = curProg().warmup ? 600 : 0;
+  ORDER.forEach((p,i)=>{
+    const e=EX[p.exIndex];
+    t += (e.type==="hold" ? e.hold+15 : 40);
+    if(i<ORDER.length-1){ t += restAfter(p.exIndex,p.setIndex); if(ORDER[i+1].exIndex!==p.exIndex) t += 15; }
+    if(p.setIndex===0){
+      if(!(p.exIndex>0 && EX[p.exIndex-1].pair)) t += 150;
+      t += (e.prep ? e.prep.length*45 : 0) + rampSets(e, suggestLoad(e)).length*100;
+    }
+  });
+  return Math.round(t/60);
+}
 function iconSound(){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>'; }
 function iconMute(){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>'; }
 
 /* ============ RENDU : ACCUEIL ============ */
 function renderHome(){
-  const est = Math.round(EX.reduce((s,e)=> s + e.sets*(e.rest+35) + 180, 0)/60);
+  const est = estimateMin();
   const prog = curProg();
   const active = getActive();
   let rows="";
   EX.forEach(e=>{
+    const pt=partnerOf(e.pos-1);
     rows += '<div class="row">'+
       '<div class="row-num">'+e.pos+'</div>'+
-      '<div class="row-main"><div class="row-title">'+e.short+'</div><div class="row-sub">'+e.muscle+'</div></div>'+
+      '<div class="row-main"><div class="row-title">'+e.short+'</div><div class="row-sub">'+e.muscle+'</div>'+
+        (pt>=0 ? '<div class="row-pair">'+iconSwap()+'avec '+EX[pt].short+'</div>' : '')+'</div>'+
       '<div class="row-value">'+e.sets+' × '+volShort(e)+'</div>'+
     '</div>';
   });
@@ -1504,6 +1557,7 @@ function renderHome(){
       '<div class="section">'+
         '<div class="section-head"><span>Exercices</span><span>'+TOTAL_SETS+' séries</span></div>'+
         '<div class="group">'+rows+'</div>'+
+        (EX.some(e=>e.pair) ? '<div class="section-foot">Deux exercices reliés se font en alternance : une série de l\'un, puis une de l\'autre, avec un repos court entre les deux.</div>' : '')+
       '</div>'+
       '<div class="section">'+
         '<div class="section-head">Mes données</div>'+
@@ -1531,13 +1585,13 @@ function renderEffort(){
   const target=(lbl,val,cls,note)=>'<div class="target"><div class="t-lbl">'+lbl+'</div><div class="t-val'+(cls?' '+cls:'')+'">'+val+'</div>'+(note?'<div class="t-note">'+note+'</div>':'')+'</div>';
   let targets;
   if(ex.type==="hold"){
-    targets = target("Tenue", ex.hold+'<small>s</small>', "accent") + target("Repos", mmss(ex.rest));
+    targets = target("Tenue", ex.hold+'<small>s</small>', "accent") + target("Repos", mmss(restAfter(state.exIndex,state.setIndex)));
   } else {
     const range = ex.target.replace(" réps","").replace("réps","").trim();
     targets = target(ex.perSide ? "Réps par "+ex.sideWord : "Réps", range);
     if(sg && sg.kg!=null) targets += target("Charge", frNum(sg.kg)+'<small>kg</small>', "accent", sg.bumped ? "+"+frNum(ex.kgStep)+" kg" : (sg.reset ? "−"+frNum(sg.delta)+" kg" : ""));
     if(sg && sg.assist!=null) targets += target("Assistance", frNum(sg.assist)+'<small>kg</small>', "accent", sg.bumped ? "−"+frNum(ex.assistStep)+" kg" : (sg.reset ? "+"+frNum(sg.delta)+" kg" : ""));
-    targets += target("Repos", mmss(ex.rest));
+    targets += target("Repos", mmss(restAfter(state.exIndex,state.setIndex)));
   }
   let dots="";
   for(let i=0;i<ex.sets;i++){ dots+='<i class="'+(i<state.setIndex?"done":(i===state.setIndex?"active":""))+'"></i>'; }
@@ -1575,6 +1629,7 @@ function renderEffort(){
     '<div class="scroll anim-in">'+
       '<h1 class="title1">'+ex.name+'</h1>'+
       '<div class="subtitle">'+ex.muscle+'</div>'+
+      pairNote(state.exIndex)+
       '<div class="set-line"><b>Série '+(state.setIndex+1)+' sur '+ex.sets+'</b><div class="dots" aria-hidden="true">'+dots+'</div></div>'+
       '<div class="targets">'+targets+'</div>'+
       (isEasy(ex) ? '<div class="effort-note"><b>Jusqu\'au '+easyDate(ex)+'</b> : arrête chaque série 2 à 3 répétitions avant l\'échec. Tes coudes s\'habituent aux dips et aux tractions deux fois par semaine.</div>' : '')+
@@ -1607,7 +1662,7 @@ function tblock(label,cls,text){
 }
 /* ============ RENDU : RÉCUPÉRATION ============ */
 function renderRecovery(){
-  const ex=EX[state.exIndex];
+  const ex=EX[state.exIndex], rest=restAfter(state.exIndex,state.setIndex);
   // saisie de la série (ou confirmation d'une tenue)
   let inputBlock;
   if(ex.type==="hold"){
@@ -1633,7 +1688,7 @@ function renderRecovery(){
 
   screenEl.innerHTML =
     '<div class="scroll anim-in">'+
-      '<div class="rec-top">'+ ringHTML("rec") +'</div>'+
+      '<div class="rec-top">'+ ringHTML("rec", rest) +'</div>'+
       inputBlock+
       lastHtml+
       '<div class="nudge" id="nudge"></div>'+
@@ -1646,7 +1701,7 @@ function renderRecovery(){
 
   q("#rec-sub").textContent="Repos";
   // chrono de repos
-  startCountdown(ex.rest, {
+  startCountdown(rest, {
     numEl:q("#rec-time"), ringEl:q("#rec-fg"),
     onDone:()=>{ finishRest(); }
   });
@@ -1667,8 +1722,11 @@ function nextPreview(nx){
       (curProg().warmup ? '<div class="next-sub">Environ 4 min, puis ta séance est enregistrée.</div>' : '')+
     '</div>';
   }
-  const nex=EX[nx.exIndex], same=nx.exIndex===state.exIndex, prep=!same && hasPrep(nex);
-  const kicker = same ? 'Série '+(nx.setIndex+1)+' sur '+nex.sets : 'Exercice '+nex.pos+' sur '+EX.length+(prep ? ' · préparation d\'abord' : '');
+  const nex=EX[nx.exIndex], same=nx.exIndex===state.exIndex, prep=!same && prepAt(nx.exIndex,nx.setIndex);
+  const alt=!same && partnerOf(state.exIndex)===nx.exIndex;   // passage à l'autre exercice de la paire
+  const kicker = same ? 'Série '+(nx.setIndex+1)+' sur '+nex.sets
+    : alt ? 'En alternance · série '+(nx.setIndex+1)+' sur '+nex.sets
+    : 'Exercice '+nex.pos+' sur '+EX.length+(prep ? ' · préparation d\'abord' : '');
   const chip=(t)=>'<span class="chip">'+t+'</span>';
   let chips="";
   if(nex.type==="hold") chips += chip('tenue <b>'+nex.hold+'</b> s');
@@ -1678,16 +1736,16 @@ function nextPreview(nx){
   if(sg && sg.assist!=null) chips += chip('assistance <b>'+frNum(sg.assist)+'</b> kg');
   let extra="";
   if(prep){
-    const names=(nex.prep||[]).map(k=>{ const n=MOVES[k].name; return /^[A-Z]-/.test(n) ? n : n.charAt(0).toLowerCase()+n.slice(1); });
-    if(rampSets(nex, sg).length) names.push("séries de montée");
+    const names=[nex].concat(nex.pair ? [EX[nx.exIndex+1]] : []).reduce((a,e)=>a.concat(e.prep||[]),[]).filter((k,i,a)=>a.indexOf(k)===i).map(k=>{ const n=MOVES[k].name; return /^[A-Z]-/.test(n) ? n : n.charAt(0).toLowerCase()+n.slice(1); });
+    if(rampSets(nex, sg).length || (nex.pair && rampSets(EX[nx.exIndex+1], suggestLoad(EX[nx.exIndex+1])).length)) names.push("séries de montée");
     extra = '<div class="next-sub">Avant : '+names.join(", ")+'.</div>';
-  } else if(!same && nex.levels){
+  } else if(!same && nx.setIndex===0 && nex.levels){
     extra = '<div class="next-sub">'+levelName(nex)+'</div>';
   }
   return '<div class="group next-card">'+
     '<div class="next-kicker">'+kicker+'</div>'+
     '<div class="next-title">'+nex.short+'</div>'+
-    (same ? '' : '<div class="next-muscle">'+nex.muscle+'</div>')+
+    (same || (alt && nx.setIndex>0) ? '' : '<div class="next-muscle">'+nex.muscle+'</div>')+
     '<div class="next-chips">'+chips+'</div>'+
     extra+
   '</div>';
@@ -1715,17 +1773,28 @@ function prepHtml(ex){
   return html;
 }
 function renderPrep(){
-  const ex=EX[state.exIndex];
+  const ex=EX[state.exIndex], b=ex.pair ? EX[state.exIndex+1] : null;
+  let body;
+  if(b){
+    // paire : la préparation des deux exercices sur la même page
+    body = [ex,b].filter(hasPrep).map(e=>'<h2 class="prep-ex">'+e.short+'</h2>'+prepHtml(e)).join("");
+  } else body = prepHtml(ex);
   screenEl.innerHTML =
     '<div class="scroll anim-in">'+
-      '<h1 class="title1">'+ex.name+'</h1>'+
-      '<div class="subtitle">Avant ta 1re série</div>'+
-      prepHtml(ex)+
+      '<h1 class="title1">'+(b ? ex.short+' et '+b.short : ex.name)+'</h1>'+
+      '<div class="subtitle">'+(b ? 'En alternance, prépare les deux avant ta 1re série' : 'Avant ta 1re série')+'</div>'+
+      body+
     '</div>'+
     '<div class="bottom-bar"><div class="bar-row">'+
       '<button class="btn" data-act="prep-done">Aller à la 1re série</button>'+
     '</div></div>';
 }
+/* Rappel de la paire sur l'écran d'effort. */
+function pairNote(exI){
+  const pt=partnerOf(exI); if(pt<0) return '';
+  return '<div class="pair-note">'+iconSwap()+'<span>En alternance avec <b>'+EX[pt].short+'</b></span></div>';
+}
+function iconSwap(){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4 3 8l4 4"/><path d="M3 8h14"/><path d="m17 20 4-4-4-4"/><path d="M21 16H7"/></svg>'; }
 function ringHTML(prefix, secs){
   // prefix: "rec", "hold" ou "st" (étirements)
   const target = secs!=null ? secs : (prefix==="hold" ? EX[state.exIndex].hold : EX[state.exIndex].rest);
