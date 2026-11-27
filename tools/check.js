@@ -36,8 +36,7 @@ try {
     "return (function(){" + src + "; return { PROGRAMS, setProgram, start, renderEffort, goRecovery, state, EX: () => EX," +
     " rampSets, sessionText, resume, warmupDone, stretchDone, skipSet, leaveSession, getActive, getHistory," +
     " renderWarmup, renderStretch, stretchStart, stretchTransition, prepHtml, STRETCHES, MOVES," +
-    " suggestLoad, loadLevels, saveLevel, renderHome, goEffort, hasPrep, renderPrep, exAny: exById," +
-    " ORDER: () => ORDER, restAfter, nextPointer, estimateMin, prepAt, partnerOf, finishRest, renderTopbar };})()"
+    " suggestLoad, loadLevels, saveLevel, renderHome, goEffort, hasPrep, renderPrep, exAny: exById };})()"
   )(doc, ls, {}, {});
 } catch (e) { fail("exécution du script : " + e.message); process.exit(1); }
 
@@ -51,12 +50,6 @@ for (const p of api.PROGRAMS) {
     if (!TYPES.includes(e.type)) fail(where + " : type inconnu " + e.type);
     if (!(e.sets > 0)) fail(where + " : sets manquant");
     if (!(e.rest > 0)) fail(where + " : rest manquant");
-    if (e.pair != null) {
-      const i = p.ex.indexOf(e), b = p.ex[i + 1];
-      if (!(e.pair > 0)) fail(where + " : pair doit être un repos en secondes");
-      if (!b) fail(where + " : pair sur le dernier exercice");
-      else if (b.pair != null) fail(where + " : le 2e exercice d'une paire ne peut pas ouvrir une autre paire");
-    }
     if (e.levels) {
       if (!e.techByLevel) fail(where + " : levels sans techByLevel");
       else if (e.techByLevel.length !== e.levels.length) fail(where + " : " + e.levels.length + " niveaux pour " + e.techByLevel.length + " fiches");
@@ -173,7 +166,7 @@ test("11 · page Préparation avant la 1re série, rien sur l'écran d'effort ni
   const keys = api.PROGRAMS.map((p) => p.ex.map((e) => e.prep || [])).flat(2).concat(api.STRETCHES.map((x) => x.move), ["deadBug"]);
   const items = keys.every((k) => M[k] && M[k].name && M[k].dose &&
     ["place", "move", "feel", "avoid"].every((f) => M[k].tech[f]) && !JSON.stringify(M[k]).includes("—"));
-  return same([pages, out, noRest, items], [{ C: [104, 103], A: [101, 116], B: [202, 201, 204] }, [true, "prep", "prep", 1, null], true, true]);
+  return same([pages, out, noRest, items], [{ C: [104, 202, 103], A: [101, 116], B: [202, 104, 201, 113, 209] }, [true, "prep", "prep", 1, "prep"], true, true]);
 });
 test("12b · texte de transition des étirements", () => {
   const S = api.STRETCHES, msgs = [];
@@ -204,7 +197,7 @@ test("13 · programme de la semaine", () => {
     e.id + ":" + e.sets + "x" + (e.type === "hold" ? e.hold + "s" : e.lo + "-" + e.hi) + "/" + e.rest);
   return same([api.PROGRAMS.map((p) => p.id + " " + p.label), plan("C"), plan("A"), plan("B")], [
     ["C Lundi", "A Mardi", "B Jeudi", "M Maison"],
-    ["104:4x4-6/120", "202:4x6-10/120", "103:3x8-10/120", "204:3x8-12/120", "301:3x12-15/60", "112:2x40s/60", "115:3x25s/90"],
+    ["104:4x4-6/120", "202:4x6-10/120", "103:3x8-10/120", "204:3x8-12/120", "301:3x12-15/60", "115:3x25s/90", "112:2x40s/60"],
     ["101:4x8-10/120", "116:3x8-10/120", "107:3x10-12/90", "208:4x15-20/45", "111:3x8-12/60", "205:3x25s/60"],
     ["202:3x6-10/120", "104:3x4-6/120", "201:3x8-10/90", "113:3x10-12/90", "204:3x8-12/120", "209:3x8-10/120", "115:3x25s/90", "112:2x40s/60"],
   ]);
@@ -311,58 +304,21 @@ test("23 · aperçu « À suivre » sur l'écran de repos", () => {
   fresh("B"); api.start(true); api.warmupDone("done"); api.goEffort();
   const text = () => screen.innerHTML.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
   const out = [];
-  api.goRecovery(); out.push(/En alternance · série 1 sur 3 Tractions assistées Dos · Bras 4–6 réps/.test(text()));
-  api.state.exIndex = 1; api.goRecovery(); out.push(/En alternance · série 2 sur 3 Dips assistés 6–10 réps assistance 25 kg \+15 s/.test(text()));
+  api.goRecovery(); out.push(/Série 2 sur 3 Dips assistés 6–10 réps assistance 25 kg \+15 s/.test(text()));
   api.state.setIndex = 2; api.goRecovery();
-  out.push(/Exercice 3 sur 8 · préparation d'abord Fentes bulgares/.test(text()), /Avant : séries de montée\./.test(text()));
+  out.push(/Exercice 2 sur 8 · préparation d'abord Tractions assistées/.test(text()), /Avant : tractions scapulaires\./.test(text()));
   const ex = api.EX(); api.state.exIndex = ex.length - 1; api.state.setIndex = ex[ex.length - 1].sets - 1; api.goRecovery();
   out.push(/Fin de séance Étirements/.test(text()));
   fresh("A"); api.start(true); api.warmupDone("done"); api.goEffort(); api.state.setIndex = 3; api.goRecovery();
   out.push(/Soulevé de terre roumain .* 8–10 réps 10 kg Avant : séries de montée\./.test(text()));
-  return same(out, [true, true, true, true, true, true]);
-});
-test("24 · séries alternées : ordre, repos et progression", () => {
-  reset();
-  const seq = (id) => { fresh(id); return api.ORDER().map((p) => api.EX()[p.exIndex].id + "." + (p.setIndex + 1)).join(" "); };
-  const rests = () => api.ORDER().map((p) => api.restAfter(p.exIndex, p.setIndex));
-  const out = [seq("C")];
-  out.push(rests().join(","));
-  out.push(seq("A"));
-  out.push(rests().slice(6, 14).join(","));
-  out.push(seq("B").split(" ").slice(0, 8).join(" "));
-  // l'écran d'effort affiche le repos de la paire, l'écran de repos le chronomètre
-  fresh("C"); api.start(true); api.warmupDone("done"); api.goEffort();
-  out.push(/Repos 1:00/.test(screen.innerHTML.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ")), /En alternance avec <b>Dips assistés/.test(screen.innerHTML));
-  api.goRecovery(); api.finishRest();
-  out.push(api.state.exIndex, api.state.setIndex, api.state.phase);
-  return same(out, [
-    "104.1 202.1 104.2 202.2 104.3 202.3 104.4 202.4 103.1 204.1 103.2 204.2 103.3 204.3 301.1 112.1 301.2 112.2 301.3 115.1 115.2 115.3",
-    "60,60,60,60,60,60,60,120,60,60,60,60,60,120,45,45,45,45,60,90,90,90",
-    "101.1 101.2 101.3 101.4 116.1 116.2 116.3 107.1 208.1 107.2 208.2 107.3 208.3 208.4 111.1 111.2 111.3 205.1 205.2 205.3",
-    "120,45,45,45,45,45,45,45",
-    "202.1 104.1 202.2 104.2 202.3 104.3 201.1 113.1",
-    true, true, 1, 0, "effort",
-  ]);
-});
-test("25 · séries alternées : une page de préparation par paire, reprise et durée", () => {
-  reset();
-  fresh("B"); api.start(true); api.warmupDone("done");
-  const page = screen.innerHTML;
-  const out = [api.state.phase, /Dips assistés et Tractions assistées/.test(page), /Tractions scapulaires/.test(page),
-    api.prepAt(1, 0), api.prepAt(2, 0), api.prepAt(4, 0), api.partnerOf(5), api.partnerOf(6)];
-  // quitter pendant le repos de la dernière série de la paire : reprise sur la préparation de la paire suivante
-  api.goEffort(); api.state.exIndex = 1; api.state.setIndex = 2; api.goRecovery(); api.leaveSession();
-  out.push(api.getActive().exIndex, api.getActive().phase);
-  const est = {}; for (const id of ["C", "A", "B"]) { fresh(id); est[id] = api.estimateMin(); }
-  out.push([est.C, est.A, est.B].join(" "));
-  return same(out, ["prep", true, true, false, true, true, 4, -1, 2, "prep", "69 67 78"]);
+  return same(out, [true, true, true, true, true]);
 });
 
 if (errors) { console.error("\n" + errors + " erreur(s)."); process.exit(1); }
-console.log("OK  " + tests + " tests (échauffement, étirements, semaine en 3 séances, séries alternées)");
+console.log("OK  " + tests + " tests (échauffement, étirements, semaine en 3 séances)");
 for (const p of api.PROGRAMS) {
   const sets = p.ex.reduce((s, e) => s + e.sets, 0);
-  api.setProgram(p.id); const min = api.estimateMin();
+  const min = Math.round(p.ex.reduce((s, e) => s + e.sets * (e.rest + 35) + 180, 0) / 60);
   console.log("OK  " + p.label.padEnd(9) + " " + String(p.ex.length).padStart(2) + " exercices, " + sets + " séries, ~" + min + " min");
 }
 process.exit(0);
